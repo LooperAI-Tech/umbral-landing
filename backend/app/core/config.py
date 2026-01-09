@@ -31,6 +31,11 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
 
+    # OpenRouter (unified AI API)
+    OPENROUTER_API_KEY: str = ""
+    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
+    OPENROUTER_APP_NAME: str = "Umbral EdTech"
+
     # Vector Database
     CHROMA_PERSIST_DIRECTORY: str = "./chroma_db"
 

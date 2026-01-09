@@ -34,8 +34,8 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     last_login_at = Column(DateTime, nullable=True)
 
-    # Relationships (will be added as we create other models)
-    # chat_sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
+    # Relationships
+    chat_sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
     # user_progress = relationship("UserProgress", back_populates="user", cascade="all, delete-orphan")
     # learning_paths = relationship("LearningPath", back_populates="user", cascade="all, delete-orphan")
 

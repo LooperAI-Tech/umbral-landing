@@ -41,14 +41,17 @@ async def health_check():
 
 # Include routers
 from app.api.webhooks import clerk as clerk_webhooks
+from app.api.routes import chat, concepts
 
 # Webhooks
 app.include_router(clerk_webhooks.router, prefix="/webhooks", tags=["webhooks"])
 
-# API routes (will be added as we create them)
-# from app.api.routes import chat, concepts, progress, export, learning_paths, assessments
-# app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
-# app.include_router(concepts.router, prefix="/api/concepts", tags=["concepts"])
+# API routes
+app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+app.include_router(concepts.router, prefix="/api/concepts", tags=["concepts"])
+
+# Future routes (will be added as we create them)
+# from app.api.routes import progress, export, learning_paths, assessments
 # app.include_router(progress.router, prefix="/api/progress", tags=["progress"])
 # app.include_router(export.router, prefix="/api/export", tags=["export"])
 # app.include_router(learning_paths.router, prefix="/api/learning-paths", tags=["learning-paths"])
