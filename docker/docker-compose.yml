@@ -1,0 +1,116 @@
+# docker-compose.yml
+# Development environment for Umbral EdTech
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: umbral-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-umbral}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-umbral_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-umbral_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-umbral} -d ${POSTGRES_DB:-umbral_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - umbral-network
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: ../backend
+      dockerfile: ../docker/backend/Dockerfile.dev
+    container_name: umbral-backend
+    environment:
+      # Database - use service name 'postgres' as host
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-umbral}:${POSTGRES_PASSWORD:-umbral_dev_password}@postgres:5432/${POSTGRES_DB:-umbral_db}
+      # Application
+      APP_NAME: ${APP_NAME:-Umbral EdTech API}
+      DEBUG: ${DEBUG:-true}
+      # CORS - allow frontend container
+      CORS_ORIGINS: '["http://localhost:3000", "http://frontend:3000"]'
+      # Authentication (from .env)
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY:-}
+      CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY:-}
+      # AI Keys (from .env)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Vector DB
+      CHROMA_PERSIST_DIRECTORY: /app/chroma_db
+      # Security
+      SECRET_KEY: ${SECRET_KEY:-docker-dev-secret-key-change-in-production}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      # API Configuration
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-60}
+      DEFAULT_AI_MODEL: ${DEFAULT_AI_MODEL:-gpt-4}
+      MAX_TOKENS_PER_REQUEST: ${MAX_TOKENS_PER_REQUEST:-4000}
+      AI_TEMPERATURE: ${AI_TEMPERATURE:-0.7}
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount source code for hot-reload
+      - ../backend:/app
+      # Persist chroma_db
+      - backend_chroma:/app/chroma_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+    networks:
+      - umbral-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../docker/frontend/Dockerfile.dev
+    container_name: umbral-frontend
+    environment:
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: 1
+      # API URL - use localhost for browser access
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_WS_URL: ws://localhost:8000
+      # Clerk keys (from .env)
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${CLERK_PUBLISHABLE_KEY:-}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY:-}
+    ports:
+      - "3000:3000"
+    volumes:
+      # Mount source code for hot-reload
+      - ../frontend:/app
+      # Anonymous volume to preserve node_modules from container
+      - /app/node_modules
+      # Mount .next for faster rebuilds
+      - frontend_next:/app/.next
+    depends_on:
+      - backend
+    networks:
+      - umbral-network
+
+volumes:
+  postgres_data:
+    name: umbral-postgres-data
+  backend_chroma:
+    name: umbral-backend-chroma
+  frontend_next:
+    name: umbral-frontend-next
+
+networks:
+  umbral-network:
+    name: umbral-network
+    driver: bridge
