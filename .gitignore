@@ -209,3 +209,4 @@ __marimo__/
 # Docker
 docker/.env
 docker/docker-compose.override.yml
+CLAUDE.md

@@ -18,18 +18,10 @@ python-dotenv
 python-jose[cryptography]
 passlib[bcrypt]
 bcrypt
+svix
 
-# AI Models
-openai
-anthropic
-litellm
-
-# Vector Database
-chromadb
-
-# WebSocket
-python-socketio
-python-engineio
+# AI (Google Gemini)
+google-genai
 
 # HTTP Client
 httpx

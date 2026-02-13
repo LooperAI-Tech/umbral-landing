@@ -23,21 +23,15 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/umbral_db"
 
-    # Authentication
+    # Authentication (Clerk)
     CLERK_SECRET_KEY: str = ""
     CLERK_PUBLISHABLE_KEY: str = ""
 
-    # AI Models
-    OPENAI_API_KEY: str = ""
-    ANTHROPIC_API_KEY: str = ""
-
-    # OpenRouter (unified AI API)
-    OPENROUTER_API_KEY: str = ""
-    OPENROUTER_BASE_URL: str = "https://openrouter.ai/api/v1"
-    OPENROUTER_APP_NAME: str = "Umbral EdTech"
-
-    # Vector Database
-    CHROMA_PERSIST_DIRECTORY: str = "./chroma_db"
+    # AI (Google Gemini)
+    GEMINI_API_KEY: str = ""
+    GEMINI_MODEL: str = "gemini-2.0-flash"
+    MAX_TOKENS_PER_REQUEST: int = 4000
+    AI_TEMPERATURE: float = 0.7
 
     # Security
     SECRET_KEY: str = "your-secret-key-change-this-in-production"
@@ -47,10 +41,8 @@ class Settings(BaseSettings):
     # API Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = 60
 
-    # AI Configuration
-    DEFAULT_AI_MODEL: str = "gpt-4"
-    MAX_TOKENS_PER_REQUEST: int = 4000
-    AI_TEMPERATURE: float = 0.7
+    # AWS
+    AWS_REGION: str = "us-east-1"
 
     model_config = SettingsConfigDict(
         env_file=".env",
