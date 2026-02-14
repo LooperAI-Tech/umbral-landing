@@ -1,79 +1,108 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function DashboardPage() {
-  const { userId } = await auth();
+import { useEffect } from "react";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { useDashboardStore } from "@/stores/dashboardStore";
+import { useProjectStore } from "@/stores/projectStore";
+import { StatsGrid } from "@/components/dashboard/stats-grid";
+import { ProjectCard } from "@/components/dashboard/project-card";
+import { ActivityFeed } from "@/components/dashboard/activity-feed";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
-  if (!userId) {
-    redirect("/sign-in");
-  }
+export default function DashboardPage() {
+  const { stats, activities, isLoading: statsLoading, fetchStats, fetchActivity } =
+    useDashboardStore();
+  const { projects, isLoading: projectsLoading, fetchProjects } =
+    useProjectStore();
+
+  useEffect(() => {
+    fetchStats();
+    fetchActivity(10);
+    fetchProjects();
+  }, [fetchStats, fetchActivity, fetchProjects]);
 
   return (
     <div className="space-y-8">
-      {/* Welcome section */}
-      <div>
-        <h1 className="text-2xl font-display font-bold text-foreground">
-          Welcome back
-        </h1>
-        <p className="text-muted-foreground font-mono text-sm mt-1">
-          Your AI Learning Vault overview
-        </p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-display font-bold text-foreground">
+            Dashboard
+          </h1>
+          <p className="text-muted-foreground font-mono text-sm mt-1">
+            Your AI Learning Vault overview
+          </p>
+        </div>
+        <Button variant="gradient" asChild>
+          <Link href="/dashboard/projects/new">
+            <Plus className="w-4 h-4" />
+            New Project
+          </Link>
+        </Button>
       </div>
 
-      {/* Stats placeholder - will be built in Phase 5 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Projects", value: "--" },
-          { label: "Milestones", value: "--" },
-          { label: "Tasks", value: "--" },
-          { label: "Learnings", value: "--" },
-        ].map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-card border border-border rounded-lg p-4 glow-hover transition-all"
-          >
-            <span className="font-mono text-xs text-brand-skyblue uppercase tracking-wider">
-              {stat.label}
-            </span>
-            <div className="text-3xl font-bold text-foreground font-mono mt-2">
-              {stat.value}
-            </div>
+      {/* Stats */}
+      {statsLoading || !stats ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-24 rounded-lg" />
+          ))}
+        </div>
+      ) : (
+        <StatsGrid stats={stats} />
+      )}
+
+      {/* Projects + Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Projects list */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground">
+              Active Projects
+            </h2>
+            <Link
+              href="/dashboard/projects"
+              className="text-sm text-brand-skyblue hover:underline font-mono"
+            >
+              View all
+            </Link>
           </div>
-        ))}
-      </div>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[
-          {
-            title: "Projects",
-            description: "Track your AI/ML project ideas and progress",
-            href: "/dashboard/projects",
-          },
-          {
-            title: "Learnings",
-            description: "Document concepts, patterns, and insights",
-            href: "/dashboard/learnings",
-          },
-          {
-            title: "AI Assistant",
-            description: "Get help from your context-aware AI tutor",
-            href: "/dashboard/assistant",
-          },
-        ].map((card) => (
-          <a
-            key={card.title}
-            href={card.href}
-            className="bg-card border border-border rounded-lg p-6 glow-hover transition-all group"
-          >
-            <h3 className="text-lg font-semibold text-foreground group-hover:text-brand-skyblue transition-colors">
-              {card.title}
-            </h3>
-            <p className="text-muted-foreground text-sm mt-2">
-              {card.description}
-            </p>
-          </a>
-        ))}
+          {projectsLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-32 rounded-lg" />
+              ))}
+            </div>
+          ) : projects.length === 0 ? (
+            <div className="bg-card border border-border rounded-lg p-8 text-center">
+              <p className="text-muted-foreground mb-4">
+                No projects yet. Start tracking your AI journey!
+              </p>
+              <Button variant="gradient" asChild>
+                <Link href="/dashboard/projects/new">Create Your First Project</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {projects.slice(0, 4).map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Activity feed */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">
+            Recent Activity
+          </h2>
+          <div className="bg-card border border-border rounded-lg p-4">
+            <ActivityFeed activities={activities} />
+          </div>
+        </div>
       </div>
     </div>
   );
