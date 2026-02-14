@@ -32,7 +32,7 @@ export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {
                 : "bg-secondary text-muted-foreground hover:text-foreground border border-transparent"
             )}
           >
-            {cat === "ALL" ? "All" : cat.replace(/_/g, " ")}
+            {cat === "ALL" ? "Todas" : cat.replace(/_/g, " ")}
           </button>
         );
       })}

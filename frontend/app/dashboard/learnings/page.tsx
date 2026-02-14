@@ -48,22 +48,22 @@ export default function LearningsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-display font-bold text-foreground">
-            Learnings
+            Aprendizajes
           </h1>
           <p className="text-muted-foreground font-mono text-sm mt-1">
-            {total} documented insights
+            {total} ideas documentadas
           </p>
         </div>
         <Button variant="gradient" onClick={() => setShowForm(!showForm)}>
           <Plus className="w-4 h-4" />
-          New Learning
+          Nuevo Aprendizaje
         </Button>
       </div>
 
       {showForm && (
         <div className="bg-card border border-border rounded-lg p-6">
           <h2 className="text-lg font-semibold text-foreground mb-4">
-            Document a Learning
+            Documentar un Aprendizaje
           </h2>
           <LearningForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />
         </div>
@@ -76,7 +76,7 @@ export default function LearningsPage() {
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search learnings..."
+            placeholder="Buscar aprendizajes..."
             className="pl-9"
           />
         </div>
@@ -94,8 +94,8 @@ export default function LearningsPage() {
         <div className="bg-card border border-border rounded-lg p-12 text-center">
           <p className="text-muted-foreground">
             {query || category
-              ? "No learnings match your filters"
-              : "No learnings documented yet. Start building your knowledge vault!"}
+              ? "Ningún aprendizaje coincide con tus filtros"
+              : "Aún no hay aprendizajes documentados! Empieza a construir tu bóveda de conocimiento!"}
           </p>
         </div>
       ) : (

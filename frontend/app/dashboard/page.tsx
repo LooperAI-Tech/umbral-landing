@@ -1,27 +1,87 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Rocket, BookOpen } from "lucide-react";
 import { useDashboardStore } from "@/stores/dashboardStore";
 import { useProjectStore } from "@/stores/projectStore";
 import { StatsGrid } from "@/components/dashboard/stats-grid";
 import { ProjectCard } from "@/components/dashboard/project-card";
-import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { dashboardApi } from "@/lib/api/dashboard";
+import { learningsApi } from "@/lib/api/learnings";
+import type { Deployment, Learning } from "@/types";
+
+const EMPTY_STATS = {
+  total_projects: 0,
+  active_projects: 0,
+  completed_projects: 0,
+  total_milestones: 0,
+  completed_milestones: 0,
+  total_tasks: 0,
+  completed_tasks: 0,
+  total_deployments: 0,
+  total_learnings: 0,
+  current_streak: 0,
+};
+
+const statusVariant: Record<string, "default" | "warning" | "success" | "secondary" | "info"> = {
+  ACTIVE: "success",
+  PREPARING: "warning",
+  DEPLOYING: "warning",
+  DEPRECATED: "secondary",
+  ROLLED_BACK: "default",
+  FAILED: "default",
+};
 
 export default function DashboardPage() {
-  const { stats, activities, isLoading: statsLoading, fetchStats, fetchActivity } =
-    useDashboardStore();
-  const { projects, isLoading: projectsLoading, fetchProjects } =
-    useProjectStore();
+  const {
+    stats,
+    isLoading: statsLoading,
+    fetchStats,
+  } = useDashboardStore();
+  const {
+    projects,
+    isLoading: projectsLoading,
+    error: projectsError,
+    fetchProjects,
+  } = useProjectStore();
+
+  const [recentDeployments, setRecentDeployments] = useState<Deployment[]>([]);
+  const [deploymentsLoaded, setDeploymentsLoaded] = useState(false);
+  const [recentLearnings, setRecentLearnings] = useState<Learning[]>([]);
+  const [learningsLoaded, setLearningsLoaded] = useState(false);
+
+  const loadDeployments = useCallback(async () => {
+    try {
+      const data = await dashboardApi.getRecentDeployments(5);
+      setRecentDeployments(data);
+    } catch {
+      /* silent */
+    }
+    setDeploymentsLoaded(true);
+  }, []);
+
+  const loadLearnings = useCallback(async () => {
+    try {
+      const data = await learningsApi.list({ limit: 6 });
+      setRecentLearnings(data.learnings);
+    } catch {
+      /* silent */
+    }
+    setLearningsLoaded(true);
+  }, []);
 
   useEffect(() => {
     fetchStats();
-    fetchActivity(10);
     fetchProjects();
-  }, [fetchStats, fetchActivity, fetchProjects]);
+    loadDeployments();
+    loadLearnings();
+  }, [fetchStats, fetchProjects, loadDeployments, loadLearnings]);
+
+  const displayStats = stats || (!statsLoading ? EMPTY_STATS : null);
 
   return (
     <div className="space-y-8">
@@ -29,81 +89,185 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-display font-bold text-foreground">
-            Dashboard
+            Panel
           </h1>
           <p className="text-muted-foreground font-mono text-sm mt-1">
-            Your AI Learning Vault overview
+            Resumen de tu B&oacute;veda de Aprendizaje en IA
           </p>
         </div>
         <Button variant="gradient" asChild>
           <Link href="/dashboard/projects/new">
             <Plus className="w-4 h-4" />
-            New Project
+            Nuevo Proyecto
           </Link>
         </Button>
       </div>
 
       {/* Stats */}
-      {statsLoading || !stats ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+      {statsLoading && !displayStats ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-24 rounded-lg" />
           ))}
         </div>
       ) : (
-        <StatsGrid stats={stats} />
+        <StatsGrid stats={displayStats || EMPTY_STATS} />
       )}
 
-      {/* Projects + Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Projects list */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">
-              Active Projects
-            </h2>
-            <Link
-              href="/dashboard/projects"
-              className="text-sm text-brand-skyblue hover:underline font-mono"
-            >
-              View all
-            </Link>
-          </div>
-
-          {projectsLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-32 rounded-lg" />
-              ))}
-            </div>
-          ) : projects.length === 0 ? (
-            <div className="bg-card border border-border rounded-lg p-8 text-center">
-              <p className="text-muted-foreground mb-4">
-                No projects yet. Start tracking your AI journey!
-              </p>
-              <Button variant="gradient" asChild>
-                <Link href="/dashboard/projects/new">Create Your First Project</Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {projects.slice(0, 4).map((project) => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
-            </div>
-          )}
+      {/* Projects */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground">Proyectos</h2>
+          <Link
+            href="/dashboard/projects"
+            className="text-sm text-brand-skyblue hover:underline font-mono"
+          >
+            Ver todo
+          </Link>
         </div>
 
-        {/* Activity feed */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-foreground">
-            Recent Activity
+        {projectsLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 rounded-lg" />
+            ))}
+          </div>
+        ) : projectsError ? (
+          <div className="bg-card border border-border rounded-lg p-8 text-center">
+            <p className="text-muted-foreground">
+              No se pudieron cargar los proyectos. Asegúrate de que el backend esté corriendo.
+            </p>
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="bg-card border border-border rounded-lg p-8 text-center">
+            <p className="text-muted-foreground mb-4">
+Aún no hay proyectos! Empieza a construir tu camino en IA!
+            </p>
+            <Button variant="gradient" asChild>
+              <Link href="/dashboard/projects/new">
+                Crea Tu Primer Proyecto
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projects.map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Recent Deployments */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <Rocket className="w-5 h-5 text-brand-skyblue" />
+            Despliegues Recientes
           </h2>
-          <div className="bg-card border border-border rounded-lg p-4">
-            <ActivityFeed activities={activities} />
-          </div>
         </div>
-      </div>
+
+        {!deploymentsLoaded ? (
+          <div className="space-y-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-16 rounded-lg" />
+            ))}
+          </div>
+        ) : recentDeployments.length === 0 ? (
+          <div className="bg-card border border-border rounded-lg p-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              Aún no hay despliegues. Despliega una versión de tu proyecto para verla aquí.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {recentDeployments.map((dep) => (
+              <div
+                key={dep.id}
+                className="bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-sm text-brand-skyblue font-semibold">
+                    v{dep.version}
+                  </span>
+                  <span className="text-sm text-muted-foreground">
+                    {dep.environment}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Badge variant={statusVariant[dep.status] || "secondary"}>
+                    {dep.status}
+                  </Badge>
+                  <span className="text-xs text-muted-foreground font-mono">
+                    {new Date(dep.deploy_date).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Recent Learnings */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-community-yellow" />
+            Aprendizajes Recientes
+          </h2>
+          <Link
+            href="/dashboard/learnings"
+            className="text-sm text-brand-skyblue hover:underline font-mono"
+          >
+            Ver todo
+          </Link>
+        </div>
+
+        {!learningsLoaded ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-24 rounded-lg" />
+            ))}
+          </div>
+        ) : recentLearnings.length === 0 ? (
+          <div className="bg-card border border-border rounded-lg p-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              Aún no hay aprendizajes documentados.{" "}
+              <Link
+                href="/dashboard/learnings"
+                className="text-brand-skyblue hover:underline"
+              >
+                Empieza a documentar
+              </Link>{" "}
+              lo que aprendes.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recentLearnings.map((learning) => (
+              <div
+                key={learning.id}
+                className="bg-card border border-border rounded-lg p-4 glow-hover transition-all"
+              >
+                <h4 className="text-sm font-semibold text-foreground mb-1">
+                  {learning.concept}
+                </h4>
+                <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                  {learning.what_learned}
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-community-yellow bg-community-yellow/10 px-2 py-0.5 rounded-full">
+                    {learning.category.replace(/_/g, " ")}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-mono">
+                    {new Date(learning.date_learned).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

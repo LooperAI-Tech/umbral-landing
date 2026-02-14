@@ -13,7 +13,7 @@ from app.services.ai_service import AIService
 from app.schemas.chat import (
     ChatSessionCreate, ChatSessionUpdate,
     ChatSessionResponse, ChatSessionWithMessagesResponse,
-    ChatMessageResponse, SendMessageRequest,
+    ChatMessageResponse, ChatMessageWithActionResponse, SendMessageRequest,
     ExtractLearningRequest, ExtractLearningResponse, ExtractedLearning,
 )
 
@@ -84,7 +84,7 @@ async def delete_chat_session(
     return None
 
 
-@router.post("/sessions/{session_id}/messages", response_model=ChatMessageResponse)
+@router.post("/sessions/{session_id}/messages", response_model=ChatMessageWithActionResponse)
 async def send_message(
     session_id: str,
     message: SendMessageRequest,
@@ -92,10 +92,14 @@ async def send_message(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        ai_message = await ChatService.process_user_message(
+        ai_message, action_info = await ChatService.process_user_message(
             db, session_id, user_id, message.content,
         )
-        return ai_message
+        response = ChatMessageWithActionResponse.model_validate(ai_message)
+        if action_info:
+            response.action = action_info.get("action")
+            response.action_data = action_info.get("action_data")
+        return response
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 

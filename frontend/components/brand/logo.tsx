@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { PRODUCT_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -16,14 +17,15 @@ export function Logo({ size = "md", className }: LogoProps) {
   };
 
   return (
-    <span
+    <Link
+      href="/dashboard"
       className={cn(
-        "font-display font-bold tracking-tight text-gradient-brand",
+        "font-display font-bold tracking-tight text-gradient-brand hover:opacity-80 transition-opacity",
         sizeStyles[size],
         className
       )}
     >
       {PRODUCT_NAME}
-    </span>
+    </Link>
   );
 }

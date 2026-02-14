@@ -20,8 +20,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Umbral - Your AI Learning Vault",
-  description: "Track your AI/ML learning journey through hands-on project building",
+  title: "Umbral - Tu Bóveda de Aprendizaje IA",
+  description: "Rastrea tu camino de aprendizaje en IA/ML construyendo proyectos reales",
 };
 
 export default function RootLayout({
@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider appearance={{ baseTheme: dark }}>
-      <html lang="en" className="dark">
+      <html lang="es" className="dark">
         <body
           className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} antialiased`}
         >

@@ -20,6 +20,7 @@ class ChatSession(Base):
     # Session info
     title = Column(String(255), nullable=True)
     status = Column(String(20), default="active", nullable=False)
+    session_type = Column(String(50), default="general", nullable=False)
     total_messages = Column(Integer, default=0, nullable=False)
     total_tokens = Column(Integer, default=0, nullable=False)
 

@@ -27,7 +27,7 @@ class ChatSessionBase(BaseModel):
 
 # Create schemas
 class ChatSessionCreate(ChatSessionBase):
-    pass
+    session_type: Optional[str] = "general"
 
 
 class ChatMessageCreate(ChatMessageBase):
@@ -62,6 +62,7 @@ class ChatSessionResponse(ChatSessionBase):
     id: str
     user_id: str
     status: str
+    session_type: str = "general"
     total_messages: int
     total_tokens: int
     created_at: datetime
@@ -70,6 +71,11 @@ class ChatSessionResponse(ChatSessionBase):
 
     class Config:
         from_attributes = True
+
+
+class ChatMessageWithActionResponse(ChatMessageResponse):
+    action: Optional[str] = None
+    action_data: Optional[dict] = None
 
 
 class ChatSessionWithMessagesResponse(ChatSessionResponse):

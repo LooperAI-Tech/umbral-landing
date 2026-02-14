@@ -3,11 +3,12 @@ Alembic environment configuration for async database migrations
 """
 
 import asyncio
+import ssl
 from logging.config import fileConfig
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
+from sqlalchemy.ext.asyncio import create_async_engine
 
 from alembic import context # type: ignore
 
@@ -20,6 +21,13 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app.core.config import settings
 from app.core.database import Base
+
+
+def _create_ssl_context():
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+    return ctx
 
 # Import all models to ensure they are registered with Base.metadata
 from app.models import *  # noqa: F401,F403
@@ -81,11 +89,30 @@ async def run_async_migrations() -> None:
     """
     Run migrations in 'online' mode with async engine
     """
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    from urllib.parse import urlparse
+
+    url = settings.DATABASE_URL
+    parsed = urlparse(url)
+
+    if parsed.hostname and "supabase" in parsed.hostname:
+        connectable = create_async_engine(
+            "postgresql+asyncpg://",
+            poolclass=pool.NullPool,
+            connect_args={
+                "host": parsed.hostname,
+                "port": parsed.port or 6543,
+                "user": parsed.username,
+                "password": parsed.password,
+                "database": parsed.path.lstrip("/") or "postgres",
+                "ssl": _create_ssl_context(),
+                "statement_cache_size": 0,
+            },
+        )
+    else:
+        connectable = create_async_engine(
+            url,
+            poolclass=pool.NullPool,
+        )
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)

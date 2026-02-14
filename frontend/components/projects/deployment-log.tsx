@@ -55,10 +55,10 @@ export function DeploymentLog({ projectId }: { projectId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-foreground">Deployments</h3>
+        <h3 className="text-base font-semibold text-foreground">Despliegues</h3>
         <Button variant="secondary" size="sm" onClick={() => setShowForm(!showForm)}>
           <Plus className="w-4 h-4" />
-          Log Deploy
+          Registrar Despliegue
         </Button>
       </div>
 
@@ -66,7 +66,7 @@ export function DeploymentLog({ projectId }: { projectId: string }) {
 
       {deployments.length === 0 ? (
         <p className="text-sm text-muted-foreground font-mono py-4">
-          No deployments logged yet
+          Aún no hay despliegues registrados
         </p>
       ) : (
         <div className="space-y-3">
@@ -150,12 +150,12 @@ function DeploymentForm({
       <Input
         value={form.release_notes}
         onChange={(e) => setForm({ ...form, release_notes: e.target.value })}
-        placeholder="Release notes"
+        placeholder="Notas de la versión"
       />
       <Input
         value={form.access_url}
         onChange={(e) => setForm({ ...form, access_url: e.target.value })}
-        placeholder="Access URL (optional)"
+        placeholder="URL de acceso (opcional)"
       />
       <div className="flex gap-2">
         <Button
@@ -168,10 +168,10 @@ function DeploymentForm({
             })
           }
         >
-          Log Deployment
+          Registrar Despliegue
         </Button>
         <Button size="sm" variant="ghost" onClick={onCancel}>
-          Cancel
+          Cancelar
         </Button>
       </div>
     </div>

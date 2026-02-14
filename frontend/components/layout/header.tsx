@@ -10,11 +10,11 @@ interface HeaderProps {
 }
 
 const routeTitles: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/dashboard/projects": "Projects",
-  "/dashboard/learnings": "Learnings",
-  "/dashboard/assistant": "AI Assistant",
-  "/dashboard/settings": "Settings",
+  "/dashboard": "Panel",
+  "/dashboard/projects": "Proyectos",
+  "/dashboard/learnings": "Aprendizajes",
+  "/dashboard/assistant": "Asistente IA",
+  "/dashboard/settings": "Configuración",
 };
 
 export function Header({ onMenuClick, className }: HeaderProps) {
@@ -22,8 +22,8 @@ export function Header({ onMenuClick, className }: HeaderProps) {
 
   const getTitle = () => {
     if (routeTitles[pathname]) return routeTitles[pathname];
-    if (pathname.startsWith("/dashboard/projects/")) return "Project Details";
-    return "Dashboard";
+    if (pathname.startsWith("/dashboard/projects/")) return "Detalle del Proyecto";
+    return "Panel";
   };
 
   const getBreadcrumb = () => {

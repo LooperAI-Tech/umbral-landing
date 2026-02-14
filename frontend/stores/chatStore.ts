@@ -38,7 +38,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const sessions = await chatApi.listSessions("active", 100);
       set({ sessions, isLoading: false });
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Failed to fetch sessions";
+      const msg = error instanceof Error ? error.message : "No se pudieron cargar las sesiones";
       set({ error: msg, isLoading: false });
     }
   },
@@ -55,7 +55,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }));
       return session;
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Failed to create session";
+      const msg = error instanceof Error ? error.message : "No se pudo crear la sesión";
       set({ error: msg, isLoading: false });
       throw error;
     }
@@ -71,7 +71,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         isLoading: false,
       });
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Failed to load session";
+      const msg = error instanceof Error ? error.message : "No se pudo cargar la sesión";
       set({ error: msg, isLoading: false });
     }
   },
@@ -79,7 +79,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sendMessage: async (content: string) => {
     const { currentSession } = get();
     if (!currentSession) {
-      set({ error: "No active session" });
+      set({ error: "No hay sesión activa" });
       return;
     }
 
@@ -112,7 +112,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     } catch (error: unknown) {
       set((state) => ({
         messages: state.messages.filter((msg) => msg.id !== userMessage.id),
-        error: error instanceof Error ? error.message : "Failed to send message",
+        error: error instanceof Error ? error.message : "No se pudo enviar el mensaje",
         isSending: false,
       }));
     }
@@ -131,7 +131,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           state.currentSession?.id === sessionId ? [] : state.messages,
       }));
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Failed to delete session";
+      const msg = error instanceof Error ? error.message : "No se pudo eliminar la sesión";
       set({ error: msg });
     }
   },
@@ -149,7 +149,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             : state.currentSession,
       }));
     } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : "Failed to update title";
+      const msg = error instanceof Error ? error.message : "No se pudo actualizar el título";
       set({ error: msg });
     }
   },

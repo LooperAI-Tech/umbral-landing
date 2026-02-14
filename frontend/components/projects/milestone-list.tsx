@@ -55,10 +55,10 @@ export function MilestoneList({ projectId }: { projectId: string }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-foreground">Milestones</h3>
+        <h3 className="text-base font-semibold text-foreground">Hitos</h3>
         <Button variant="secondary" size="sm" onClick={() => setShowForm(!showForm)}>
           <Plus className="w-4 h-4" />
-          Add
+          Agregar
         </Button>
       </div>
 
@@ -66,7 +66,7 @@ export function MilestoneList({ projectId }: { projectId: string }) {
 
       {milestones.length === 0 ? (
         <p className="text-sm text-muted-foreground font-mono py-4">
-          No milestones yet
+          Aún no hay hitos
         </p>
       ) : (
         <div className="space-y-3">
@@ -113,17 +113,17 @@ function MilestoneForm({
       <Input
         value={form.name}
         onChange={(e) => setForm({ ...form, name: e.target.value })}
-        placeholder="Milestone name"
+        placeholder="Nombre del hito"
       />
       <Input
         value={form.deliverable}
         onChange={(e) => setForm({ ...form, deliverable: e.target.value })}
-        placeholder="What will be delivered?"
+        placeholder="¿Qué se entregará?"
       />
       <Input
         value={form.success_criteria}
         onChange={(e) => setForm({ ...form, success_criteria: e.target.value })}
-        placeholder="How do you know it's done?"
+        placeholder="¿Cómo sabes que está terminado?"
       />
       <div className="flex gap-2">
         <Button
@@ -132,10 +132,10 @@ function MilestoneForm({
           onClick={() => onSubmit(form)}
           disabled={!form.name || !form.deliverable || !form.success_criteria}
         >
-          Create
+          Crear
         </Button>
         <Button size="sm" variant="ghost" onClick={onCancel}>
-          Cancel
+          Cancelar
         </Button>
       </div>
     </div>

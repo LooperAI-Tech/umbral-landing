@@ -3,14 +3,39 @@ Umbral - AI Learning Vault Platform
 FastAPI Backend Entry Point
 """
 
+import logging
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
+from app.core.database import check_db_connection, close_db
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    logger.info("Starting Umbral API...")
+    connected = await check_db_connection()
+    if not connected:
+        logger.warning(
+            "Could not connect to database. Check DATABASE_URL in .env. "
+            "API will start but database-dependent routes will fail."
+        )
+    # Yield control to the application
+    yield
+    # Shutdown
+    await close_db()
+    logger.info("Umbral API shut down.")
+
 
 app = FastAPI(
     title="Umbral API",
     description="AI Learning Vault - Your AI PlayGrounds project tracker",
     version="0.2.0",
+    lifespan=lifespan,
 )
 
 # Configure CORS

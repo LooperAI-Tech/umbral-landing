@@ -113,6 +113,22 @@ class DashboardService:
         )
 
     @staticmethod
+    async def get_recent_deployments(
+        db: AsyncSession, user_id: str, limit: int = 5
+    ) -> List[Deployment]:
+        result = await db.execute(
+            select(Deployment)
+            .where(
+                Deployment.project_id.in_(
+                    select(Project.id).where(Project.user_id == user_id)
+                )
+            )
+            .order_by(desc(Deployment.created_at))
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
+    @staticmethod
     async def get_activity_feed(
         db: AsyncSession, user_id: str, limit: int = 20, offset: int = 0
     ) -> tuple[List[ActivityLog], int]:

@@ -7,6 +7,7 @@ interface DashboardState {
   activities: ActivityFeedItem[];
   activitiesTotal: number;
   isLoading: boolean;
+  hasFetched: boolean;
   error: string | null;
 
   fetchStats: () => Promise<void>;
@@ -19,16 +20,17 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   activities: [],
   activitiesTotal: 0,
   isLoading: false,
+  hasFetched: false,
   error: null,
 
   fetchStats: async () => {
     set({ isLoading: true, error: null });
     try {
       const stats = await dashboardApi.getStats();
-      set({ stats, isLoading: false });
+      set({ stats, isLoading: false, hasFetched: true });
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Failed to fetch stats";
-      set({ error: msg, isLoading: false });
+      set({ error: msg, isLoading: false, hasFetched: true });
     }
   },
 

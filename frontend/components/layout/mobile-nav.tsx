@@ -13,11 +13,11 @@ interface MobileNavProps {
 }
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: Lightbulb, label: "Projects", href: "/dashboard/projects" },
-  { icon: BookOpen, label: "Learnings", href: "/dashboard/learnings" },
-  { icon: Bot, label: "AI Assistant", href: "/dashboard/assistant" },
-  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+  { icon: LayoutDashboard, label: "Panel", href: "/dashboard" },
+  { icon: Lightbulb, label: "Proyectos", href: "/dashboard/projects" },
+  { icon: BookOpen, label: "Aprendizajes", href: "/dashboard/learnings" },
+  { icon: Bot, label: "Asistente IA", href: "/dashboard/assistant" },
+  { icon: Settings, label: "Configuración", href: "/dashboard/settings" },
 ];
 
 export function MobileNav({ open, onClose }: MobileNavProps) {

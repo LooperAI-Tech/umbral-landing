@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ToastProvider } from "@/components/ui/toast";
+import { AuthTokenProvider } from "@/components/auth/auth-provider";
 
 export default function DashboardLayout({
   children,
@@ -15,6 +16,7 @@ export default function DashboardLayout({
   const closeMobileNav = useCallback(() => setMobileNavOpen(false), []);
 
   return (
+    <AuthTokenProvider>
     <ToastProvider>
       <div className="flex h-screen overflow-hidden bg-background">
         {/* Desktop sidebar */}
@@ -34,5 +36,6 @@ export default function DashboardLayout({
         </div>
       </div>
     </ToastProvider>
+    </AuthTokenProvider>
   );
 }

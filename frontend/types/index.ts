@@ -422,6 +422,8 @@ export interface ChatMessage {
   tokens_used: number;
   sequence_number: number;
   created_at: string;
+  action?: string;
+  action_data?: Record<string, unknown>;
 }
 
 export interface ChatSession {
@@ -430,6 +432,7 @@ export interface ChatSession {
   project_id?: string;
   title?: string;
   status: string;
+  session_type?: string;
   total_messages: number;
   total_tokens: number;
   created_at: string;
@@ -444,6 +447,7 @@ export interface ChatSessionWithMessages extends ChatSession {
 export interface CreateSessionData {
   title?: string;
   project_id?: string;
+  session_type?: string;
 }
 
 export interface SendMessageData {

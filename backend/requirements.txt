@@ -12,6 +12,7 @@ psycopg2-binary
 # Pydantic for data validation
 pydantic
 pydantic[email]
+email-validator
 pydantic-settings
 python-dotenv
 

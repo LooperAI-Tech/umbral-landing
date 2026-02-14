@@ -31,7 +31,7 @@ export default function ProjectDetailPage() {
   }, [id, fetchProject]);
 
   const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this project?")) {
+    if (confirm("¿Estás seguro de que quieres eliminar este proyecto?")) {
       await deleteProject(id);
       router.push("/dashboard/projects");
     }
@@ -59,7 +59,7 @@ export default function ProjectDetailPage() {
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-2"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Projects
+            Volver a Proyectos
           </button>
           <div className="flex items-center gap-3">
             <span className="font-mono text-sm text-muted-foreground">
@@ -84,7 +84,7 @@ export default function ProjectDetailPage() {
       {/* Progress */}
       <div className="bg-card border border-border rounded-lg p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-foreground">Progress</span>
+          <span className="text-sm font-medium text-foreground">Progreso</span>
           <span className="font-mono text-sm text-brand-skyblue">
             {Math.round(project.progress * 100)}%
           </span>
@@ -94,19 +94,19 @@ export default function ProjectDetailPage() {
 
       {/* Info grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InfoItem label="AI Branch" value={project.ai_branch.replace("_", " ")} />
-        <InfoItem label="Priority" value={project.priority} />
-        <InfoItem label="Target User" value={project.target_user} />
+        <InfoItem label="Rama IA" value={project.ai_branch.replace("_", " ")} />
+        <InfoItem label="Prioridad" value={project.priority} />
+        <InfoItem label="Usuario Objetivo" value={project.target_user} />
         <InfoItem
-          label="Technologies"
-          value={project.technologies.join(", ") || "None"}
+          label="Tecnologías"
+          value={project.technologies.join(", ") || "Ninguna"}
         />
       </div>
 
       {/* Problem statement */}
       <div className="bg-card border border-border rounded-lg p-4">
         <h3 className="text-sm font-medium text-foreground mb-2">
-          Problem Statement
+          Problema a Resolver
         </h3>
         <p className="text-sm text-muted-foreground">{project.problem_statement}</p>
       </div>
@@ -114,8 +114,8 @@ export default function ProjectDetailPage() {
       {/* Tabs */}
       <Tabs defaultValue="milestones">
         <TabsList>
-          <TabsTrigger value="milestones">Milestones</TabsTrigger>
-          <TabsTrigger value="deployments">Deployments</TabsTrigger>
+          <TabsTrigger value="milestones">Hitos</TabsTrigger>
+          <TabsTrigger value="deployments">Despliegues</TabsTrigger>
         </TabsList>
         <TabsContent value="milestones">
           <MilestoneList projectId={project.id} />

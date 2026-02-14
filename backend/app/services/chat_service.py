@@ -2,9 +2,11 @@
 Chat Service for managing chat sessions and messages
 """
 
+import re
 import uuid
 import json
-from typing import List, Optional, Dict
+import logging
+from typing import List, Optional, Dict, Tuple
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_, desc
@@ -12,7 +14,10 @@ from sqlalchemy.orm import selectinload
 
 from app.models import ChatSession, ChatMessage, Project, Learning
 from app.schemas.chat import ChatSessionCreate, ChatSessionUpdate
+from app.schemas.project import ProjectCreate
 from app.services.ai_service import AIService
+
+logger = logging.getLogger(__name__)
 
 
 class ChatService:
@@ -26,6 +31,7 @@ class ChatService:
             user_id=user_id,
             title=session_data.title,
             project_id=session_data.project_id,
+            session_type=getattr(session_data, "session_type", "general") or "general",
             status="active",
             total_messages=0,
             total_tokens=0,
@@ -207,9 +213,55 @@ class ChatService:
         return context
 
     @staticmethod
+    async def _detect_and_execute_action(
+        db: AsyncSession, user_id: str, session: ChatSession, response_content: str
+    ) -> Optional[Dict]:
+        """Check AI response for action markers and execute them."""
+        if session.session_type != "project_creation":
+            return None
+
+        if "[PROJECT_READY]" not in response_content:
+            return None
+
+        # Extract JSON from after the marker
+        try:
+            marker_idx = response_content.index("[PROJECT_READY]")
+            after_marker = response_content[marker_idx + len("[PROJECT_READY]"):]
+
+            # Find JSON block (may be wrapped in ```json ... ```)
+            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_marker, re.DOTALL)
+            if not json_match:
+                return None
+
+            project_data = json.loads(json_match.group())
+
+            # Validate against ProjectCreate schema
+            project_create = ProjectCreate(**project_data)
+
+            # Create the project
+            from app.services.project_service import ProjectService
+            project = await ProjectService.create(db, user_id, project_create)
+
+            # Link the session to the new project
+            session.project_id = project.id
+            await db.flush()
+
+            return {
+                "action": "project_created",
+                "action_data": {
+                    "project_id": project.id,
+                    "display_id": project.display_id,
+                    "project_name": project.name,
+                },
+            }
+        except (json.JSONDecodeError, ValueError, Exception) as e:
+            logger.warning(f"Failed to parse project from AI response: {e}")
+            return None
+
+    @staticmethod
     async def process_user_message(
         db: AsyncSession, session_id: str, user_id: str, content: str
-    ) -> ChatMessage:
+    ) -> Tuple[ChatMessage, Optional[Dict]]:
         session = await ChatService.get_session(db, session_id, user_id)
         if not session:
             raise ValueError("Session not found")
@@ -227,11 +279,17 @@ class ChatService:
         # Build user context for AI
         user_context = await ChatService._build_user_context(db, user_id, session.project_id)
 
+        # Use session-type-aware system prompt
+        system_prompt = AIService.build_system_prompt_for_session_type(
+            session.session_type, user_context
+        )
+
         # Generate AI response via Gemini
         from app.core.config import settings
         response_content, tokens_used = await AIService.generate_response(
             messages=message_history,
             user_context=user_context,
+            system_prompt_override=system_prompt,
         )
 
         ai_message = await ChatService.add_message(
@@ -239,8 +297,13 @@ class ChatService:
             model_used=settings.GEMINI_MODEL, tokens_used=tokens_used,
         )
 
+        # Detect and execute any actions from the AI response
+        action_info = await ChatService._detect_and_execute_action(
+            db, user_id, session, response_content
+        )
+
         await db.commit()
-        return ai_message
+        return ai_message, action_info
 
     @staticmethod
     async def export_session(

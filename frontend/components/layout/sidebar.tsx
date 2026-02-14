@@ -18,14 +18,14 @@ import { COMMUNITY_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const navigationItems = [
-  { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard", shortcut: "d" },
-  { icon: Lightbulb, label: "Projects", href: "/dashboard/projects", shortcut: "p" },
-  { icon: BookOpen, label: "Learnings", href: "/dashboard/learnings", shortcut: "l" },
-  { icon: Bot, label: "AI Assistant", href: "/dashboard/assistant", shortcut: "a", accent: true },
+  { icon: LayoutDashboard, label: "Panel", href: "/dashboard", shortcut: "d" },
+  { icon: Lightbulb, label: "Proyectos", href: "/dashboard/projects", shortcut: "p" },
+  { icon: BookOpen, label: "Aprendizajes", href: "/dashboard/learnings", shortcut: "l" },
+  { icon: Bot, label: "Asistente IA", href: "/dashboard/assistant", shortcut: "a", accent: true },
 ];
 
 const bottomItems = [
-  { icon: Settings, label: "Settings", href: "/dashboard/settings", shortcut: "s" },
+  { icon: Settings, label: "Configuración", href: "/dashboard/settings", shortcut: "s" },
 ];
 
 export function Sidebar() {
@@ -78,7 +78,7 @@ export function Sidebar() {
             }}
           />
           <span className="text-sm text-muted-foreground font-mono truncate">
-            Account
+            Cuenta
           </span>
         </div>
       </div>

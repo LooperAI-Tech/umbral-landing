@@ -60,17 +60,17 @@ export function TaskBoard({ milestoneId }: { milestoneId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-semibold text-foreground">Tasks</h4>
+        <h4 className="text-sm font-semibold text-foreground">Tareas</h4>
         <Button variant="ghost" size="sm" onClick={() => setShowForm(!showForm)}>
           <Plus className="w-3 h-3" />
-          Add
+          Agregar
         </Button>
       </div>
 
       {showForm && <TaskForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />}
 
       {tasks.length === 0 ? (
-        <p className="text-xs text-muted-foreground font-mono">No tasks</p>
+        <p className="text-xs text-muted-foreground font-mono">Sin tareas</p>
       ) : (
         <div className="space-y-2">
           {tasks.map((task) => (
@@ -122,13 +122,13 @@ function TaskForm({
       <Input
         value={form.title}
         onChange={(e) => setForm({ ...form, title: e.target.value })}
-        placeholder="Task title"
+        placeholder="Título de la tarea"
         className="h-8 text-sm"
       />
       <Input
         value={form.tech_component}
         onChange={(e) => setForm({ ...form, tech_component: e.target.value })}
-        placeholder="Tech component (e.g. Backend API)"
+        placeholder="Componente técnico (ej. Backend API)"
         className="h-8 text-sm"
       />
       <div className="flex gap-2">
@@ -138,10 +138,10 @@ function TaskForm({
           onClick={() => onSubmit(form)}
           disabled={!form.title || !form.tech_component}
         >
-          Add
+          Agregar
         </Button>
         <Button size="sm" variant="ghost" onClick={onCancel}>
-          Cancel
+          Cancelar
         </Button>
       </div>
     </div>

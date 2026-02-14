@@ -9,20 +9,20 @@ import type { AIBranch, Priority } from "@/types";
 
 const AI_BRANCHES: { value: AIBranch; label: string }[] = [
   { value: "GENAI_LLM", label: "GenAI / LLM" },
-  { value: "ML_TRADITIONAL", label: "Traditional ML" },
-  { value: "COMPUTER_VISION", label: "Computer Vision" },
+  { value: "ML_TRADITIONAL", label: "ML Tradicional" },
+  { value: "COMPUTER_VISION", label: "Visión por Computadora" },
   { value: "NLP", label: "NLP" },
-  { value: "REINFORCEMENT_LEARNING", label: "Reinforcement Learning" },
+  { value: "REINFORCEMENT_LEARNING", label: "Aprendizaje por Refuerzo" },
   { value: "MLOPS", label: "MLOps" },
-  { value: "DATA_ENGINEERING", label: "Data Engineering" },
-  { value: "OTHER", label: "Other" },
+  { value: "DATA_ENGINEERING", label: "Ingeniería de Datos" },
+  { value: "OTHER", label: "Otro" },
 ];
 
 const PRIORITIES: { value: Priority; label: string }[] = [
-  { value: "LOW", label: "Low" },
-  { value: "MEDIUM", label: "Medium" },
-  { value: "HIGH", label: "High" },
-  { value: "CRITICAL", label: "Critical" },
+  { value: "LOW", label: "Baja" },
+  { value: "MEDIUM", label: "Media" },
+  { value: "HIGH", label: "Alta" },
+  { value: "CRITICAL", label: "Crítica" },
 ];
 
 export function ProjectForm() {
@@ -64,24 +64,24 @@ export function ProjectForm() {
     <form onSubmit={handleSubmit} className="space-y-6 max-w-2xl">
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Project Name *
+          Nombre del Proyecto *
         </label>
         <Input
           value={form.name}
           onChange={(e) => updateField("name", e.target.value)}
-          placeholder="My AI Project"
+          placeholder="Mi Proyecto de IA"
           required
         />
       </div>
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Description
+          Descripción
         </label>
         <textarea
           value={form.description}
           onChange={(e) => updateField("description", e.target.value)}
-          placeholder="Brief description of your project..."
+          placeholder="Breve descripción de tu proyecto..."
           rows={3}
           className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus-visible:border-brand-skyblue focus-visible:ring-brand-skyblue/30 focus-visible:ring-[3px] outline-none"
         />
@@ -90,7 +90,7 @@ export function ProjectForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
-            AI Branch *
+            Rama de IA *
           </label>
           <select
             value={form.ai_branch}
@@ -107,7 +107,7 @@ export function ProjectForm() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-foreground">
-            Priority
+            Prioridad
           </label>
           <select
             value={form.priority}
@@ -125,12 +125,12 @@ export function ProjectForm() {
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Problem Statement *
+          Problema a Resolver *
         </label>
         <textarea
           value={form.problem_statement}
           onChange={(e) => updateField("problem_statement", e.target.value)}
-          placeholder="What problem does this project solve?"
+          placeholder="¿Qué problema resuelve este proyecto?"
           rows={3}
           required
           className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-mono placeholder:text-muted-foreground focus-visible:border-brand-skyblue focus-visible:ring-brand-skyblue/30 focus-visible:ring-[3px] outline-none"
@@ -139,37 +139,37 @@ export function ProjectForm() {
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Target User *
+          Usuario Objetivo *
         </label>
         <Input
           value={form.target_user}
           onChange={(e) => updateField("target_user", e.target.value)}
-          placeholder="Who is this for?"
+          placeholder="¿Para quién es esto?"
           required
         />
       </div>
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground">
-          Technologies
+          Tecnologías
         </label>
         <Input
           value={form.technologies}
           onChange={(e) => updateField("technologies", e.target.value)}
-          placeholder="Python, FastAPI, React (comma separated)"
+          placeholder="Python, FastAPI, React (separadas por coma)"
         />
       </div>
 
       <div className="flex gap-3">
         <Button type="submit" variant="gradient" disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create Project"}
+          {isSubmitting ? "Creando..." : "Crear Proyecto"}
         </Button>
         <Button
           type="button"
           variant="ghost"
           onClick={() => router.back()}
         >
-          Cancel
+          Cancelar
         </Button>
       </div>
     </form>
