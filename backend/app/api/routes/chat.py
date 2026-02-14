@@ -102,6 +102,8 @@ async def send_message(
         return response
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
 
 
 @router.get("/sessions/{session_id}/messages", response_model=List[ChatMessageResponse])

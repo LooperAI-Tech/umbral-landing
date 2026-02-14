@@ -31,7 +31,7 @@ export function TaskBoard({ milestoneId }: { milestoneId: string }) {
     setIsLoading(true);
     try {
       const data = await tasksApi.list(milestoneId);
-      setTasks(data);
+      setTasks(Array.isArray(data) ? data : []);
     } catch { /* handled */ }
     setIsLoading(false);
   };
@@ -73,7 +73,7 @@ export function TaskBoard({ milestoneId }: { milestoneId: string }) {
         <p className="text-xs text-muted-foreground font-mono">Sin tareas</p>
       ) : (
         <div className="space-y-2">
-          {tasks.map((task) => (
+          {(tasks ?? []).map((task) => (
             <div
               key={task.id}
               className="flex items-center gap-3 bg-card border border-border rounded-md px-3 py-2"

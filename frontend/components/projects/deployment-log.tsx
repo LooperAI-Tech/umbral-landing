@@ -31,7 +31,7 @@ export function DeploymentLog({ projectId }: { projectId: string }) {
     setIsLoading(true);
     try {
       const data = await deploymentsApi.list(projectId);
-      setDeployments(data);
+      setDeployments(Array.isArray(data) ? data : []);
     } catch { /* handled */ }
     setIsLoading(false);
   };
@@ -70,7 +70,7 @@ export function DeploymentLog({ projectId }: { projectId: string }) {
         </p>
       ) : (
         <div className="space-y-3">
-          {deployments.map((d) => (
+          {(deployments ?? []).map((d) => (
             <div key={d.id} className="bg-card border border-border rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">

@@ -37,7 +37,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   fetchActivity: async (limit = 20, offset = 0) => {
     try {
       const data = await dashboardApi.getActivity(limit, offset);
-      set({ activities: data.activities, activitiesTotal: data.total });
+      set({ activities: Array.isArray(data?.activities) ? data.activities : [], activitiesTotal: data?.total ?? 0 });
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Failed to fetch activity";
       set({ error: msg });

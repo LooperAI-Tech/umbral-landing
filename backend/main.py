@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import check_db_connection, close_db
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -82,10 +83,11 @@ app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"]
 if __name__ == "__main__":
     import uvicorn
 
+    # For dev with auto-reload, use the CLI instead:
+    #   python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True,
         log_level="info",
     )

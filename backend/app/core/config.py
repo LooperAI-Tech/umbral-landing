@@ -1,5 +1,6 @@
 """
-Application configuration and settings
+Application configuration and settings.
+All values are loaded from backend/.env via pydantic-settings.
 """
 
 from typing import List
@@ -7,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Application settings"""
+    """Application settings — loaded from .env file"""
 
     # Application
     APP_NAME: str = "Umbral EdTech API"
@@ -20,21 +21,21 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
-    # Database
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/umbral_db"
+    # Database (required — no default, must be set in .env)
+    DATABASE_URL: str
 
-    # Authentication (Clerk)
-    CLERK_SECRET_KEY: str = ""
-    CLERK_PUBLISHABLE_KEY: str = ""
+    # Authentication — Clerk (required)
+    CLERK_SECRET_KEY: str
+    CLERK_PUBLISHABLE_KEY: str
 
-    # AI (Google Gemini)
-    GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-2.0-flash"
+    # AI — Google Gemini (required)
+    GEMINI_API_KEY: str
+    GEMINI_MODEL: str = "gemini-2.5-flash"
     MAX_TOKENS_PER_REQUEST: int = 4000
     AI_TEMPERATURE: float = 0.7
 
-    # Security
-    SECRET_KEY: str = "your-secret-key-change-this-in-production"
+    # Security (required)
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 

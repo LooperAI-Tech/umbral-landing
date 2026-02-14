@@ -57,7 +57,7 @@ export default function DashboardPage() {
   const loadDeployments = useCallback(async () => {
     try {
       const data = await dashboardApi.getRecentDeployments(5);
-      setRecentDeployments(data);
+      setRecentDeployments(Array.isArray(data) ? data : []);
     } catch {
       /* silent */
     }
@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const loadLearnings = useCallback(async () => {
     try {
       const data = await learningsApi.list({ limit: 6 });
-      setRecentLearnings(data.learnings);
+      setRecentLearnings(Array.isArray(data?.learnings) ? data.learnings : []);
     } catch {
       /* silent */
     }
@@ -151,7 +151,7 @@ Aún no hay proyectos! Empieza a construir tu camino en IA!
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((project) => (
+            {(projects ?? []).map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>
@@ -181,7 +181,7 @@ Aún no hay proyectos! Empieza a construir tu camino en IA!
           </div>
         ) : (
           <div className="space-y-2">
-            {recentDeployments.map((dep) => (
+            {(recentDeployments ?? []).map((dep) => (
               <div
                 key={dep.id}
                 className="bg-card border border-border rounded-lg px-4 py-3 flex items-center justify-between"
@@ -244,7 +244,7 @@ Aún no hay proyectos! Empieza a construir tu camino en IA!
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {recentLearnings.map((learning) => (
+            {(recentLearnings ?? []).map((learning) => (
               <div
                 key={learning.id}
                 className="bg-card border border-border rounded-lg p-4 glow-hover transition-all"

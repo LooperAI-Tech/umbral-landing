@@ -36,7 +36,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const sessions = await chatApi.listSessions("active", 100);
-      set({ sessions, isLoading: false });
+      set({ sessions: Array.isArray(sessions) ? sessions : [], isLoading: false });
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "No se pudieron cargar las sesiones";
       set({ error: msg, isLoading: false });
@@ -67,7 +67,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const sessionWithMessages = await chatApi.getSession(sessionId);
       set({
         currentSession: sessionWithMessages,
-        messages: sessionWithMessages.messages,
+        messages: Array.isArray(sessionWithMessages?.messages) ? sessionWithMessages.messages : [],
         isLoading: false,
       });
     } catch (error: unknown) {

@@ -31,7 +31,7 @@ export function MilestoneList({ projectId }: { projectId: string }) {
     setIsLoading(true);
     try {
       const data = await milestonesApi.list(projectId);
-      setMilestones(data);
+      setMilestones(Array.isArray(data) ? data : []);
     } catch { /* handled */ }
     setIsLoading(false);
   };
@@ -70,7 +70,7 @@ export function MilestoneList({ projectId }: { projectId: string }) {
         </p>
       ) : (
         <div className="space-y-3">
-          {milestones.map((m) => (
+          {(milestones ?? []).map((m) => (
             <div key={m.id} className="bg-card border border-border rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">

@@ -56,7 +56,7 @@ export function ContextPanel({
             >
               Sin proyecto (general)
             </button>
-            {projects.map((p) => (
+            {(projects ?? []).map((p) => (
               <button
                 key={p.id}
                 onClick={() => onSelectProject(p.id)}

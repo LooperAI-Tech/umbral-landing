@@ -28,7 +28,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     set({ isLoading: true, error: null });
     try {
       const projects = await projectsApi.list();
-      set({ projects, isLoading: false, hasFetched: true });
+      set({ projects: Array.isArray(projects) ? projects : [], isLoading: false, hasFetched: true });
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Failed to fetch projects";
       set({ error: msg, isLoading: false, hasFetched: true });

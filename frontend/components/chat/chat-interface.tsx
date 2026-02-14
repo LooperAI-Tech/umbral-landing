@@ -54,13 +54,19 @@ export function ChatInterface() {
     if (!input.trim() || isSending) return;
     const content = input.trim();
     setInput("");
-    if (!currentSession) {
-      await createSession({
-        title: content.slice(0, 50),
-        project_id: selectedProjectId || undefined,
-      });
+    try {
+      if (!currentSession) {
+        await createSession({
+          title: content.slice(0, 50),
+          project_id: selectedProjectId || undefined,
+        });
+      }
+      await sendMessage(content);
+    } catch {
+      // Error is already set in the store by createSession/sendMessage.
+      // Restore the input so the user doesn't lose their message.
+      setInput(content);
     }
-    await sendMessage(content);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -105,7 +111,7 @@ export function ChatInterface() {
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          {sessions.map((session) => (
+          {(sessions ?? []).map((session) => (
             <div
               key={session.id}
               className={cn(
@@ -201,7 +207,7 @@ export function ChatInterface() {
             </div>
           )}
 
-          {messages.map((msg) => (
+          {(messages ?? []).map((msg) => (
             <MessageBubble key={msg.id} message={msg} />
           ))}
 

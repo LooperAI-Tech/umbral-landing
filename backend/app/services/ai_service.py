@@ -3,12 +3,15 @@ AI Service using Google Gemini API
 """
 
 import json
+import logging
 from typing import List, Dict, Tuple, Optional
 
 from google import genai
 from google.genai import types
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 PROJECT_CREATION_PROMPT = """Eres el asistente de creación de proyectos de Umbral, parte de la comunidad AI PlayGrounds (LooperTech).
@@ -166,17 +169,26 @@ class AIService:
                 parts=[types.Part.from_text(text=msg["content"])],
             ))
 
-        response = client.models.generate_content(
-            model=settings.GEMINI_MODEL,
-            contents=contents,
-            config=types.GenerateContentConfig(
-                system_instruction=system_prompt,
-                max_output_tokens=max_tokens,
-                temperature=temperature,
-            ),
-        )
+        try:
+            # Use async client to avoid blocking the event loop
+            response = await client.aio.models.generate_content(
+                model=settings.GEMINI_MODEL,
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=system_prompt,
+                    max_output_tokens=max_tokens,
+                    temperature=temperature,
+                ),
+            )
+        except Exception as e:
+            logger.error("Gemini API error: %s", e)
+            raise RuntimeError(f"AI service unavailable: {e}")
 
         content = response.text or ""
+        if not content.strip():
+            logger.warning("Gemini returned empty response (possibly blocked by safety filters)")
+            content = "Lo siento, no pude generar una respuesta. Por favor intenta reformular tu mensaje."
+
         tokens_used = 0
         if response.usage_metadata:
             tokens_used = (
@@ -209,18 +221,22 @@ Devuelve un array JSON de objetos de aprendizaje. Solo incluye aprendizajes genu
 Conversación:
 {conversation_text}"""
 
-        response = client.models.generate_content(
-            model=settings.GEMINI_MODEL,
-            contents=[types.Content(
-                role="user",
-                parts=[types.Part.from_text(text=extract_prompt)],
-            )],
-            config=types.GenerateContentConfig(
-                system_instruction="Eres un asistente de extracción de aprendizajes. Siempre responde con arrays JSON válidos únicamente, sin formato markdown. Todos los valores de texto deben estar en español.",
-                max_output_tokens=2000,
-                temperature=0.3,
-            ),
-        )
+        try:
+            response = await client.aio.models.generate_content(
+                model=settings.GEMINI_MODEL,
+                contents=[types.Content(
+                    role="user",
+                    parts=[types.Part.from_text(text=extract_prompt)],
+                )],
+                config=types.GenerateContentConfig(
+                    system_instruction="Eres un asistente de extracción de aprendizajes. Siempre responde con arrays JSON válidos únicamente, sin formato markdown. Todos los valores de texto deben estar en español.",
+                    max_output_tokens=2000,
+                    temperature=0.3,
+                ),
+            )
+        except Exception as e:
+            logger.error("Gemini API error during learning extraction: %s", e)
+            return []
 
         try:
             text = response.text or "[]"
