@@ -1,0 +1,210 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --font-display: var(--font-display);
+
+  /* Shadcn semantic colors */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Brand colors */
+  --color-brand-skyblue: #0EA5E9;
+  --color-brand-skyblue-light: #38BDF8;
+  --color-brand-skyblue-dark: #0284C7;
+  --color-community-yellow: #FCD34D;
+  --color-community-yellow-light: #FDE68A;
+  --color-community-yellow-dark: #FBBF24;
+  --color-community-blue: #3B82F6;
+  --color-community-blue-light: #60A5FA;
+  --color-neon-cyan: #22D3EE;
+  --color-neon-yellow: #FACC15;
+
+  /* Status colors */
+  --color-status-planned: #64748B;
+  --color-status-progress: #FCD34D;
+  --color-status-completed: #4ADE80;
+  --color-status-blocked: #F87171;
+  --color-status-active: #0EA5E9;
+
+  /* Radii */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* Font stacks */
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', 'Cascadia Code', monospace;
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+
+  /* ============================================
+     UMBRAL DARK THEME (default - dark first)
+     ============================================ */
+
+  /* Base surfaces */
+  --background: #0A0F1A;
+  --foreground: #F1F5F9;
+  --card: #111827;
+  --card-foreground: #F1F5F9;
+  --popover: #111827;
+  --popover-foreground: #F1F5F9;
+
+  /* Primary = Brand Sky Blue */
+  --primary: #0EA5E9;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary = Dark elevated */
+  --secondary: #1F2937;
+  --secondary-foreground: #F1F5F9;
+
+  /* Muted */
+  --muted: #1F2937;
+  --muted-foreground: #94A3B8;
+
+  /* Accent */
+  --accent: #1E293B;
+  --accent-foreground: #F1F5F9;
+
+  /* Destructive */
+  --destructive: #F87171;
+
+  /* Borders */
+  --border: rgba(148, 163, 184, 0.2);
+  --input: rgba(148, 163, 184, 0.2);
+  --ring: #0EA5E9;
+
+  /* Charts */
+  --chart-1: #0EA5E9;
+  --chart-2: #FCD34D;
+  --chart-3: #4ADE80;
+  --chart-4: #3B82F6;
+  --chart-5: #F87171;
+
+  /* Sidebar */
+  --sidebar: #111827;
+  --sidebar-foreground: #F1F5F9;
+  --sidebar-primary: #0EA5E9;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #1E293B;
+  --sidebar-accent-foreground: #F1F5F9;
+  --sidebar-border: rgba(148, 163, 184, 0.1);
+  --sidebar-ring: #0EA5E9;
+
+  /* Umbral-specific tokens */
+  --bg-terminal: #0D1321;
+  --border-subtle: rgba(148, 163, 184, 0.1);
+  --border-accent: rgba(14, 165, 233, 0.5);
+  --border-glow: #0EA5E9;
+  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.3);
+  --shadow-glow-yellow: 0 0 20px rgba(252, 211, 77, 0.3);
+  --gradient-brand: linear-gradient(135deg, #0EA5E9 0%, #3B82F6 100%);
+  --gradient-accent: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);
+  --gradient-warm: linear-gradient(135deg, #FCD34D 0%, #0EA5E9 100%);
+  --gradient-card: linear-gradient(180deg, rgba(14, 165, 233, 0.05) 0%, transparent 100%);
+  --gradient-glow: radial-gradient(ellipse at center, rgba(14, 165, 233, 0.3) 0%, transparent 70%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+/* Terminal block styling */
+.terminal-block {
+  background: var(--bg-terminal);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+}
+
+/* Glow effect on hover */
+.glow-hover:hover {
+  box-shadow: var(--shadow-glow);
+  border-color: var(--border-glow);
+}
+
+/* Brand gradient text */
+.text-gradient-brand {
+  background: var(--gradient-brand);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pulse animation for status indicators */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}

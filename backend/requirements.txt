@@ -1,0 +1,34 @@
+# FastAPI and Server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Database
+sqlalchemy
+alembic
+asyncpg
+psycopg2-binary
+
+# Pydantic for data validation
+pydantic
+pydantic[email]
+email-validator
+pydantic-settings
+python-dotenv
+
+# Authentication & Security
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt
+svix
+
+# AI (Google Gemini)
+google-genai
+
+# HTTP Client
+httpx
+aiohttp
+
+# Utilities
+python-dateutil
+pytz
