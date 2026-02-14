@@ -1,14 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { MilestoneGenerationChat } from "@/components/chat/milestone-generation-chat";
 import { milestonesApi } from "@/lib/api/milestones";
-import type { Milestone, MilestoneCreate } from "@/types";
+import type { Milestone } from "@/types";
 
 const statusVariant: Record<string, "secondary" | "warning" | "destructive" | "success" | "info"> = {
   PLANNED: "secondary",
@@ -18,10 +23,17 @@ const statusVariant: Record<string, "secondary" | "warning" | "destructive" | "s
   SKIPPED: "info",
 };
 
-export function MilestoneList({ projectId }: { projectId: string }) {
+export function MilestoneList({
+  projectId,
+  projectName,
+}: {
+  projectId: string;
+  projectName: string;
+}) {
+  const router = useRouter();
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [showChat, setShowChat] = useState(false);
 
   useEffect(() => {
     loadMilestones();
@@ -36,9 +48,8 @@ export function MilestoneList({ projectId }: { projectId: string }) {
     setIsLoading(false);
   };
 
-  const handleCreate = async (data: MilestoneCreate) => {
-    await milestonesApi.create(projectId, data);
-    setShowForm(false);
+  const handleChatComplete = () => {
+    setShowChat(false);
     loadMilestones();
   };
 
@@ -56,13 +67,25 @@ export function MilestoneList({ projectId }: { projectId: string }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold text-foreground">Hitos</h3>
-        <Button variant="secondary" size="sm" onClick={() => setShowForm(!showForm)}>
+        <Button variant="secondary" size="sm" onClick={() => setShowChat(true)}>
           <Plus className="w-4 h-4" />
           Agregar
         </Button>
       </div>
 
-      {showForm && <MilestoneForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} />}
+      <Dialog open={showChat} onOpenChange={setShowChat}>
+        <DialogContent
+          className="sm:max-w-2xl p-0 gap-0 overflow-hidden"
+          showCloseButton={false}
+        >
+          <MilestoneGenerationChat
+            projectId={projectId}
+            projectName={projectName}
+            onComplete={handleChatComplete}
+            onCancel={() => setShowChat(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {milestones.length === 0 ? (
         <p className="text-sm text-muted-foreground font-mono py-4">
@@ -71,7 +94,11 @@ export function MilestoneList({ projectId }: { projectId: string }) {
       ) : (
         <div className="space-y-3">
           {(milestones ?? []).map((m) => (
-            <div key={m.id} className="bg-card border border-border rounded-lg p-4">
+            <div
+              key={m.id}
+              className="bg-card border border-border rounded-lg p-4 cursor-pointer hover:border-brand-skyblue/50 transition-colors"
+              onClick={() => router.push(`/dashboard/projects/${projectId}/milestones/${m.id}`)}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-xs text-muted-foreground">
@@ -79,9 +106,12 @@ export function MilestoneList({ projectId }: { projectId: string }) {
                   </span>
                   <span className="text-sm font-medium text-foreground">{m.name}</span>
                 </div>
-                <Badge variant={statusVariant[m.status] || "secondary"} className="text-[10px]">
-                  {m.status}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant={statusVariant[m.status] || "secondary"} className="text-[10px]">
+                    {m.status}
+                  </Badge>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
               </div>
               {m.deliverable && (
                 <p className="text-xs text-muted-foreground mb-2">{m.deliverable}</p>
@@ -91,53 +121,6 @@ export function MilestoneList({ projectId }: { projectId: string }) {
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function MilestoneForm({
-  onSubmit,
-  onCancel,
-}: {
-  onSubmit: (data: MilestoneCreate) => void;
-  onCancel: () => void;
-}) {
-  const [form, setForm] = useState({
-    name: "",
-    deliverable: "",
-    success_criteria: "",
-  });
-
-  return (
-    <div className="bg-secondary/50 border border-border rounded-lg p-4 space-y-3">
-      <Input
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-        placeholder="Nombre del hito"
-      />
-      <Input
-        value={form.deliverable}
-        onChange={(e) => setForm({ ...form, deliverable: e.target.value })}
-        placeholder="¿Qué se entregará?"
-      />
-      <Input
-        value={form.success_criteria}
-        onChange={(e) => setForm({ ...form, success_criteria: e.target.value })}
-        placeholder="¿Cómo sabes que está terminado?"
-      />
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant="gradient"
-          onClick={() => onSubmit(form)}
-          disabled={!form.name || !form.deliverable || !form.success_criteria}
-        >
-          Crear
-        </Button>
-        <Button size="sm" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </Button>
-      </div>
     </div>
   );
 }

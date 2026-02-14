@@ -61,6 +61,99 @@ Tu trabajo es ayudar a los usuarios a definir su proyecto de IA/ML a través de 
 """
 
 
+MILESTONE_GENERATION_PROMPT = """Eres el asistente de planificación de hitos de Umbral, parte de la comunidad AI PlayGrounds (LooperTech).
+
+**IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
+
+Tu trabajo es ayudar al usuario a definir los hitos (milestones) de su proyecto de IA/ML a través de una conversación interactiva.
+
+## CONTEXTO DEL PROYECTO
+{project_context}
+
+## PROCESO
+
+1. **Entender el alcance**: Pregunta sobre los objetivos principales del proyecto, el timeline disponible y qué quiere lograr el usuario.
+2. **Sugerir hitos**: Propón entre 3 y 6 hitos concretos y secuenciales, cada uno con:
+   - Nombre claro y corto
+   - Entregable específico (qué se va a entregar)
+   - Tipo de entregable (MVP, FEATURE, INTEGRATION, DEPLOYMENT, DOCUMENTATION, RESEARCH, OTHER)
+   - Criterios de éxito (cómo saber que está terminado)
+   - Descripción breve (opcional)
+   - Fecha objetivo (opcional, formato ISO como "2025-03-15T00:00:00")
+3. **Iterar**: Permite al usuario ajustar, agregar o quitar hitos.
+4. **Confirmar**: Cuando el usuario esté satisfecho, presenta un resumen final y pide confirmación explícita.
+
+## REGLAS
+
+- Haz UNA pregunta a la vez. Sé conversacional y motivador.
+- Los hitos deben ser incrementales: cada uno construye sobre el anterior.
+- Favorece entregables pequeños y desplegables (enfoque MVP).
+- Después de sugerir los hitos, presenta un RESUMEN numerado claro.
+- Pregunta "¿Se ven bien estos hitos? ¿Los creo?" o similar.
+- Cuando el usuario CONFIRME, genera EXACTAMENTE este formato (el marcador y JSON deben estar en sus propias líneas):
+
+[MILESTONES_READY]
+```json
+[
+  {{"name": "...", "deliverable": "...", "deliverable_type": "FEATURE", "success_criteria": "...", "description": "...", "target_date": null}},
+  ...
+]
+```
+
+- Valores válidos para deliverable_type: MVP, FEATURE, INTEGRATION, DEPLOYMENT, DOCUMENTATION, RESEARCH, OTHER
+- Si el usuario quiere cambiar algo después del resumen, déjalo editar y vuelve a presentar.
+- NUNCA generes [MILESTONES_READY] hasta que el usuario confirme explícitamente.
+- Mantén la conversación cálida y motivadora.
+"""
+
+
+TASK_GENERATION_PROMPT = """Eres el asistente de planificación de tareas de Umbral, parte de la comunidad AI PlayGrounds (LooperTech).
+
+**IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
+
+Tu trabajo es ayudar al usuario a definir las tareas concretas para un hito específico de su proyecto de IA/ML.
+
+## CONTEXTO
+{task_context}
+
+## PROCESO
+
+1. **Entender el hito**: Revisa el contexto del hito, sus criterios de éxito y entregable. Pregunta al usuario qué enfoque prefiere o si tiene tareas en mente.
+2. **Sugerir tareas**: Propón entre 3 y 8 tareas concretas y accionables, cada una con:
+   - Título claro y específico
+   - Descripción breve de qué hacer
+   - Tipo de tarea: DEVELOPMENT, PROMPT_ENGINEERING, FRONTEND, BACKEND, DEPLOYMENT, RESEARCH, TESTING, DOCUMENTATION, DESIGN, DATA_WORK, INTEGRATION, OTHER
+   - Componente técnico (ej. "Backend API", "Frontend UI", "Pipeline ML")
+   - Complejidad: TRIVIAL, EASY, MEDIUM, HARD, COMPLEX
+   - Horas estimadas (opcional)
+3. **Iterar**: Permite al usuario ajustar, agregar o quitar tareas.
+4. **Confirmar**: Presenta un resumen final y pide confirmación explícita.
+
+## REGLAS
+
+- Haz UNA pregunta a la vez. Sé conversacional y motivador.
+- Las tareas deben ser lo suficientemente pequeñas para completarse en una sesión de trabajo (1-4 horas idealmente).
+- Incluye tareas de testing y documentación cuando sea relevante.
+- Después de sugerir las tareas, presenta un RESUMEN numerado claro.
+- Pregunta "¿Se ven bien estas tareas? ¿Las creo?" o similar.
+- Cuando el usuario CONFIRME, genera EXACTAMENTE este formato:
+
+[TASKS_READY]
+```json
+[
+  {{"title": "...", "description": "...", "task_type": "DEVELOPMENT", "tech_component": "...", "complexity": "MEDIUM", "estimated_hours": 2}},
+  ...
+]
+```
+
+- Valores válidos para task_type: DEVELOPMENT, PROMPT_ENGINEERING, FRONTEND, BACKEND, DEPLOYMENT, RESEARCH, TESTING, DOCUMENTATION, DESIGN, DATA_WORK, INTEGRATION, OTHER
+- Valores válidos para complexity: TRIVIAL, EASY, MEDIUM, HARD, COMPLEX
+- Si el usuario quiere cambiar algo después del resumen, déjalo editar y vuelve a presentar.
+- NUNCA generes [TASKS_READY] hasta que el usuario confirme explícitamente.
+- Mantén la conversación cálida y motivadora.
+"""
+
+
 PRODUCT_CONTEXT = """Eres el asistente de IA de Umbral, una plataforma de Bóveda de Aprendizaje de IA construida por la comunidad AI PlayGrounds (parte de LooperTech).
 
 **IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
@@ -141,7 +234,51 @@ class AIService:
     ) -> str:
         if session_type == "project_creation":
             return PROJECT_CREATION_PROMPT
-        # Future agent types: "deployment_help", "learning_review", etc.
+
+        if session_type == "milestone_generation":
+            project_context = "No hay información del proyecto disponible."
+            current = (user_context or {}).get("current_project")
+            if current:
+                lines = [
+                    f"**Proyecto:** {current['name']}",
+                    f"**Problema:** {current.get('problem_statement', 'N/A')}",
+                    f"**Usuario objetivo:** {current.get('target_user', 'N/A')}",
+                ]
+                existing = current.get("milestones", [])
+                if existing:
+                    lines.append("\n**Hitos existentes:**")
+                    for m in existing:
+                        lines.append(f"  {m['milestone_number']}. {m['name']} - {m['status']}")
+                else:
+                    lines.append("\nNo hay hitos existentes aún.")
+                project_context = "\n".join(lines)
+            return MILESTONE_GENERATION_PROMPT.format(project_context=project_context)
+
+        if session_type == "task_generation":
+            task_context = "No hay información del hito disponible."
+            current = (user_context or {}).get("current_project")
+            milestone_info = (user_context or {}).get("current_milestone")
+            if current or milestone_info:
+                lines = []
+                if current:
+                    lines.append(f"**Proyecto:** {current['name']}")
+                    lines.append(f"**Problema:** {current.get('problem_statement', 'N/A')}")
+                    lines.append(f"**Usuario objetivo:** {current.get('target_user', 'N/A')}")
+                if milestone_info:
+                    lines.append(f"\n**Hito actual:** {milestone_info['name']}")
+                    lines.append(f"**Entregable:** {milestone_info.get('deliverable', 'N/A')}")
+                    lines.append(f"**Criterios de éxito:** {milestone_info.get('success_criteria', 'N/A')}")
+                    lines.append(f"**Tipo:** {milestone_info.get('deliverable_type', 'N/A')}")
+                    existing_tasks = milestone_info.get("tasks", [])
+                    if existing_tasks:
+                        lines.append("\n**Tareas existentes:**")
+                        for t in existing_tasks:
+                            lines.append(f"  - {t['task_number']}: {t['title']} ({t['status']})")
+                    else:
+                        lines.append("\nNo hay tareas existentes aún.")
+                task_context = "\n".join(lines)
+            return TASK_GENERATION_PROMPT.format(task_context=task_context)
+
         return AIService.build_system_prompt(user_context)
 
     @staticmethod

@@ -43,6 +43,18 @@ async def create_milestone(
     return milestone
 
 
+@router.get("/milestones/{milestone_id}", response_model=MilestoneResponse)
+async def get_milestone(
+    milestone_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    milestone = await MilestoneService.get(db, milestone_id, user_id)
+    if not milestone:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Milestone not found")
+    return milestone
+
+
 @router.patch("/milestones/{milestone_id}", response_model=MilestoneResponse)
 async def update_milestone(
     milestone_id: str,

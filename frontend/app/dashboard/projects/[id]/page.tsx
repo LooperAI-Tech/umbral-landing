@@ -118,7 +118,7 @@ export default function ProjectDetailPage() {
           <TabsTrigger value="deployments">Despliegues</TabsTrigger>
         </TabsList>
         <TabsContent value="milestones">
-          <MilestoneList projectId={project.id} />
+          <MilestoneList projectId={project.id} projectName={project.name} />
         </TabsContent>
         <TabsContent value="deployments">
           <DeploymentLog projectId={project.id} />

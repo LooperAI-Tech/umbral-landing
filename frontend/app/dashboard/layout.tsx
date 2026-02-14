@@ -6,6 +6,8 @@ import { Header } from "@/components/layout/header";
 import { MobileNav } from "@/components/layout/mobile-nav";
 import { ToastProvider } from "@/components/ui/toast";
 import { AuthTokenProvider } from "@/components/auth/auth-provider";
+import { ChatFAB } from "@/components/chat/chat-fab";
+import { SideChatPanel } from "@/components/chat/side-chat-panel";
 
 export default function DashboardLayout({
   children,
@@ -35,6 +37,8 @@ export default function DashboardLayout({
           </main>
         </div>
       </div>
+      <ChatFAB />
+      <SideChatPanel />
     </ToastProvider>
     </AuthTokenProvider>
   );
