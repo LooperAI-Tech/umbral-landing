@@ -1,284 +1,174 @@
 """
-AI Service for multi-model support via OpenRouter
+AI Service using Google Gemini API
 """
 
-from typing import List, Dict, Tuple, Optional, AsyncGenerator
-from openai import AsyncOpenAI
+import json
+from typing import List, Dict, Tuple, Optional
+
+from google import genai
+from google.genai import types
+
 from app.core.config import settings
 
 
+PRODUCT_CONTEXT = """You are the AI assistant for Umbral, an AI Learning Vault platform built by the AI PlayGrounds community (part of LooperTech).
+
+Umbral helps users learn AI/ML concepts through hands-on product building. Users maintain personal "vaults" containing their project ideas, milestones, tasks, deployments, and documented learnings.
+
+When referring to the platform, call it "Umbral" or "your vault".
+When referring to the community, call it "AI PlayGrounds".
+"""
+
+
 class AIService:
-    """
-    Multi-model AI service using OpenRouter
-    OpenRouter provides a unified API for multiple AI models
-    """
-
-    # System prompts for different teaching methods
-    TEACHING_PROMPTS = {
-        "practical": """You are a practical AI tutor. Focus on real-world examples, hands-on applications,
-and actionable steps. Use concrete examples from industry and daily life to illustrate concepts.
-Always include practical exercises or implementation ideas.""",
-
-        "conceptual": """You are a conceptual AI tutor. Focus on explaining the underlying principles,
-theories, and fundamental concepts clearly. Build understanding from first principles.
-Help students grasp the 'why' behind concepts before diving into the 'how'.""",
-
-        "analogical": """You are an analogical AI tutor. Use analogies, metaphors, and comparisons to
-familiar concepts to explain new ideas. Relate unfamiliar topics to things students already know.
-Make complex concepts accessible through creative comparisons.""",
-
-        "step-by-step": """You are a step-by-step AI tutor. Break down explanations into clear,
-sequential steps. Number your points and guide students through concepts methodically.
-Build complexity gradually, ensuring each step is understood before moving forward."""
-    }
-
-    # Default fallback prompt
-    DEFAULT_PROMPT = """You are a helpful AI tutor for the Umbral EdTech platform.
-Provide clear, accurate, and educational responses to student questions."""
 
     @staticmethod
-    def get_client() -> AsyncOpenAI:
-        """Get OpenRouter client configured with OpenAI-compatible API"""
-        return AsyncOpenAI(
-            api_key=settings.OPENROUTER_API_KEY,
-            base_url=settings.OPENROUTER_BASE_URL,
-            default_headers={
-                "HTTP-Referer": "https://umbral-edtech.com",  # Replace with actual domain
-                "X-Title": settings.OPENROUTER_APP_NAME,
-            }
-        )
+    def get_client() -> genai.Client:
+        return genai.Client(api_key=settings.GEMINI_API_KEY)
 
     @staticmethod
-    def build_system_prompt(
-        teaching_method: str = "conceptual",
-        concept_context: Optional[Dict] = None
-    ) -> str:
-        """
-        Build system prompt based on teaching method and optional concept context
+    def build_system_prompt(user_context: Optional[Dict] = None) -> str:
+        prompt = PRODUCT_CONTEXT
 
-        Args:
-            teaching_method: The teaching methodology to use
-            concept_context: Optional context about the concept being discussed
+        if not user_context:
+            return prompt
 
-        Returns:
-            System prompt string
-        """
-        base_prompt = AIService.TEACHING_PROMPTS.get(
-            teaching_method,
-            AIService.DEFAULT_PROMPT
-        )
+        user_name = user_context.get("user_name", "User")
+        prompt += f"\n## USER CONTEXT\n\n**User:** {user_name}\n"
 
-        if concept_context:
-            concept_name = concept_context.get("name", "")
-            concept_desc = concept_context.get("description", "")
-            context_addition = f"\n\nContext: You are helping a student learn about '{concept_name}'."
-            if concept_desc:
-                context_addition += f" {concept_desc}"
-            base_prompt += context_addition
+        projects = user_context.get("projects", [])
+        if projects:
+            prompt += "\n**Active Projects:**\n"
+            for p in projects:
+                prompt += f"- {p['display_id']}: {p['name']} ({p['ai_branch']}, {round(p['progress'] * 100)}% complete)\n"
+                if p.get("technologies"):
+                    prompt += f"  Technologies: {', '.join(p['technologies'])}\n"
 
-        return base_prompt
+        current = user_context.get("current_project")
+        if current:
+            prompt += f"\n**Current Focus: {current['name']}**\n"
+            prompt += f"Problem: {current['problem_statement']}\n"
+            prompt += f"Target User: {current['target_user']}\n"
+
+            milestones = current.get("milestones", [])
+            if milestones:
+                prompt += "\nMilestones:\n"
+                for m in milestones:
+                    prompt += f"  {m['milestone_number']}. {m['name']} - {m['status']}\n"
+                    prompt += f"     Deliverable: {m['deliverable']}\n"
+
+        learnings = user_context.get("recent_learnings", [])
+        if learnings:
+            prompt += "\n**Recent Learnings:**\n"
+            for l in learnings:
+                prompt += f"- {l['concept']} ({l['category']})\n"
+
+        prompt += """
+## YOUR ROLE
+
+1. **Technical Assistant**: Help troubleshoot issues with their specific stack
+2. **Learning Guide**: Explain concepts with practical examples
+3. **Progress Coach**: Encourage shipping deployed versions
+4. **Knowledge Connector**: Link new concepts to existing learnings
+
+## GUIDELINES
+
+- Be practical, not theoretical
+- Reference their actual projects when relevant
+- Always include "When to use" and "When NOT to use" for concepts
+- Encourage small, deployable increments
+- Use terminal-style formatting for commands: `command here`
+- Keep responses focused and actionable
+"""
+        return prompt
 
     @staticmethod
     async def generate_response(
         messages: List[Dict[str, str]],
-        model: str = "openai/gpt-4-turbo",
-        teaching_method: str = "conceptual",
-        concept_context: Optional[Dict] = None,
-        max_tokens: int = None,
-        temperature: float = None
+        user_context: Optional[Dict] = None,
+        max_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
     ) -> Tuple[str, int]:
-        """
-        Generate AI response using OpenRouter
-
-        Args:
-            messages: List of message dicts with 'role' and 'content'
-            model: OpenRouter model identifier (e.g., "openai/gpt-4-turbo")
-            teaching_method: Teaching methodology
-            concept_context: Optional context about the concept
-            max_tokens: Maximum tokens in response
-            temperature: Sampling temperature
-
-        Returns:
-            Tuple of (response_content, tokens_used)
-        """
         client = AIService.get_client()
+        system_prompt = AIService.build_system_prompt(user_context)
 
-        # Build system prompt
-        system_prompt = AIService.build_system_prompt(teaching_method, concept_context)
-
-        # Prepare messages with system prompt
-        full_messages = [
-            {"role": "system", "content": system_prompt}
-        ] + messages
-
-        # Use defaults if not specified
         if max_tokens is None:
             max_tokens = settings.MAX_TOKENS_PER_REQUEST
         if temperature is None:
             temperature = settings.AI_TEMPERATURE
 
-        try:
-            # Call OpenRouter API
-            response = await client.chat.completions.create(
-                model=model,
-                messages=full_messages,
-                max_tokens=max_tokens,
+        # Convert messages to Gemini format
+        contents = []
+        for msg in messages:
+            role = "user" if msg["role"] == "user" else "model"
+            contents.append(types.Content(
+                role=role,
+                parts=[types.Part.from_text(text=msg["content"])],
+            ))
+
+        response = client.models.generate_content(
+            model=settings.GEMINI_MODEL,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                max_output_tokens=max_tokens,
                 temperature=temperature,
+            ),
+        )
+
+        content = response.text or ""
+        tokens_used = 0
+        if response.usage_metadata:
+            tokens_used = (
+                (response.usage_metadata.prompt_token_count or 0)
+                + (response.usage_metadata.candidates_token_count or 0)
             )
 
-            # Extract response
-            content = response.choices[0].message.content
-            tokens_used = response.usage.total_tokens if response.usage else 0
-
-            return content, tokens_used
-
-        except Exception as e:
-            # Log error and re-raise
-            print(f"Error generating AI response: {str(e)}")
-            raise
+        return content, tokens_used
 
     @staticmethod
-    async def generate_response_stream(
+    async def extract_learnings_from_chat(
         messages: List[Dict[str, str]],
-        model: str = "openai/gpt-4-turbo",
-        teaching_method: str = "conceptual",
-        concept_context: Optional[Dict] = None,
-        max_tokens: int = None,
-        temperature: float = None
-    ) -> AsyncGenerator[str, None]:
-        """
-        Generate streaming AI response using OpenRouter
-
-        Args:
-            messages: List of message dicts with 'role' and 'content'
-            model: OpenRouter model identifier
-            teaching_method: Teaching methodology
-            concept_context: Optional context about the concept
-            max_tokens: Maximum tokens in response
-            temperature: Sampling temperature
-
-        Yields:
-            Chunks of response text
-        """
+    ) -> List[Dict]:
         client = AIService.get_client()
 
-        # Build system prompt
-        system_prompt = AIService.build_system_prompt(teaching_method, concept_context)
+        conversation_text = "\n".join(
+            f"[{m['role']}]: {m['content']}" for m in messages
+        )
 
-        # Prepare messages with system prompt
-        full_messages = [
-            {"role": "system", "content": system_prompt}
-        ] + messages
+        extract_prompt = f"""Analyze this conversation and extract key learnings that the user gained.
+For each learning, provide a JSON object with these fields:
+- concept: Short name of the concept learned
+- category: One of: PROMPT_ENGINEERING, RAG_RETRIEVAL, FINE_TUNING, MODEL_SELECTION, EMBEDDINGS, AGENTS, EVALUATION, DATA_PROCESSING, MLOPS, DEPLOYMENT, UX_PATTERNS, ARCHITECTURE, PERFORMANCE, SECURITY, COST_OPTIMIZATION, OTHER
+- what_learned: What was learned (2-3 sentences)
+- when_to_use: When to use this concept
+- when_not_to_use: When NOT to use this concept
 
-        # Use defaults if not specified
-        if max_tokens is None:
-            max_tokens = settings.MAX_TOKENS_PER_REQUEST
-        if temperature is None:
-            temperature = settings.AI_TEMPERATURE
+Return a JSON array of learning objects. Only include genuine learnings, not simple Q&A.
 
-        try:
-            # Call OpenRouter API with streaming
-            stream = await client.chat.completions.create(
-                model=model,
-                messages=full_messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                stream=True,
-            )
+Conversation:
+{conversation_text}"""
 
-            # Yield chunks as they arrive
-            async for chunk in stream:
-                if chunk.choices and chunk.choices[0].delta.content:
-                    yield chunk.choices[0].delta.content
-
-        except Exception as e:
-            # Log error and re-raise
-            print(f"Error generating streaming AI response: {str(e)}")
-            raise
-
-    @staticmethod
-    async def generate_concept_summary(
-        concept_name: str,
-        concept_description: str,
-        max_length: int = 200
-    ) -> str:
-        """
-        Generate a brief AI summary for a concept
-
-        Args:
-            concept_name: Name of the concept
-            concept_description: Description of the concept
-            max_length: Maximum length of summary
-
-        Returns:
-            AI-generated summary
-        """
-        messages = [
-            {
-                "role": "user",
-                "content": f"Provide a brief, clear summary (max {max_length} characters) of the concept '{concept_name}': {concept_description}"
-            }
-        ]
+        response = client.models.generate_content(
+            model=settings.GEMINI_MODEL,
+            contents=[types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=extract_prompt)],
+            )],
+            config=types.GenerateContentConfig(
+                system_instruction="You are a learning extraction assistant. Always respond with valid JSON arrays only, no markdown formatting.",
+                max_output_tokens=2000,
+                temperature=0.3,
+            ),
+        )
 
         try:
-            summary, _ = await AIService.generate_response(
-                messages=messages,
-                model="openai/gpt-4-turbo",
-                teaching_method="conceptual",
-                max_tokens=100,
-                temperature=0.5
-            )
-            return summary.strip()[:max_length]
-        except Exception as e:
-            print(f"Error generating concept summary: {str(e)}")
-            return concept_description[:max_length] if concept_description else ""
-
-    @staticmethod
-    async def suggest_subconcepts(
-        parent_concept_name: str,
-        parent_concept_description: str,
-        tier: str,
-        count: int = 5
-    ) -> List[Dict[str, str]]:
-        """
-        Generate suggested subconcepts for a parent concept
-
-        Args:
-            parent_concept_name: Name of the parent concept
-            parent_concept_description: Description of the parent concept
-            tier: Current tier (to determine next tier)
-            count: Number of subconcepts to generate
-
-        Returns:
-            List of dicts with 'name' and 'description' for each subconcept
-        """
-        # Determine next tier
-        next_tier = "pillar" if tier == "core" else "subtopic"
-
-        messages = [
-            {
-                "role": "user",
-                "content": f"""For the concept '{parent_concept_name}' ({parent_concept_description}),
-suggest {count} key {next_tier}s that a student should learn.
-Format your response as a JSON array with objects containing 'name' and 'description' fields.
-Example: [{{"name": "Concept Name", "description": "Brief description"}}]"""
-            }
-        ]
-
-        try:
-            response, _ = await AIService.generate_response(
-                messages=messages,
-                model="openai/gpt-4-turbo",
-                teaching_method="conceptual",
-                max_tokens=1000,
-                temperature=0.7
-            )
-
-            # Parse JSON response (simplified - should add proper error handling)
-            import json
-            subconcepts = json.loads(response)
-            return subconcepts[:count]
-
-        except Exception as e:
-            print(f"Error generating subconcepts: {str(e)}")
+            text = response.text or "[]"
+            # Strip markdown code fences if present
+            text = text.strip()
+            if text.startswith("```"):
+                text = text.split("\n", 1)[1]
+                text = text.rsplit("```", 1)[0]
+            return json.loads(text)
+        except (json.JSONDecodeError, IndexError):
             return []

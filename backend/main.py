@@ -1,6 +1,6 @@
 """
-Umbral EdTech Platform - FastAPI Backend
-Main application entry point
+Umbral - AI Learning Vault Platform
+FastAPI Backend Entry Point
 """
 
 from fastapi import FastAPI
@@ -8,9 +8,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 
 app = FastAPI(
-    title="Umbral EdTech API",
-    description="AI-powered educational platform with personalized learning",
-    version="0.1.0",
+    title="Umbral API",
+    description="AI Learning Vault - Your AI PlayGrounds project tracker",
+    version="0.2.0",
 )
 
 # Configure CORS
@@ -25,44 +25,42 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    """Root endpoint"""
     return {
-        "message": "Welcome to Umbral EdTech API",
-        "version": "0.1.0",
-        "status": "operational"
+        "message": "Welcome to Umbral API",
+        "version": "0.2.0",
+        "status": "operational",
     }
 
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
     return {"status": "healthy"}
 
 
-# Include routers
-from app.api.webhooks import clerk as clerk_webhooks
-from app.api.routes import chat, concepts
-
 # Webhooks
+from app.api.webhooks import clerk as clerk_webhooks
+
 app.include_router(clerk_webhooks.router, prefix="/webhooks", tags=["webhooks"])
 
 # API routes
-app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
-app.include_router(concepts.router, prefix="/api/concepts", tags=["concepts"])
+from app.api.routes import auth, chat, projects, milestones, tasks, deployments, learnings, dashboard
 
-# Future routes (will be added as we create them)
-# from app.api.routes import progress, export, learning_paths, assessments
-# app.include_router(progress.router, prefix="/api/progress", tags=["progress"])
-# app.include_router(export.router, prefix="/api/export", tags=["export"])
-# app.include_router(learning_paths.router, prefix="/api/learning-paths", tags=["learning-paths"])
-# app.include_router(assessments.router, prefix="/api/assessments", tags=["assessments"])
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
+app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
+app.include_router(milestones.router, prefix="/api", tags=["milestones"])
+app.include_router(tasks.router, prefix="/api", tags=["tasks"])
+app.include_router(deployments.router, prefix="/api", tags=["deployments"])
+app.include_router(learnings.router, prefix="/api/learnings", tags=["learnings"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=8000,
         reload=True,
-        log_level="info"
+        log_level="info",
     )
