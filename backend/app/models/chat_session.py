@@ -9,25 +9,17 @@ from app.core.database import Base
 
 
 class ChatSession(Base):
-    """
-    ChatSession model representing a conversation between user and AI
-    """
     __tablename__ = "chat_sessions"
 
-    # Primary key
-    id = Column(String, primary_key=True, index=True)  # UUID string
+    id = Column(String, primary_key=True, index=True)
 
     # Foreign keys
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    concept_id = Column(String, ForeignKey("concepts.id", ondelete="SET NULL"), nullable=True, index=True)
+    project_id = Column(String, ForeignKey("projects.id", ondelete="SET NULL"), nullable=True, index=True)
 
-    # Session configuration
-    title = Column(String(255), nullable=True)  # Auto-generated or user-set title
-    ai_model = Column(String(50), default="openai/gpt-4-turbo", nullable=False)  # OpenRouter model identifier
-    teaching_method = Column(String(50), default="conceptual", nullable=False)  # practical, conceptual, analogical, step-by-step
-
-    # Session state
-    status = Column(String(20), default="active", nullable=False)  # active, archived, deleted
+    # Session info
+    title = Column(String(255), nullable=True)
+    status = Column(String(20), default="active", nullable=False)
     total_messages = Column(Integer, default=0, nullable=False)
     total_tokens = Column(Integer, default=0, nullable=False)
 
@@ -38,8 +30,8 @@ class ChatSession(Base):
 
     # Relationships
     user = relationship("User", back_populates="chat_sessions")
+    project = relationship("Project", back_populates="chat_sessions")
     messages = relationship("ChatMessage", back_populates="session", cascade="all, delete-orphan", order_by="ChatMessage.sequence_number")
-    concept = relationship("Concept", back_populates="chat_sessions")
 
     def __repr__(self):
-        return f"<ChatSession(id={self.id}, user_id={self.user_id}, model={self.ai_model}, messages={self.total_messages})>"
+        return f"<ChatSession(id={self.id}, user_id={self.user_id}, messages={self.total_messages})>"

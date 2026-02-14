@@ -7,11 +7,11 @@ from app.schemas.user import (
     UserCreate,
     UserUpdate,
     UserResponse,
+    UserProfile,
+    ClerkWebhookUser,
 )
 
 from app.schemas.chat import (
-    TeachingMethod,
-    AIModel,
     MessageRole,
     ChatMessageBase,
     ChatSessionBase,
@@ -22,63 +22,75 @@ from app.schemas.chat import (
     ChatMessageResponse,
     ChatSessionResponse,
     ChatSessionWithMessagesResponse,
+    ExtractLearningRequest,
+    ExtractedLearning,
+    ExtractLearningResponse,
     StreamChunk,
     OpenFreeExport,
 )
 
-from app.schemas.concept import (
-    ConceptTierEnum,
-    RelationshipTypeEnum,
-    ConceptBase,
-    ConceptRelationshipBase,
-    ConceptCreate,
-    ConceptRelationshipCreate,
-    ConceptUpdate,
-    ConceptResponse,
-    ConceptRelationshipResponse,
-    ConceptWithChildren,
-    GraphNode,
-    GraphEdge,
-    GraphNodeData,
-    ConceptGraphResponse,
-    ConceptSearchParams,
+from app.schemas.project import (
+    ProjectCreate,
+    ProjectUpdate,
+    ProjectResponse,
+    ProjectListResponse,
+)
+
+from app.schemas.milestone import (
+    MilestoneCreate,
+    MilestoneUpdate,
+    MilestoneResponse,
+)
+
+from app.schemas.task import (
+    TaskCreate,
+    TaskUpdate,
+    TaskResponse,
+)
+
+from app.schemas.deployment import (
+    DeploymentMetricsCreate,
+    DeploymentMetricsResponse,
+    DeploymentCreate,
+    DeploymentUpdate,
+    DeploymentResponse,
+)
+
+from app.schemas.learning import (
+    LearningCreate,
+    LearningUpdate,
+    LearningResponse,
+    LearningSearchParams,
+)
+
+from app.schemas.dashboard import (
+    DashboardStats,
+    ActivityFeedItem,
+    ActivityFeedResponse,
 )
 
 __all__ = [
-    # User schemas
-    "UserBase",
-    "UserCreate",
-    "UserUpdate",
-    "UserResponse",
-    # Chat schemas
-    "TeachingMethod",
-    "AIModel",
-    "MessageRole",
-    "ChatMessageBase",
-    "ChatSessionBase",
-    "ChatSessionCreate",
-    "ChatMessageCreate",
-    "SendMessageRequest",
-    "ChatSessionUpdate",
-    "ChatMessageResponse",
-    "ChatSessionResponse",
+    # User
+    "UserBase", "UserCreate", "UserUpdate", "UserResponse",
+    "UserProfile", "ClerkWebhookUser",
+    # Chat
+    "MessageRole", "ChatMessageBase", "ChatSessionBase",
+    "ChatSessionCreate", "ChatMessageCreate", "SendMessageRequest",
+    "ChatSessionUpdate", "ChatMessageResponse", "ChatSessionResponse",
     "ChatSessionWithMessagesResponse",
-    "StreamChunk",
-    "OpenFreeExport",
-    # Concept schemas
-    "ConceptTierEnum",
-    "RelationshipTypeEnum",
-    "ConceptBase",
-    "ConceptRelationshipBase",
-    "ConceptCreate",
-    "ConceptRelationshipCreate",
-    "ConceptUpdate",
-    "ConceptResponse",
-    "ConceptRelationshipResponse",
-    "ConceptWithChildren",
-    "GraphNode",
-    "GraphEdge",
-    "GraphNodeData",
-    "ConceptGraphResponse",
-    "ConceptSearchParams",
+    "ExtractLearningRequest", "ExtractedLearning", "ExtractLearningResponse",
+    "StreamChunk", "OpenFreeExport",
+    # Project
+    "ProjectCreate", "ProjectUpdate", "ProjectResponse", "ProjectListResponse",
+    # Milestone
+    "MilestoneCreate", "MilestoneUpdate", "MilestoneResponse",
+    # Task
+    "TaskCreate", "TaskUpdate", "TaskResponse",
+    # Deployment
+    "DeploymentMetricsCreate", "DeploymentMetricsResponse",
+    "DeploymentCreate", "DeploymentUpdate", "DeploymentResponse",
+    # Learning
+    "LearningCreate", "LearningUpdate", "LearningResponse", "LearningSearchParams",
+    # Dashboard
+    "DashboardStats", "ActivityFeedItem", "ActivityFeedResponse",
 ]

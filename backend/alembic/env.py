@@ -21,13 +21,8 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from app.core.config import settings
 from app.core.database import Base
 
-# Import all models here to ensure they are registered with Base.metadata
-# from app.models.user import User
-# from app.models.chat import ChatSession, ChatMessage
-# from app.models.concept import Concept, ConceptRelationship
-# from app.models.progress import UserProgress
-# from app.models.learning_path import LearningPath
-# from app.models.assessment import Assessment
+# Import all models to ensure they are registered with Base.metadata
+from app.models import *  # noqa: F401,F403
 
 # Alembic Config object
 config = context.config
