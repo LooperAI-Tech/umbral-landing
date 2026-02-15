@@ -12,18 +12,18 @@ export function StatsGrid({ stats }: StatsGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <StatsCard
-        label="Proyectos"
+        label="Proyectos Activos"
         value={stats.active_projects}
         icon={Lightbulb}
         variant="primary"
       />
       <StatsCard
-        label="Despliegues"
+        label="Despliegues Activos"
         value={stats.total_deployments}
         icon={Rocket}
       />
       <StatsCard
-        label="Aprendizajes"
+        label="Aprendizajes Clave"
         value={stats.total_learnings}
         icon={BookOpen}
         variant="accent"

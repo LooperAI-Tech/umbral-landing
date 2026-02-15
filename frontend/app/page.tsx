@@ -18,6 +18,8 @@ import {
   COMMUNITY_NAME,
 } from "@/lib/constants";
 import { TerminalHeader } from "@/components/ui/terminal-header";
+import GalaxyBackground from "@/components/backgrounds/galaxy-background";
+import TestimonialsCarousel from "@/components/landing/testimonials-carousel";
 
 const features = [
   {
@@ -95,6 +97,20 @@ export default async function LandingPage() {
             <span className="text-xl font-display font-bold text-gradient-brand">
               {PRODUCT_NAME}
             </span>
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="#about" className="text-muted-foreground hover:text-foreground font-medium transition-colors text-sm">
+                Quiénes somos
+              </Link>
+              <Link href="#products" className="text-muted-foreground hover:text-foreground font-medium transition-colors text-sm">
+                Nuestros productos
+              </Link>
+              <Link href="#blog" className="text-muted-foreground hover:text-foreground font-medium transition-colors text-sm">
+                Blog
+              </Link>
+              <Link href="#pricing" className="text-muted-foreground hover:text-foreground font-medium transition-colors text-sm">
+                Pricing
+              </Link>
+            </nav>
             <div className="flex items-center gap-4">
               <Link
                 href="/sign-in"
@@ -115,7 +131,9 @@ export default async function LandingPage() {
 
       <main>
         {/* Hero */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <section className="relative min-h-[calc(100vh-4rem)] overflow-hidden">
+          <GalaxyBackground />
+          <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <p className="font-mono text-sm text-brand-skyblue mb-4 tracking-wider uppercase">
@@ -127,10 +145,10 @@ export default async function LandingPage() {
                 <span className="text-gradient-brand">Rastrea Todo.</span>
               </h1>
               <p className="text-4xl md:text-5xl lg:text-2xl font-display font-bold text-foreground leading-tight mb-6d">
-                Construye, Shipea, Aprende
+                Develop, Ship and Learn
               </p>
               <p className="text-lg text-muted-foreground mb-8 font-mono leading-relaxed">
-                La plataforma donde aprendes conceptos fundamentales de IA y tech desarrollando productos reales que otros pueden usar. Tu portfolio se construye mientras aprendes!
+                La plataforma donde aprendes conceptos fundamentales de IA y otras tecnologías mientras desarrollas productos que otros pueden usar. Tu portafolio se construye mientras aprendes!
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
@@ -195,6 +213,7 @@ export default async function LandingPage() {
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </section>
 
@@ -269,6 +288,8 @@ export default async function LandingPage() {
             </div>
           </div>
         </section>
+
+        <TestimonialsCarousel />
 
         {/* CTA Comunidad */}
         <section className="py-20 border-t border-border/50">
