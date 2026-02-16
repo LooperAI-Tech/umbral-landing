@@ -1,6 +1,6 @@
 aws_region    = "us-east-1"
 environment   = "dev"
-lambda_memory = 128
+lambda_memory = 512
 
 # Secrets - pass via CLI or terraform.tfvars (gitignored):
 # terraform apply -var-file=environments/staging.tfvars \
