@@ -3,8 +3,10 @@ Application configuration and settings.
 All values are loaded from backend/.env via pydantic-settings.
 """
 
-from typing import List
+import json
+from typing import List, Union
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 
 
 class Settings(BaseSettings):
@@ -20,6 +22,18 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v):
+        if isinstance(v, str):
+            # Handle JSON array string from Terraform: '["url1","url2"]'
+            v = v.strip()
+            if v.startswith("["):
+                return json.loads(v)
+            # Handle comma-separated string: "url1,url2"
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
     # Database (required — no default, must be set in .env)
     DATABASE_URL: str

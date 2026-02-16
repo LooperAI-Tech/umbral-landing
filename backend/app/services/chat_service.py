@@ -13,8 +13,11 @@ from sqlalchemy import select, and_, desc
 from sqlalchemy.orm import selectinload
 
 from app.models import ChatSession, ChatMessage, Project, Learning
+from app.models.milestone import Milestone
+from app.models.task import Task
 from app.schemas.chat import ChatSessionCreate, ChatSessionUpdate
 from app.schemas.project import ProjectCreate
+from app.schemas.milestone import MilestoneCreate
 from app.services.ai_service import AIService
 
 logger = logging.getLogger(__name__)
@@ -31,6 +34,7 @@ class ChatService:
             user_id=user_id,
             title=session_data.title,
             project_id=session_data.project_id,
+            milestone_id=getattr(session_data, "milestone_id", None),
             session_type=getattr(session_data, "session_type", "general") or "general",
             status="active",
             total_messages=0,
@@ -147,7 +151,8 @@ class ChatService:
 
     @staticmethod
     async def _build_user_context(
-        db: AsyncSession, user_id: str, project_id: Optional[str] = None
+        db: AsyncSession, user_id: str, project_id: Optional[str] = None,
+        milestone_id: Optional[str] = None
     ) -> Dict:
         """Build context for the AI from user's projects and learnings."""
         from app.services.user_service import UserService
@@ -197,6 +202,33 @@ class ChatService:
                     ],
                 }
 
+        # Current milestone context (for task generation)
+        if milestone_id:
+            from app.models.milestone import Milestone as MilestoneModel
+            result = await db.execute(
+                select(Milestone)
+                .options(selectinload(Milestone.tasks))
+                .where(Milestone.id == milestone_id)
+            )
+            milestone = result.scalar_one_or_none()
+            if milestone:
+                context["current_milestone"] = {
+                    "name": milestone.name,
+                    "deliverable": milestone.deliverable,
+                    "deliverable_type": milestone.deliverable_type.value if milestone.deliverable_type else "",
+                    "success_criteria": milestone.success_criteria,
+                    "description": milestone.description or "",
+                    "milestone_number": milestone.milestone_number,
+                    "tasks": [
+                        {
+                            "task_number": t.task_number,
+                            "title": t.title,
+                            "status": t.status.value if t.status else "",
+                        }
+                        for t in (milestone.tasks or [])
+                    ],
+                }
+
         # Recent learnings
         result = await db.execute(
             select(Learning)
@@ -217,46 +249,168 @@ class ChatService:
         db: AsyncSession, user_id: str, session: ChatSession, response_content: str
     ) -> Optional[Dict]:
         """Check AI response for action markers and execute them."""
-        if session.session_type != "project_creation":
-            return None
 
-        if "[PROJECT_READY]" not in response_content:
-            return None
+        # --- Project creation action ---
+        if session.session_type == "project_creation" and "[PROJECT_READY]" in response_content:
+            try:
+                marker_idx = response_content.index("[PROJECT_READY]")
+                after_marker = response_content[marker_idx + len("[PROJECT_READY]"):]
 
-        # Extract JSON from after the marker
-        try:
-            marker_idx = response_content.index("[PROJECT_READY]")
-            after_marker = response_content[marker_idx + len("[PROJECT_READY]"):]
+                json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_marker, re.DOTALL)
+                if not json_match:
+                    return None
 
-            # Find JSON block (may be wrapped in ```json ... ```)
-            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_marker, re.DOTALL)
-            if not json_match:
+                project_data = json.loads(json_match.group())
+                project_create = ProjectCreate(**project_data)
+
+                from app.services.project_service import ProjectService
+                project = await ProjectService.create(db, user_id, project_create)
+
+                session.project_id = project.id
+                await db.flush()
+
+                return {
+                    "action": "project_created",
+                    "action_data": {
+                        "project_id": project.id,
+                        "display_id": project.display_id,
+                        "project_name": project.name,
+                    },
+                }
+            except (json.JSONDecodeError, ValueError, Exception) as e:
+                logger.warning(f"Failed to parse project from AI response: {e}")
                 return None
 
-            project_data = json.loads(json_match.group())
+        # --- Milestone generation action ---
+        if session.session_type == "milestone_generation" and "[MILESTONES_READY]" in response_content:
+            try:
+                marker_idx = response_content.index("[MILESTONES_READY]")
+                after_marker = response_content[marker_idx + len("[MILESTONES_READY]"):]
 
-            # Validate against ProjectCreate schema
-            project_create = ProjectCreate(**project_data)
+                # Extract JSON array (may be wrapped in ```json ... ```)
+                json_match = re.search(r'\[.*\]', after_marker, re.DOTALL)
+                if not json_match:
+                    return None
 
-            # Create the project
-            from app.services.project_service import ProjectService
-            project = await ProjectService.create(db, user_id, project_create)
+                json_text = json_match.group()
+                # Strip markdown code fences if wrapping the array
+                json_text = json_text.strip()
+                milestones_data = json.loads(json_text)
 
-            # Link the session to the new project
-            session.project_id = project.id
-            await db.flush()
+                if not isinstance(milestones_data, list) or not milestones_data:
+                    return None
 
-            return {
-                "action": "project_created",
-                "action_data": {
-                    "project_id": project.id,
-                    "display_id": project.display_id,
-                    "project_name": project.name,
-                },
-            }
-        except (json.JSONDecodeError, ValueError, Exception) as e:
-            logger.warning(f"Failed to parse project from AI response: {e}")
-            return None
+                project_id = session.project_id
+                if not project_id:
+                    logger.warning("Milestone generation session has no project_id")
+                    return None
+
+                from app.services.milestone_service import MilestoneService
+
+                created_milestones = []
+                for m_data in milestones_data:
+                    # Set default deliverable_type if missing
+                    if "deliverable_type" not in m_data or not m_data["deliverable_type"]:
+                        m_data["deliverable_type"] = "FEATURE"
+
+                    milestone_create = MilestoneCreate(
+                        name=m_data["name"],
+                        deliverable=m_data["deliverable"],
+                        deliverable_type=m_data["deliverable_type"],
+                        success_criteria=m_data["success_criteria"],
+                        description=m_data.get("description"),
+                        target_date=m_data.get("target_date"),
+                    )
+                    milestone = await MilestoneService.create(
+                        db, project_id, user_id, milestone_create
+                    )
+                    if milestone:
+                        created_milestones.append({
+                            "id": milestone.id,
+                            "name": milestone.name,
+                            "milestone_number": milestone.milestone_number,
+                        })
+
+                if not created_milestones:
+                    return None
+
+                return {
+                    "action": "milestones_created",
+                    "action_data": {
+                        "project_id": project_id,
+                        "milestones": created_milestones,
+                        "count": len(created_milestones),
+                    },
+                }
+            except (json.JSONDecodeError, ValueError, Exception) as e:
+                logger.warning(f"Failed to parse milestones from AI response: {e}")
+                return None
+
+        # --- Task generation action ---
+        if session.session_type == "task_generation" and "[TASKS_READY]" in response_content:
+            try:
+                marker_idx = response_content.index("[TASKS_READY]")
+                after_marker = response_content[marker_idx + len("[TASKS_READY]"):]
+
+                json_match = re.search(r'\[.*\]', after_marker, re.DOTALL)
+                if not json_match:
+                    return None
+
+                json_text = json_match.group().strip()
+                tasks_data = json.loads(json_text)
+
+                if not isinstance(tasks_data, list) or not tasks_data:
+                    return None
+
+                milestone_id = session.milestone_id
+                if not milestone_id:
+                    logger.warning("Task generation session has no milestone_id")
+                    return None
+
+                from app.services.task_service import TaskService
+                from app.schemas.task import TaskCreate as TaskCreateSchema
+
+                created_tasks = []
+                for t_data in tasks_data:
+                    if "task_type" not in t_data or not t_data["task_type"]:
+                        t_data["task_type"] = "DEVELOPMENT"
+                    if "complexity" not in t_data or not t_data["complexity"]:
+                        t_data["complexity"] = "MEDIUM"
+
+                    task_create = TaskCreateSchema(
+                        title=t_data["title"],
+                        description=t_data.get("description"),
+                        task_type=t_data["task_type"],
+                        tech_component=t_data.get("tech_component", "General"),
+                        complexity=t_data.get("complexity", "MEDIUM"),
+                        estimated_hours=t_data.get("estimated_hours"),
+                    )
+                    task = await TaskService.create(
+                        db, milestone_id, user_id, task_create
+                    )
+                    if task:
+                        created_tasks.append({
+                            "id": task.id,
+                            "title": task.title,
+                            "task_number": task.task_number,
+                        })
+
+                if not created_tasks:
+                    return None
+
+                return {
+                    "action": "tasks_created",
+                    "action_data": {
+                        "milestone_id": milestone_id,
+                        "tasks": created_tasks,
+                        "count": len(created_tasks),
+                    },
+                }
+            except (json.JSONDecodeError, ValueError, Exception) as e:
+                logger.warning(f"Failed to parse tasks from AI response: {e}")
+                return None
+
+        return None
 
     @staticmethod
     async def process_user_message(
@@ -277,7 +431,10 @@ class ChatService:
         ]
 
         # Build user context for AI
-        user_context = await ChatService._build_user_context(db, user_id, session.project_id)
+        user_context = await ChatService._build_user_context(
+            db, user_id, session.project_id,
+            milestone_id=getattr(session, "milestone_id", None)
+        )
 
         # Use session-type-aware system prompt
         system_prompt = AIService.build_system_prompt_for_session_type(

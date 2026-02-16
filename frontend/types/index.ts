@@ -447,6 +447,7 @@ export interface ChatSessionWithMessages extends ChatSession {
 export interface CreateSessionData {
   title?: string;
   project_id?: string;
+  milestone_id?: string;
   session_type?: string;
 }
 

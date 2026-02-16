@@ -7,7 +7,7 @@ python-multipart
 sqlalchemy
 alembic
 asyncpg
-psycopg2-binary
+# psycopg2-binary removed — using asyncpg for async connections
 
 # Pydantic for data validation
 pydantic
@@ -28,6 +28,9 @@ google-genai
 # HTTP Client
 httpx
 aiohttp
+
+# Lambda
+mangum
 
 # Utilities
 python-dateutil

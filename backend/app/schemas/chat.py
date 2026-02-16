@@ -23,6 +23,7 @@ class ChatMessageBase(BaseModel):
 class ChatSessionBase(BaseModel):
     title: Optional[str] = Field(None, max_length=255)
     project_id: Optional[str] = None
+    milestone_id: Optional[str] = None
 
 
 # Create schemas
