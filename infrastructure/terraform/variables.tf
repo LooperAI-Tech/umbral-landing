@@ -16,59 +16,58 @@ variable "environment" {
   default     = "prod"
 }
 
-variable "domain_name" {
-  description = "Domain name for the application"
+# Lambda
+variable "lambda_zip_path" {
+  description = "Path to the Lambda deployment zip file"
   type        = string
-  default     = "learn.loopertech.net"
+  default     = "../../backend/lambda.zip"
 }
 
-variable "acm_certificate_validated" {
-  description = "Set to true after DNS validation of ACM certificate is complete"
-  type        = bool
-  default     = false
+variable "lambda_memory" {
+  description = "Lambda memory in MB (128-512 recommended for free tier)"
+  type        = number
+  default     = 256
 }
 
-# Database
-variable "db_instance_class" {
-  description = "RDS instance class"
-  type        = string
-  default     = "db.t4g.micro"
-}
-
-variable "db_name" {
-  description = "Database name"
-  type        = string
-  default     = "umbral_db"
-}
-
-variable "db_username" {
-  description = "Database master username"
-  type        = string
-  default     = "umbral_user"
-}
-
-variable "db_password" {
-  description = "Database master password"
+# App secrets (pass via CLI: -var secret_key=xxx)
+variable "database_url" {
+  description = "Supabase PostgreSQL connection string"
   type        = string
   sensitive   = true
 }
 
-# Backend
-variable "backend_image" {
-  description = "ECR image URI for the backend (e.g. 123456.dkr.ecr.us-east-1.amazonaws.com/umbral-backend:latest)"
+variable "clerk_secret_key" {
+  description = "Clerk secret key"
   type        = string
-  default     = ""
+  sensitive   = true
+}
+
+variable "clerk_publishable_key" {
+  description = "Clerk publishable key"
+  type        = string
+  sensitive   = true
 }
 
 variable "gemini_api_key" {
   description = "Google Gemini API key"
   type        = string
   sensitive   = true
-  default     = ""
 }
 
-variable "apprunner_url" {
-  description = "App Runner service URL (set after first deploy)"
+variable "gemini_model" {
+  description = "Gemini model name"
   type        = string
-  default     = ""
+  default     = "gemini-2.5-flash"
+}
+
+variable "secret_key" {
+  description = "Application secret key for JWT signing"
+  type        = string
+  sensitive   = true
+}
+
+variable "cors_origins" {
+  description = "Comma-separated list of allowed CORS origins"
+  type        = string
+  default     = "http://localhost:3000"
 }

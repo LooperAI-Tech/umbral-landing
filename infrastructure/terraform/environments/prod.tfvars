@@ -1,13 +1,12 @@
-aws_region  = "us-east-1"
-environment = "prod"
-domain_name = "learn.loopertech.net"
+aws_region    = "us-east-1"
+environment   = "prod"
+lambda_memory = 256
 
-# Database
-db_instance_class = "db.t4g.micro"
-db_name           = "umbral_db"
-db_username       = "umbral_user"
-# db_password     = "SET_VIA_CLI: -var db_password=xxx"
-
-# Backend (set after pushing image to ECR)
-# backend_image = "123456.dkr.ecr.us-east-1.amazonaws.com/umbral-backend:latest"
-# gemini_api_key = "SET_VIA_CLI: -var gemini_api_key=xxx"
+# Secrets - pass via CLI or terraform.tfvars (gitignored):
+# terraform apply -var-file=environments/prod.tfvars \
+#   -var database_url="postgresql+asyncpg://..." \
+#   -var clerk_secret_key="sk_live_..." \
+#   -var clerk_publishable_key="pk_live_..." \
+#   -var gemini_api_key="..." \
+#   -var secret_key="..." \
+#   -var cors_origins="https://umbral.aiplaygrounds.org,https://umbral-edtech.vercel.app"

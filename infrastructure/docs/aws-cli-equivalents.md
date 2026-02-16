@@ -14,146 +14,99 @@ aws configure
 # Enter: Access Key ID, Secret Access Key, Region (us-east-1), Output (json)
 ```
 
-## 1. ACM Certificate
+## 1. IAM Role for Lambda
 
 ```bash
-# Request certificate
-aws acm request-certificate \
-  --domain-name learn.loopertech.net \
-  --validation-method DNS \
-  --region us-east-1
+# Create execution role
+aws iam create-role \
+  --role-name umbral-lambda-prod \
+  --assume-role-policy-document '{
+    "Version": "2012-10-17",
+    "Statement": [{
+      "Effect": "Allow",
+      "Principal": {"Service": "lambda.amazonaws.com"},
+      "Action": "sts:AssumeRole"
+    }]
+  }'
 
-# Get validation DNS records (add these to Cloudflare)
-aws acm describe-certificate \
-  --certificate-arn <CERT_ARN> \
-  --query "Certificate.DomainValidationOptions"
+# Attach basic execution policy (CloudWatch Logs)
+aws iam attach-role-policy \
+  --role-name umbral-lambda-prod \
+  --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 ```
 
-## 2. S3 Bucket (Frontend)
+## 2. Lambda Function
 
 ```bash
-# Create bucket
-aws s3 mb s3://umbral-frontend-prod --region us-east-1
+# Create function (after packaging with package-backend.sh)
+aws lambda create-function \
+  --function-name umbral-api-prod \
+  --runtime python3.12 \
+  --handler lambda_handler.handler \
+  --role <ROLE_ARN> \
+  --zip-file fileb://backend/lambda.zip \
+  --timeout 30 \
+  --memory-size 256 \
+  --environment "Variables={
+    DATABASE_URL=<SUPABASE_URL>,
+    CLERK_SECRET_KEY=<KEY>,
+    CLERK_PUBLISHABLE_KEY=<KEY>,
+    GEMINI_API_KEY=<KEY>,
+    GEMINI_MODEL=gemini-2.5-flash,
+    SECRET_KEY=<SECRET>,
+    CORS_ORIGINS=[\"https://umbral.aiplaygrounds.org\"]
+  }"
 
-# Block public access (CloudFront will serve it)
-aws s3api put-public-access-block \
-  --bucket umbral-frontend-prod \
-  --public-access-block-configuration \
-  BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
-
-# Deploy frontend (after building)
-aws s3 sync frontend/out/ s3://umbral-frontend-prod --delete
+# Update function code (subsequent deploys)
+aws lambda update-function-code \
+  --function-name umbral-api-prod \
+  --zip-file fileb://backend/lambda.zip
 ```
 
-## 3. CloudFront Distribution
+## 3. API Gateway (HTTP API)
 
 ```bash
-# Create OAI
-aws cloudfront create-cloud-front-origin-access-identity \
-  --cloud-front-origin-access-identity-config \
-  CallerReference=$(date +%s),Comment="umbral-frontend"
+# Create HTTP API
+aws apigatewayv2 create-api \
+  --name umbral-api-prod \
+  --protocol-type HTTP \
+  --cors-configuration '{
+    "AllowOrigins": ["https://umbral.aiplaygrounds.org"],
+    "AllowMethods": ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+    "AllowHeaders": ["Authorization","Content-Type"],
+    "AllowCredentials": true,
+    "MaxAge": 86400
+  }'
 
-# Create distribution (use JSON config file)
-aws cloudfront create-distribution --distribution-config file://cloudfront-config.json
+# Create Lambda integration
+aws apigatewayv2 create-integration \
+  --api-id <API_ID> \
+  --integration-type AWS_PROXY \
+  --integration-uri arn:aws:lambda:us-east-1:<ACCOUNT_ID>:function:umbral-api-prod \
+  --payload-format-version 2.0
 
-# Invalidate cache after deploy
-aws cloudfront create-invalidation \
-  --distribution-id <DIST_ID> \
-  --paths "/*"
-```
+# Create catch-all route
+aws apigatewayv2 create-route \
+  --api-id <API_ID> \
+  --route-key '$default' \
+  --target integrations/<INTEGRATION_ID>
 
-## 4. RDS PostgreSQL
+# Create auto-deploy stage
+aws apigatewayv2 create-stage \
+  --api-id <API_ID> \
+  --stage-name '$default' \
+  --auto-deploy
 
-```bash
-# Create database instance
-aws rds create-db-instance \
-  --db-instance-identifier umbral-db-prod \
-  --db-instance-class db.t4g.micro \
-  --engine postgres \
-  --engine-version 15 \
-  --master-username umbral_user \
-  --master-user-password <PASSWORD> \
-  --allocated-storage 20 \
-  --storage-type gp3 \
-  --db-name umbral_db \
-  --publicly-accessible \
-  --backup-retention-period 7 \
-  --no-deletion-protection
+# Allow API Gateway to invoke Lambda
+aws lambda add-permission \
+  --function-name umbral-api-prod \
+  --statement-id AllowAPIGatewayInvoke \
+  --action lambda:InvokeFunction \
+  --principal apigateway.amazonaws.com \
+  --source-arn "arn:aws:execute-api:us-east-1:<ACCOUNT_ID>:<API_ID>/*/*"
 
-# Get endpoint
-aws rds describe-db-instances \
-  --db-instance-identifier umbral-db-prod \
-  --query "DBInstances[0].Endpoint"
-```
-
-## 5. ECR Repository
-
-```bash
-# Create repository
-aws ecr create-repository --repository-name umbral-backend
-
-# Login to ECR
-aws ecr get-login-password --region us-east-1 | \
-  docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
-
-# Build and push backend image
-docker build -t umbral-backend -f docker/backend/Dockerfile .
-docker tag umbral-backend:latest <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/umbral-backend:latest
-docker push <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/umbral-backend:latest
-```
-
-## 6. App Runner (Backend)
-
-```bash
-# Create App Runner service
-aws apprunner create-service \
-  --service-name umbral-api-prod \
-  --source-configuration '{
-    "AuthenticationConfiguration": {
-      "AccessRoleArn": "<APPRUNNER_ECR_ROLE_ARN>"
-    },
-    "AutoDeploymentsEnabled": false,
-    "ImageRepository": {
-      "ImageIdentifier": "<ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/umbral-backend:latest",
-      "ImageRepositoryType": "ECR",
-      "ImageConfiguration": {
-        "Port": "8000",
-        "RuntimeEnvironmentVariables": {
-          "DATABASE_URL": "postgresql+asyncpg://umbral_user:<PASSWORD>@<RDS_ENDPOINT>/umbral_db",
-          "GEMINI_API_KEY": "<KEY>",
-          "GEMINI_MODEL": "gemini-2.0-flash",
-          "CORS_ORIGINS": "[\"https://learn.loopertech.net\"]"
-        }
-      }
-    }
-  }' \
-  --instance-configuration '{"Cpu": "0.25 vCPU", "Memory": "0.5 GB"}' \
-  --health-check-configuration '{"Protocol": "HTTP", "Path": "/health"}'
-
-# Get service URL
-aws apprunner describe-service \
-  --service-arn <SERVICE_ARN> \
-  --query "Service.ServiceUrl"
-```
-
-## Deployment Workflow
-
-```bash
-# 1. Build and push backend
-docker build -t umbral-backend -f docker/backend/Dockerfile .
-docker tag umbral-backend:latest <ECR_URL>:latest
-docker push <ECR_URL>:latest
-
-# 2. Deploy backend (trigger App Runner redeployment)
-aws apprunner start-deployment --service-arn <SERVICE_ARN>
-
-# 3. Build and deploy frontend
-cd frontend && npm run build
-aws s3 sync out/ s3://umbral-frontend-prod --delete
-aws cloudfront create-invalidation --distribution-id <DIST_ID> --paths "/*"
-
-# 4. Run migrations (connect to RDS)
-cd backend && DATABASE_URL=<PROD_URL> alembic upgrade head
+# Get API URL
+aws apigatewayv2 get-api --api-id <API_ID> --query "ApiEndpoint"
 ```
 
 ## Using Terraform Instead
@@ -165,11 +118,27 @@ cd infrastructure/terraform
 terraform init
 
 # Plan (review changes)
-terraform plan -var-file=environments/prod.tfvars -var "db_password=<PASSWORD>"
+terraform plan -var-file=environments/prod.tfvars \
+  -var database_url="..." \
+  -var clerk_secret_key="..." \
+  -var clerk_publishable_key="..." \
+  -var gemini_api_key="..." \
+  -var secret_key="..." \
+  -var cors_origins="https://umbral.aiplaygrounds.org"
 
 # Apply
-terraform apply -var-file=environments/prod.tfvars -var "db_password=<PASSWORD>"
+terraform apply -var-file=environments/prod.tfvars -var ...
 
-# Destroy (careful!)
-terraform destroy -var-file=environments/prod.tfvars -var "db_password=<PASSWORD>"
+# Destroy all AWS resources (Supabase, Clerk, Vercel unaffected)
+terraform destroy -var-file=environments/prod.tfvars -var ...
+```
+
+## Domain Setup (Cloudflare)
+
+```bash
+# In Cloudflare DNS for aiplaygrounds.org:
+# Add CNAME record:
+#   Name: umbral
+#   Target: cname.vercel-dns.com
+#   Proxy: OFF (DNS only / gray cloud) — Vercel handles SSL
 ```

@@ -210,3 +210,22 @@ __marimo__/
 docker/.env
 docker/docker-compose.override.yml
 CLAUDE.md
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Secrets (create secrets.auto.tfvars locally)
+secrets.auto.tfvars
+*.auto.tfvars
+
+# Crash logs
+crash.log
+crash.*.log
+
+
+# Lambda build artifacts
+lambda.zip
+.lambda_build/
