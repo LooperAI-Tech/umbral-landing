@@ -32,6 +32,7 @@ class ProjectStatus(str, enum.Enum):
     ON_HOLD = "ON_HOLD"
     COMPLETED = "COMPLETED"
     ARCHIVED = "ARCHIVED"
+    DELETED = "DELETED"
 
 
 class Priority(str, enum.Enum):

@@ -84,11 +84,10 @@ app.include_router(early_access.router, prefix="/api/early-access", tags=["early
 if __name__ == "__main__":
     import uvicorn
 
-    # For dev with auto-reload, use the CLI instead:
-    #   python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
         port=8000,
+        reload=True,
         log_level="info",
     )

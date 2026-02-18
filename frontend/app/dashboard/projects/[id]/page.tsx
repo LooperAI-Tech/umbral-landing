@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2, AlertTriangle } from "lucide-react";
 import { useProjectStore } from "@/stores/projectStore";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,14 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MilestoneList } from "@/components/projects/milestone-list";
 import { DeploymentLog } from "@/components/projects/deployment-log";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const statusVariant: Record<string, "secondary" | "warning" | "success" | "info"> = {
   PLANNED: "secondary",
@@ -25,15 +33,21 @@ export default function ProjectDetailPage() {
   const router = useRouter();
   const id = params.id as string;
   const { currentProject, isLoading, fetchProject, deleteProject } = useProjectStore();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchProject(id);
   }, [id, fetchProject]);
 
   const handleDelete = async () => {
-    if (confirm("¿Estás seguro de que quieres eliminar este proyecto?")) {
+    setIsDeleting(true);
+    try {
       await deleteProject(id);
       router.push("/dashboard/projects");
+    } catch {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -76,7 +90,7 @@ export default function ProjectDetailPage() {
             <p className="text-muted-foreground mt-2">{project.description}</p>
           )}
         </div>
-        <Button variant="destructive" size="icon-sm" onClick={handleDelete}>
+        <Button variant="destructive" size="icon-sm" onClick={() => setShowDeleteDialog(true)}>
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
@@ -124,6 +138,43 @@ export default function ProjectDetailPage() {
           <DeploymentLog projectId={project.id} />
         </TabsContent>
       </Tabs>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent showCloseButton={false} className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+              </div>
+              <div>
+                <DialogTitle>Eliminar Proyecto</DialogTitle>
+                <DialogDescription className="mt-1">
+                  Esta accion eliminara permanentemente{" "}
+                  <span className="font-semibold text-foreground">{project.name}</span>{" "}
+                  y todos sus hitos, tareas y despliegues asociados.
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <Button
+              variant="ghost"
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={isDeleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Eliminando..." : "Eliminar Proyecto"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

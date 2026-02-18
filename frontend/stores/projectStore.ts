@@ -85,6 +85,7 @@ export const useProjectStore = create<ProjectState>((set) => ({
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Failed to delete project";
       set({ error: msg });
+      throw error;
     }
   },
 

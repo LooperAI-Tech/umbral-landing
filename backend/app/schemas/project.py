@@ -16,7 +16,7 @@ class ProjectCreate(BaseModel):
     ai_branch: AIBranch
     sub_domain: Optional[str] = None
     problem_statement: str = Field(..., min_length=1)
-    target_user: str = Field(..., min_length=1)
+    target_user: str = Field(default="Por definir", min_length=1)
     target_user_persona: Optional[dict] = None
     technologies: List[str] = []
     tech_stack: Optional[dict] = None

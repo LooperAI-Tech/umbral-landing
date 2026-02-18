@@ -459,6 +459,124 @@ class ChatService:
             db, user_id, session, response_content
         )
 
+        # Strip DB-action markers and their JSON payloads from message content
+        if action_info:
+            action_name = action_info.get("action", "")
+            marker_map = {
+                "project_created": "[PROJECT_READY]",
+                "milestones_created": "[MILESTONES_READY]",
+                "tasks_created": "[TASKS_READY]",
+            }
+            marker = marker_map.get(action_name)
+            if marker and marker in ai_message.content:
+                marker_idx = ai_message.content.index(marker)
+                clean_text = ai_message.content[:marker_idx].strip()
+                if not clean_text:
+                    # If no text before marker, use a friendly fallback
+                    clean_text = ai_message.content[marker_idx + len(marker):]
+                    # Strip JSON block (```json ... ``` or raw { ... })
+                    clean_text = re.sub(r'```(?:json)?\s*\{.*?\}\s*```', '', clean_text, flags=re.DOTALL)
+                    clean_text = re.sub(r'```(?:json)?\s*\[.*?\]\s*```', '', clean_text, flags=re.DOTALL)
+                    clean_text = clean_text.strip()
+                ai_message.content = clean_text or "Listo."
+
+        # Detect UI action markers (non-DB actions, just frontend hints)
+        # Only emit if the user hasn't already responded with one of the options
+        BRANCH_LABELS = {
+            "IA Generativa / LLMs", "Machine Learning", "Visión por Computadora",
+            "Procesamiento de Lenguaje", "Aprendizaje por Refuerzo",
+            "MLOps / Infraestructura", "Ingeniería de Datos", "Otra área",
+        }
+        PRIORITY_LABELS = {"Baja", "Media", "Alta", "Crítica"}
+        LEVEL_LABELS = {"Introductorio", "Intermedio", "Avanzado"}
+
+        def _user_already_selected(labels: set) -> bool:
+            return any(
+                msg["content"].strip() in labels
+                for msg in message_history if msg["role"] == "user"
+            )
+
+        # Strip ALL known markers from content regardless of which one triggered
+        def _strip_markers(text: str) -> str:
+            for marker in ("[SELECT_AI_BRANCH]", "[SELECT_PRIORITY]", "[SELECT_LEVEL]", "[PROJECT_SUMMARY]"):
+                text = text.replace(marker, "")
+            return text.strip()
+
+        if not action_info:
+            # --- Project summary card ---
+            if "[PROJECT_SUMMARY]" in response_content:
+                try:
+                    marker_idx = response_content.index("[PROJECT_SUMMARY]")
+                    after_marker = response_content[marker_idx + len("[PROJECT_SUMMARY]"):]
+                    json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_marker, re.DOTALL)
+                    if json_match:
+                        summary_data = json.loads(json_match.group())
+                        # Text before the marker becomes the message content
+                        text_before = response_content[:marker_idx].strip()
+                        # Text after the JSON block (e.g. confirmation question)
+                        json_end = marker_idx + len("[PROJECT_SUMMARY]") + json_match.end()
+                        text_after = response_content[json_end:].strip()
+                        # Strip markdown code fences from text_after
+                        text_after = re.sub(r'```(?:json)?\s*', '', text_after).strip()
+                        combined = f"{text_before}\n\n{text_after}".strip() if text_after else text_before
+                        ai_message.content = combined
+                        action_info = {
+                            "action": "project_summary",
+                            "action_data": summary_data,
+                        }
+                except (json.JSONDecodeError, ValueError) as e:
+                    logger.warning("Failed to parse project summary: %s", e)
+                    ai_message.content = _strip_markers(response_content)
+
+            # --- Selection buttons ---
+            elif "[SELECT_AI_BRANCH]" in response_content:
+                ai_message.content = _strip_markers(response_content)
+                if not _user_already_selected(BRANCH_LABELS):
+                    action_info = {
+                        "action": "select_ai_branch",
+                        "action_data": {
+                            "options": [
+                                {"value": "GENAI_LLM", "label": "IA Generativa / LLMs"},
+                                {"value": "ML_TRADITIONAL", "label": "Machine Learning"},
+                                {"value": "COMPUTER_VISION", "label": "Visión por Computadora"},
+                                {"value": "NLP", "label": "Procesamiento de Lenguaje"},
+                                {"value": "REINFORCEMENT_LEARNING", "label": "Aprendizaje por Refuerzo"},
+                                {"value": "MLOPS", "label": "MLOps / Infraestructura"},
+                                {"value": "DATA_ENGINEERING", "label": "Ingeniería de Datos"},
+                                {"value": "OTHER", "label": "Otra área"},
+                            ],
+                        },
+                    }
+
+            elif "[SELECT_LEVEL]" in response_content:
+                ai_message.content = _strip_markers(response_content)
+                if not _user_already_selected(LEVEL_LABELS):
+                    action_info = {
+                        "action": "select_level",
+                        "action_data": {
+                            "options": [
+                                {"value": "INTRODUCTORIO", "label": "Introductorio"},
+                                {"value": "INTERMEDIO", "label": "Intermedio"},
+                                {"value": "AVANZADO", "label": "Avanzado"},
+                            ],
+                        },
+                    }
+
+            elif "[SELECT_PRIORITY]" in response_content:
+                ai_message.content = _strip_markers(response_content)
+                if not _user_already_selected(PRIORITY_LABELS):
+                    action_info = {
+                        "action": "select_priority",
+                        "action_data": {
+                            "options": [
+                                {"value": "LOW", "label": "Baja"},
+                                {"value": "MEDIUM", "label": "Media"},
+                                {"value": "HIGH", "label": "Alta"},
+                                {"value": "CRITICAL", "label": "Crítica"},
+                            ],
+                        },
+                    }
+
         await db.commit()
         return ai_message, action_info
 
