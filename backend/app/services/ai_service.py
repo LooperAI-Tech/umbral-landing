@@ -306,8 +306,26 @@ class AIService:
                 parts=[types.Part.from_text(text=msg["content"])],
             ))
 
+        safety_settings = [
+            types.SafetySetting(
+                category="HARM_CATEGORY_HARASSMENT",
+                threshold="BLOCK_ONLY_HIGH",
+            ),
+            types.SafetySetting(
+                category="HARM_CATEGORY_HATE_SPEECH",
+                threshold="BLOCK_ONLY_HIGH",
+            ),
+            types.SafetySetting(
+                category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold="BLOCK_ONLY_HIGH",
+            ),
+            types.SafetySetting(
+                category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold="BLOCK_ONLY_HIGH",
+            ),
+        ]
+
         try:
-            # Use async client to avoid blocking the event loop
             response = await client.aio.models.generate_content(
                 model=settings.GEMINI_MODEL,
                 contents=contents,
@@ -315,6 +333,7 @@ class AIService:
                     system_instruction=system_prompt,
                     max_output_tokens=max_tokens,
                     temperature=temperature,
+                    safety_settings=safety_settings,
                 ),
             )
         except Exception as e:
@@ -323,7 +342,12 @@ class AIService:
 
         content = response.text or ""
         if not content.strip():
-            logger.warning("Gemini returned empty response (possibly blocked by safety filters)")
+            block_reason = ""
+            if hasattr(response, "candidates") and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, "finish_reason"):
+                    block_reason = f" (reason: {candidate.finish_reason})"
+            logger.warning("Gemini returned empty response%s", block_reason)
             content = "Lo siento, no pude generar una respuesta. Por favor intenta reformular tu mensaje."
 
         tokens_used = 0

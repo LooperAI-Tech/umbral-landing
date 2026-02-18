@@ -19,6 +19,7 @@ import {
 } from "@/components/early-access/form-controls";
 import {
   SECTION_NAMES,
+  COUNTRIES,
   AGE_RANGES,
   PROFESSIONAL_PROFILES,
   CURRENT_SITUATIONS,
@@ -39,17 +40,19 @@ import {
 import { PRODUCT_NAME } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 // ── Validation ──
 
 function validateStep(step: number, data: EarlyAccessFormData): string | null {
   switch (step) {
-    case 0:
+    case 0: // Tus datos
       if (!data.name.trim()) return "El nombre es requerido.";
       if (!data.email.trim()) return "El correo es requerido.";
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
         return "El correo no es válido.";
+      return null;
+    case 1: // Sobre ti
       if (!data.country.trim()) return "El país es requerido.";
       if (!data.age_range) return "Selecciona tu rango de edad.";
       if (data.professional_profiles.length === 0)
@@ -58,7 +61,7 @@ function validateStep(step: number, data: EarlyAccessFormData): string | null {
       if (!data.programming_experience)
         return "Selecciona tu experiencia programando.";
       return null;
-    case 1:
+    case 2: // Tu experiencia aprendiendo
       if (data.platforms_used.length === 0)
         return "Selecciona al menos una plataforma.";
       if (data.biggest_frustrations.length === 0)
@@ -66,18 +69,18 @@ function validateStep(step: number, data: EarlyAccessFormData): string | null {
       if (!data.abandoned_courses)
         return "Responde sobre cursos abandonados.";
       return null;
-    case 2:
+    case 3: // Qué quieres construir
       if (data.project_types.length === 0)
         return "Selecciona al menos un tipo de proyecto.";
       if (!data.deployment_importance)
         return "Selecciona la importancia del despliegue.";
       return null;
-    case 3:
+    case 4: // Qué esperas de Umbral
       if (data.feature_ranking.length === 0)
         return "Ordena las features por importancia.";
       if (!data.weekly_time) return "Selecciona el tiempo semanal.";
       return null;
-    case 4:
+    case 5: // Inversión y confirmaciones
       if (!data.monthly_payment) return "Selecciona una opción de pago.";
       if (!data.confirmations.terms)
         return "Debes aceptar los Términos y Condiciones.";
@@ -100,7 +103,7 @@ export default function EarlyAccessPage() {
     feature_ranking: [...FEATURES_TO_RANK],
   });
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const update = useCallback(
@@ -114,12 +117,43 @@ export default function EarlyAccessPage() {
     []
   );
 
-  const goNext = () => {
+  const checkEmailExists = async (email: string): Promise<boolean> => {
+    try {
+      const { data: exists, error: rpcError } = await supabase.rpc(
+        "check_email_exists",
+        { check_email: email }
+      );
+      if (rpcError) {
+        return false;
+      }
+      return exists === true;
+    } catch {
+      return false;
+    }
+  };
+
+  const goNext = async () => {
     const err = validateStep(step, data);
     if (err) {
       setError(err);
       return;
     }
+
+    // Email uniqueness check on step 0
+    if (step === 0) {
+      setLoading(true);
+      setError(null);
+      try {
+        const exists = await checkEmailExists(data.email);
+        if (exists) {
+          setError("Ya existe una solicitud con este correo electrónico.");
+          return;
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
     setError(null);
     setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -138,7 +172,7 @@ export default function EarlyAccessPage() {
       return;
     }
 
-    setSubmitting(true);
+    setLoading(true);
     setError(null);
 
     try {
@@ -175,7 +209,7 @@ export default function EarlyAccessPage() {
       });
 
       if (dbError) {
-        console.error("Supabase insert error:", dbError);
+        // Supabase insert error
         if (dbError.code === "23505") {
           setError("Ya existe una solicitud con este correo electrónico.");
           return;
@@ -185,10 +219,10 @@ export default function EarlyAccessPage() {
 
       setSubmitted(true);
     } catch (err) {
-      console.error("Early access submit error:", err);
+      // Submit error
       setError("Hubo un error al enviar tu solicitud. Intenta de nuevo.");
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -241,11 +275,12 @@ export default function EarlyAccessPage() {
 
               {/* Step content */}
               <div className="space-y-6">
-                {step === 0 && <Step1 data={data} update={update} />}
-                {step === 1 && <Step2 data={data} update={update} />}
-                {step === 2 && <Step3 data={data} update={update} />}
-                {step === 3 && <Step4 data={data} update={update} />}
-                {step === 4 && <Step5 data={data} update={update} />}
+                {step === 0 && <StepDatos data={data} update={update} />}
+                {step === 1 && <StepSobreTi data={data} update={update} />}
+                {step === 2 && <StepExperiencia data={data} update={update} />}
+                {step === 3 && <StepConstruir data={data} update={update} />}
+                {step === 4 && <StepEsperas data={data} update={update} />}
+                {step === 5 && <StepInversion data={data} update={update} />}
               </div>
 
               {/* Error */}
@@ -258,7 +293,7 @@ export default function EarlyAccessPage() {
               {/* Navigation */}
               <div className="flex justify-between mt-10 pt-6 border-t border-border">
                 {step > 0 ? (
-                  <Button variant="ghost" onClick={goBack}>
+                  <Button variant="ghost" onClick={goBack} disabled={loading}>
                     <ArrowLeft className="w-4 h-4" />
                     Atrás
                   </Button>
@@ -271,17 +306,30 @@ export default function EarlyAccessPage() {
                   </Button>
                 )}
                 {step < TOTAL_STEPS - 1 ? (
-                  <Button variant="gradient" onClick={goNext}>
-                    Siguiente
-                    <ArrowRight className="w-4 h-4" />
+                  <Button
+                    variant="gradient"
+                    onClick={goNext}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Verificando...
+                      </>
+                    ) : (
+                      <>
+                        Siguiente
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
                   </Button>
                 ) : (
                   <Button
                     variant="gradient"
                     onClick={handleSubmit}
-                    disabled={submitting}
+                    disabled={loading}
                   >
-                    {submitting ? (
+                    {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
                         Enviando...
@@ -348,7 +396,7 @@ type StepProps = {
 
 // ── Steps ──
 
-function Step1({ data, update }: StepProps) {
+function StepDatos({ data, update }: StepProps) {
   return (
     <>
       <div>
@@ -367,13 +415,24 @@ function Step1({ data, update }: StepProps) {
           value={data.email}
           onChange={(e) => update("email", e.target.value)}
         />
+        <p className="text-xs text-muted-foreground mt-1 font-mono">
+          Usaremos este correo para contactarte sobre tu acceso.
+        </p>
       </div>
+    </>
+  );
+}
+
+function StepSobreTi({ data, update }: StepProps) {
+  return (
+    <>
       <div>
         <QuestionLabel>¿En qué país estás?</QuestionLabel>
-        <Input
-          placeholder="Ej: Colombia, México, España..."
+        <SingleSelectGroup
+          options={COUNTRIES}
           value={data.country}
-          onChange={(e) => update("country", e.target.value)}
+          onChange={(v) => update("country", v)}
+          hasOther
         />
       </div>
       <div>
@@ -420,7 +479,7 @@ function Step1({ data, update }: StepProps) {
   );
 }
 
-function Step2({ data, update }: StepProps) {
+function StepExperiencia({ data, update }: StepProps) {
   return (
     <>
       <div>
@@ -463,7 +522,7 @@ function Step2({ data, update }: StepProps) {
   );
 }
 
-function Step3({ data, update }: StepProps) {
+function StepConstruir({ data, update }: StepProps) {
   return (
     <>
       <div>
@@ -495,7 +554,7 @@ function Step3({ data, update }: StepProps) {
   );
 }
 
-function Step4({ data, update }: StepProps) {
+function StepEsperas({ data, update }: StepProps) {
   return (
     <>
       <div>
@@ -535,7 +594,7 @@ function Step4({ data, update }: StepProps) {
   );
 }
 
-function Step5({ data, update }: StepProps) {
+function StepInversion({ data, update }: StepProps) {
   const toggleConfirmation = (
     key: keyof EarlyAccessFormData["confirmations"]
   ) => {

@@ -69,7 +69,7 @@ from app.api.webhooks import clerk as clerk_webhooks
 app.include_router(clerk_webhooks.router, prefix="/webhooks", tags=["webhooks"])
 
 # API routes
-from app.api.routes import auth, chat, projects, milestones, tasks, deployments, learnings, dashboard
+from app.api.routes import auth, chat, projects, milestones, tasks, deployments, learnings, dashboard, early_access
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
@@ -79,6 +79,7 @@ app.include_router(tasks.router, prefix="/api", tags=["tasks"])
 app.include_router(deployments.router, prefix="/api", tags=["deployments"])
 app.include_router(learnings.router, prefix="/api/learnings", tags=["learnings"])
 app.include_router(dashboard.router, prefix="/api/dashboard", tags=["dashboard"])
+app.include_router(early_access.router, prefix="/api/early-access", tags=["early-access"])
 
 if __name__ == "__main__":
     import uvicorn
