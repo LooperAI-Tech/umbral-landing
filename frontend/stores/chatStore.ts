@@ -110,9 +110,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
         isSending: false,
       }));
     } catch (error: unknown) {
+      const isTimeout = error instanceof Error && error.message.includes("timeout");
       set((state) => ({
-        messages: state.messages.filter((msg) => msg.id !== userMessage.id),
-        error: error instanceof Error ? error.message : "No se pudo enviar el mensaje",
+        messages: state.messages.map((msg) =>
+          msg.id === userMessage.id
+            ? { ...msg, id: `failed-${Date.now()}`, model_used: "failed" }
+            : msg
+        ),
+        error: isTimeout
+          ? "La respuesta tardó demasiado. Intenta enviar el mensaje de nuevo."
+          : error instanceof Error ? error.message : "No se pudo enviar el mensaje",
         isSending: false,
       }));
     }

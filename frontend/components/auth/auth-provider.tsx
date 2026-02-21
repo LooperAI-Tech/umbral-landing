@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { setAuthToken } from "@/lib/api";
+import { setTokenGetter } from "@/lib/api";
 
 /**
- * Syncs Clerk auth token to the API client.
- * Blocks rendering children until the token is set so no API call fires without auth.
+ * Syncs Clerk auth to the API client.
+ * Registers a token getter so every API request gets a fresh JWT,
+ * eliminating stale-token 401 errors.
  */
 export function AuthTokenProvider({ children }: { children: React.ReactNode }) {
   const { getToken, isSignedIn, isLoaded } = useAuth();
@@ -15,28 +16,18 @@ export function AuthTokenProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoaded) return;
 
-    const syncToken = async () => {
-      if (isSignedIn) {
-        const token = await getToken();
-        setAuthToken(token);
-      } else {
-        setAuthToken(null);
-      }
-      setTokenReady(true);
-    };
-    syncToken();
+    if (isSignedIn) {
+      // Register the getter — Clerk's getToken() handles caching & refresh internally
+      setTokenGetter(() => getToken());
+    } else {
+      setTokenGetter(null);
+    }
+    setTokenReady(true);
 
-    // Refresh token periodically (every 50 seconds, tokens last ~60s)
-    const interval = setInterval(async () => {
-      if (isSignedIn) {
-        const token = await getToken();
-        setAuthToken(token);
-      }
-    }, 50000);
-    return () => clearInterval(interval);
+    return () => setTokenGetter(null);
   }, [getToken, isSignedIn, isLoaded]);
 
-  // Don't render children until auth is loaded and token is set
+  // Don't render children until auth is loaded and token getter is set
   if (!isLoaded || !tokenReady) {
     return (
       <div className="flex h-screen items-center justify-center bg-background">

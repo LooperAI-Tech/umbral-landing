@@ -21,7 +21,7 @@ const WELCOME_MESSAGE: ChatMessage = {
   session_id: "",
   role: "assistant",
   content:
-    "¡Hola! Vamos a planificar los hitos de tu proyecto. Cuéntame:\n\n- ¿Cuáles son los objetivos principales?\n- ¿Cuánto tiempo tienes disponible?\n- ¿Qué quieres lograr primero?",
+    "¡Hola! Vamos a planificar los hitos de tu proyecto. Cuéntame:\n\n- ¿Cuáles son los objetivos principales?\n- ¿Cuánto tiempo tienes disponible?",
   tokens_used: 0,
   sequence_number: 0,
   created_at: new Date().toISOString(),
@@ -117,7 +117,7 @@ export function MilestoneGenerationChat({
   };
 
   return (
-    <div className="flex flex-col h-[55vh] max-h-[480px]">
+    <div className="flex flex-col h-[75vh] max-h-[700px]">
       <TerminalHeader
         title={`Hitos: ${projectName}`}
         path="~/proyectos/hitos"

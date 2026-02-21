@@ -13,6 +13,7 @@ from app.models.learning import Learning, LearningCategory, ConfidenceLevel
 from app.models.chat_session import ChatSession
 from app.models.chat_message import ChatMessage
 from app.models.activity_log import ActivityLog
+from app.models.early_access import EarlyAccess, EarlyAccessStatus
 
 __all__ = [
     "User",
@@ -38,4 +39,6 @@ __all__ = [
     "ChatSession",
     "ChatMessage",
     "ActivityLog",
+    "EarlyAccess",
+    "EarlyAccessStatus",
 ]

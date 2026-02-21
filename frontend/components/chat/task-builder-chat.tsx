@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, CheckCircle2, ListChecks } from "lucide-react";
+import { Send } from "lucide-react";
 import { chatApi } from "@/lib/api/chat";
 import { Button } from "@/components/ui/button";
 import { TerminalHeader } from "@/components/ui/terminal-header";
@@ -9,43 +9,37 @@ import { MessageBubble } from "./message-bubble";
 import { TypingIndicator } from "./typing-indicator";
 import type { ChatMessage } from "@/types";
 
-interface TaskGenerationChatProps {
+interface TaskBuilderChatProps {
   projectId: string;
   projectName: string;
   milestoneId: string;
-  milestoneName: string;
-  onComplete: () => void;
+  taskId: string;
+  taskTitle: string;
   onCancel: () => void;
 }
 
-const WELCOME_MESSAGE: ChatMessage = {
-  id: "welcome",
-  session_id: "",
-  role: "assistant",
-  content:
-    "¡Vamos a definir las tareas para este hito! Ya tengo el contexto del proyecto y el hito.\n\n¿Tienes tareas en mente o prefieres que sugiera algunas basándome en el entregable y los criterios de éxito?",
-  tokens_used: 0,
-  sequence_number: 0,
-  created_at: new Date().toISOString(),
-};
-
-export function TaskGenerationChat({
+export function TaskBuilderChat({
   projectId,
   projectName,
   milestoneId,
-  milestoneName,
-  onComplete,
+  taskId,
+  taskTitle,
   onCancel,
-}: TaskGenerationChatProps) {
+}: TaskBuilderChatProps) {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const welcomeMsg: ChatMessage = {
+    id: "welcome",
+    session_id: "",
+    role: "assistant",
+    content: `Estoy listo para ayudarte con **${taskTitle}**. Ya tengo el contexto de tu proyecto, hito y las tareas hermanas.\n\n¿En qué necesitas ayuda? Puedo:\n- Guiarte paso a paso en la implementación\n- Resolver dudas técnicas\n- Sugerir código o arquitectura\n- Ayudar con bloqueadores`,
+    tokens_used: 0,
+    sequence_number: 0,
+    created_at: new Date().toISOString(),
+  };
+  const [messages, setMessages] = useState<ChatMessage[]>([welcomeMsg]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
-  const [createdTasks, setCreatedTasks] = useState<{
-    count: number;
-    milestoneId: string;
-  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -53,10 +47,11 @@ export function TaskGenerationChat({
     let cancelled = false;
     chatApi
       .createSession({
-        title: `Tareas: ${milestoneName}`,
-        session_type: "task_generation",
+        title: `Builder: ${taskTitle}`,
+        session_type: "task_builder",
         project_id: projectId,
         milestone_id: milestoneId,
+        task_id: taskId,
       })
       .then((session) => {
         if (!cancelled) {
@@ -73,14 +68,14 @@ export function TaskGenerationChat({
     return () => {
       cancelled = true;
     };
-  }, [projectId, milestoneId, milestoneName]);
+  }, [projectId, milestoneId, taskId, taskTitle]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isSending]);
 
   const handleSend = useCallback(async () => {
-    if (!input.trim() || isSending || !sessionId || createdTasks) return;
+    if (!input.trim() || isSending || !sessionId) return;
     const content = input.trim();
     setInput("");
     setError(null);
@@ -100,19 +95,12 @@ export function TaskGenerationChat({
     try {
       const aiResponse = await chatApi.sendMessage(sessionId, { content });
       setMessages((prev) => [...prev, aiResponse]);
-
-      if (aiResponse.action === "tasks_created" && aiResponse.action_data) {
-        setCreatedTasks({
-          count: aiResponse.action_data.count as number,
-          milestoneId: aiResponse.action_data.milestone_id as string,
-        });
-      }
     } catch {
       setError("No se pudo enviar el mensaje. Intenta de nuevo.");
     } finally {
       setIsSending(false);
     }
-  }, [input, isSending, sessionId, createdTasks, messages.length]);
+  }, [input, isSending, sessionId, messages.length]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -124,8 +112,8 @@ export function TaskGenerationChat({
   return (
     <div className="flex flex-col h-[75vh] max-h-[700px]">
       <TerminalHeader
-        title={`Tareas: ${milestoneName}`}
-        path={`~/proyectos/${projectName}/tareas`}
+        title={taskTitle}
+        path={`~/proyectos/${projectName}/builder`}
         status={isSending ? "loading" : "online"}
       />
 
@@ -145,28 +133,6 @@ export function TaskGenerationChat({
 
         {isSending && <TypingIndicator />}
 
-        {createdTasks && (
-          <div className="bg-status-completed/10 border border-status-completed/30 rounded-lg p-5 text-center space-y-3">
-            <CheckCircle2 className="w-8 h-8 text-status-completed mx-auto" />
-            <div>
-              <h3 className="text-lg font-display font-semibold text-foreground">
-                ¡Tareas Creadas!
-              </h3>
-              <p className="text-sm text-muted-foreground mt-1">
-                Se crearon{" "}
-                <span className="font-mono text-brand-skyblue">
-                  {createdTasks.count}
-                </span>{" "}
-                tareas para este hito.
-              </p>
-            </div>
-            <Button variant="gradient" onClick={onComplete}>
-              <ListChecks className="w-4 h-4" />
-              Ver Tareas
-            </Button>
-          </div>
-        )}
-
         <div ref={messagesEndRef} />
       </div>
 
@@ -177,21 +143,19 @@ export function TaskGenerationChat({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={
-              createdTasks
-                ? "¡Tareas creadas! Haz clic en 'Ver Tareas' arriba."
-                : isInitializing
+              isInitializing
                 ? "Inicializando..."
-                : "Describe las tareas que necesitas..."
+                : "¿En qué necesitas ayuda con esta tarea?"
             }
             rows={1}
-            disabled={!!createdTasks || isInitializing}
+            disabled={isInitializing}
             className="flex-1 min-h-[40px] max-h-[120px] resize-none rounded-md border border-border bg-background px-3 py-2 text-sm font-mono placeholder:text-muted-foreground outline-none focus-visible:border-brand-skyblue focus-visible:ring-brand-skyblue/30 focus-visible:ring-[3px] disabled:opacity-50"
           />
           <Button
             variant="gradient"
             size="icon"
             onClick={handleSend}
-            disabled={!input.trim() || isSending || !sessionId || !!createdTasks}
+            disabled={!input.trim() || isSending || !sessionId}
           >
             <Send className="w-4 h-4" />
           </Button>
@@ -204,7 +168,7 @@ export function TaskGenerationChat({
             onClick={onCancel}
             className="text-[10px] text-muted-foreground hover:text-foreground font-mono underline"
           >
-            Cancelar
+            Cerrar
           </button>
         </div>
       </div>

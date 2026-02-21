@@ -15,7 +15,7 @@ const WELCOME_MESSAGE: ChatMessage = {
   session_id: "",
   role: "assistant",
   content:
-    "¡Hola! Soy tu asistente de creación de proyectos. Vamos a definir tu nuevo proyecto de IA/ML juntos.\n\n¿Qué te gustaría construir? ¡Cuéntame tu idea de proyecto!",
+    "¡Hola! Cuéntame brevemente qué proyecto de IA/ML quieres construir y lo creamos en segundos.",
   tokens_used: 0,
   sequence_number: 0,
   created_at: new Date().toISOString(),
@@ -66,13 +66,10 @@ export function ProjectCreationChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isSending]);
 
-  const handleSend = useCallback(async () => {
-    if (!input.trim() || isSending || !sessionId || createdProject) return;
-    const content = input.trim();
-    setInput("");
+  const sendContent = useCallback(async (content: string) => {
+    if (!content.trim() || isSending || !sessionId || createdProject) return;
     setError(null);
 
-    // Add user message optimistically
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       session_id: sessionId,
@@ -90,7 +87,6 @@ export function ProjectCreationChat() {
 
       setMessages((prev) => [...prev, aiResponse]);
 
-      // Check if project was created
       if (aiResponse.action === "project_created" && aiResponse.action_data) {
         setCreatedProject({
           id: aiResponse.action_data.project_id as string,
@@ -103,7 +99,18 @@ export function ProjectCreationChat() {
     } finally {
       setIsSending(false);
     }
-  }, [input, isSending, sessionId, createdProject, messages.length]);
+  }, [isSending, sessionId, createdProject, messages.length]);
+
+  const handleSend = useCallback(async () => {
+    if (!input.trim()) return;
+    const content = input.trim();
+    setInput("");
+    await sendContent(content);
+  }, [input, sendContent]);
+
+  const handleActionClick = useCallback((_action: string, value: string) => {
+    sendContent(value);
+  }, [sendContent]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -131,9 +138,18 @@ export function ProjectCreationChat() {
           </div>
         )}
 
-        {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} />
-        ))}
+        {messages.map((msg, idx) => {
+          const isLastAssistant =
+            msg.role === "assistant" &&
+            !messages.slice(idx + 1).some((m) => m.role === "assistant");
+          return (
+            <MessageBubble
+              key={msg.id}
+              message={msg}
+              onActionClick={isLastAssistant ? handleActionClick : undefined}
+            />
+          );
+        })}
 
         {isSending && <TypingIndicator />}
 
@@ -172,7 +188,7 @@ export function ProjectCreationChat() {
         <div className="flex items-end gap-2">
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => { setInput(e.target.value); if (error) setError(null); }}
             onKeyDown={handleKeyDown}
             placeholder={
               createdProject

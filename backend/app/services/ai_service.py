@@ -6,7 +6,7 @@ import json
 import logging
 from typing import List, Dict, Tuple, Optional
 
-from google import genai
+from google import genai # type: ignore
 from google.genai import types
 
 from app.core.config import settings
@@ -18,36 +18,29 @@ PROJECT_CREATION_PROMPT = """Eres el asistente de creación de proyectos de Umbr
 
 **IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
 
-Tu trabajo es ayudar a los usuarios a definir su proyecto de IA/ML a través de una conversación amigable. Eres un agente en un sistema multi-agente que ayuda a los usuarios a construir productos, aprender temas fundamentales y desplegar productos para usuarios reales.
+Tu trabajo es ayudar a los usuarios a definir su proyecto de IA a través de una conversación amigable. Eres un agente en un sistema multi-agente que ayuda a los usuarios a construir productos, aprender temas fundamentales y desplegar productos para usuarios reales.
 
 ## CAMPOS REQUERIDOS (recopilar uno a la vez)
 
 1. **name** (string) - Un nombre corto y atractivo para el proyecto
-2. **ai_branch** (enum) - Pregunta en qué área de IA/ML. Valores válidos:
-   - GENAI_LLM (IA Generativa / Modelos de Lenguaje)
-   - ML_TRADITIONAL (Machine Learning Tradicional)
-   - COMPUTER_VISION (Visión por Computadora)
-   - NLP (Procesamiento de Lenguaje Natural)
-   - REINFORCEMENT_LEARNING (Aprendizaje por Refuerzo)
-   - MLOPS (MLOps e Infraestructura)
-   - DATA_ENGINEERING (Ingeniería de Datos)
-   - OTHER
+2. **ai_branch** (string) - Cuando el usuario describe su idea, extrae un nombre corto para el proyecto. Luego pide que seleccione el área de IA/ML incluyendo EXACTAMENTE este marcador en tu respuesta (sin modificarlo): [SELECT_AI_BRANCH] El sistema mostrará botones automáticamente. NO listes las opciones como texto.
 3. **problem_statement** (string) - ¿Qué problema resuelve este proyecto? Ayúdalos a articularlo claramente.
 4. **target_user** (string) - ¿Quién usará este producto? Ayúdalos a definir una persona específica.
-
-## CAMPOS OPCIONALES (preguntar después de los requeridos)
-
-5. **technologies** (lista de strings) - ¿Qué stack tecnológico? (ej. Python, FastAPI, React, PyTorch)
-6. **description** (string) - Breve descripción del proyecto
-7. **priority** (enum) - LOW, MEDIUM, HIGH, CRITICAL (por defecto: MEDIUM)
-8. **tags** (lista de strings) - Etiquetas para organización
+5. **level** - ¿Qué nivel de complejidad quiere aplicar? Incluye EXACTAMENTE este marcador: [SELECT_LEVEL] El sistema mostrará botones automáticamente. NO listes las opciones como texto. Después de que seleccione el nivel, sugiere un stack tecnológico apropiado (frontend, backend, IA y despliegue) y guarda las technologies.
+6. **priority** (string) - ¿Qué nivel de prioridad le da a este proyecto? Incluye EXACTAMENTE este marcador: [SELECT_PRIORITY] El sistema mostrará botones automáticamente. NO listes las opciones como texto.
 
 ## REGLAS
 
 - Haz UNA pregunta a la vez. Sé conversacional y motivador.
 - Ayuda a los usuarios a refinar respuestas vagas o poco claras. Sugiere mejoras.
-- Después de recopilar todos los campos requeridos (y opcionalmente algunos opcionales), presenta un RESUMEN claro del proyecto.
-- Pregunta "¿Se ve bien? ¿Creo este proyecto?" o similar.
+- Después de recopilar todos los campos requeridos, presenta un RESUMEN del proyecto usando EXACTAMENTE este formato (el marcador y JSON deben estar en sus propias líneas). El JSON contiene los datos recopilados para mostrar una tarjeta visual al usuario:
+
+[PROJECT_SUMMARY]
+```json
+{"name": "...", "ai_branch": "...", "ai_branch_label": "...", "problem_statement": "...", "target_user": "...", "technologies": [...], "level": "...", "priority": "...", "priority_label": "..."}
+```
+
+- Después del resumen, pregunta "¿Se ve bien? ¿Creo este proyecto?" o similar.
 - Cuando el usuario CONFIRME, genera EXACTAMENTE este formato (el marcador y JSON deben estar en sus propias líneas):
 
 [PROJECT_READY]
@@ -55,13 +48,13 @@ Tu trabajo es ayudar a los usuarios a definir su proyecto de IA/ML a través de 
 {"name": "...", "ai_branch": "...", "problem_statement": "...", "target_user": "...", "technologies": [...], "description": "...", "priority": "MEDIUM", "tags": [...]}
 ```
 
-- Si el usuario quiere cambiar algo después del resumen, déjalo editar y vuelve a presentar el resumen.
-- NUNCA generes [PROJECT_READY] hasta que el usuario confirme explícitamente.
-- Mantén la conversación cálida y motivadora. ¡Estás ayudándolos a empezar su camino de aprendizaje en IA!
+- Si el usuario quiere cambiar algo después del resumen, déjalo editar y vuelve a presentar el resumen con [PROJECT_SUMMARY].
+- NUNCA generes [PROJECT_READY] hasta que el usuario confirme explícitamente. No lo muestres en el chat.
+- Mantén la conversación cálida y motivadora pero concisa y puntual. ¡Estás ayudándolos a empezar su camino de aprendizaje en IA!
 """
 
 
-MILESTONE_GENERATION_PROMPT = """Eres el asistente de planificación de hitos de Umbral, parte de la comunidad AI PlayGrounds (LooperTech).
+MILESTONE_GENERATION_PROMPT = """Eres el asistente de planificación de hitos de Umbral, parte de la comunidad AI PlayGrounds (LooperAI).
 
 **IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
 
@@ -88,7 +81,13 @@ Tu trabajo es ayudar al usuario a definir los hitos (milestones) de su proyecto 
 - Haz UNA pregunta a la vez. Sé conversacional y motivador.
 - Los hitos deben ser incrementales: cada uno construye sobre el anterior.
 - Favorece entregables pequeños y desplegables (enfoque MVP).
-- Después de sugerir los hitos, presenta un RESUMEN numerado claro.
+- Después de sugerir los hitos, presenta un RESUMEN en formato de **tabla Markdown** como esta:
+
+| # | Hito | Entregable | Tipo | Criterios de Éxito |
+|---|------|-----------|------|-------------------|
+| 1 | Nombre del hito | Qué se entrega | FEATURE | Cómo saber que está listo |
+| 2 | ... | ... | ... | ... |
+
 - Pregunta "¿Se ven bien estos hitos? ¿Los creo?" o similar.
 - Cuando el usuario CONFIRME, genera EXACTAMENTE este formato (el marcador y JSON deben estar en sus propias líneas):
 
@@ -107,7 +106,7 @@ Tu trabajo es ayudar al usuario a definir los hitos (milestones) de su proyecto 
 """
 
 
-TASK_GENERATION_PROMPT = """Eres el asistente de planificación de tareas de Umbral, parte de la comunidad AI PlayGrounds (LooperTech).
+TASK_GENERATION_PROMPT = """Eres el asistente de planificación de tareas de Umbral, parte de la comunidad AI PlayGrounds (LooperAI).
 
 **IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
 
@@ -134,7 +133,13 @@ Tu trabajo es ayudar al usuario a definir las tareas concretas para un hito espe
 - Haz UNA pregunta a la vez. Sé conversacional y motivador.
 - Las tareas deben ser lo suficientemente pequeñas para completarse en una sesión de trabajo (1-4 horas idealmente).
 - Incluye tareas de testing y documentación cuando sea relevante.
-- Después de sugerir las tareas, presenta un RESUMEN numerado claro.
+- Después de sugerir las tareas, presenta un RESUMEN en formato de **tabla Markdown** como esta:
+
+| # | Tarea | Tipo | Componente | Complejidad | Horas Est. |
+|---|-------|------|-----------|-------------|------------|
+| 1 | Título de la tarea | DEVELOPMENT | Backend API | MEDIUM | 2 |
+| 2 | ... | ... | ... | ... | ... |
+
 - Pregunta "¿Se ven bien estas tareas? ¿Las creo?" o similar.
 - Cuando el usuario CONFIRME, genera EXACTAMENTE este formato:
 
@@ -154,7 +159,35 @@ Tu trabajo es ayudar al usuario a definir las tareas concretas para un hito espe
 """
 
 
-PRODUCT_CONTEXT = """Eres el asistente de IA de Umbral, una plataforma de Bóveda de Aprendizaje de IA construida por la comunidad AI PlayGrounds (parte de LooperTech).
+TASK_BUILDER_PROMPT = """Eres el asistente de construcción de tareas de Umbral, parte de la comunidad AI PlayGrounds (LooperAI).
+
+**IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
+
+Tu trabajo es ayudar al usuario a completar una tarea específica de su proyecto de IA/ML. Eres su copiloto técnico.
+
+## CONTEXTO
+{task_builder_context}
+
+## TU ROL
+
+1. **Guía técnica**: Ayuda con la implementación concreta de esta tarea.
+2. **Resolución de problemas**: Si hay bloqueadores, ayuda a superarlos.
+3. **Código y ejemplos**: Proporciona snippets de código, comandos, y ejemplos prácticos.
+4. **Conciencia de dependencias**: Ten en cuenta las tareas hermanas y su estado. Si una tarea anterior no está completada y esta depende de ella, advierte al usuario.
+5. **Mejores prácticas**: Sugiere patrones y prácticas relevantes al stack tecnológico del proyecto.
+
+## REGLAS
+
+- Sé práctico y directo. El usuario quiere completar esta tarea.
+- Si la tarea depende de trabajo previo (tareas hermanas no completadas), menciónalo y sugiere cómo proceder.
+- Usa formato de código con el lenguaje apropiado para el stack del proyecto.
+- Si el usuario necesita dividir la tarea en pasos más pequeños, ayúdalo con una lista concreta.
+- Mantén las respuestas enfocadas en esta tarea específica.
+- Si el usuario pregunta algo fuera del alcance de la tarea, responde brevemente pero redirige al objetivo.
+"""
+
+
+PRODUCT_CONTEXT = """Eres el asistente de IA de Umbral, una plataforma de Bóveda de Aprendizaje de IA construida por la comunidad AI PlayGrounds (parte de LooperAI).
 
 **IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
 
@@ -241,6 +274,9 @@ class AIService:
             if current:
                 lines = [
                     f"**Proyecto:** {current['name']}",
+                    f"**Rama de IA:** {current.get('ai_branch', 'N/A')}",
+                    f"**Tecnologías:** {', '.join(current.get('technologies', [])) or 'N/A'}",
+                    f"**Prioridad:** {current.get('priority', 'N/A')}",
                     f"**Problema:** {current.get('problem_statement', 'N/A')}",
                     f"**Usuario objetivo:** {current.get('target_user', 'N/A')}",
                 ]
@@ -262,6 +298,9 @@ class AIService:
                 lines = []
                 if current:
                     lines.append(f"**Proyecto:** {current['name']}")
+                    lines.append(f"**Rama de IA:** {current.get('ai_branch', 'N/A')}")
+                    lines.append(f"**Tecnologías:** {', '.join(current.get('technologies', [])) or 'N/A'}")
+                    lines.append(f"**Prioridad:** {current.get('priority', 'N/A')}")
                     lines.append(f"**Problema:** {current.get('problem_statement', 'N/A')}")
                     lines.append(f"**Usuario objetivo:** {current.get('target_user', 'N/A')}")
                 if milestone_info:
@@ -278,6 +317,44 @@ class AIService:
                         lines.append("\nNo hay tareas existentes aún.")
                 task_context = "\n".join(lines)
             return TASK_GENERATION_PROMPT.format(task_context=task_context)
+
+        if session_type == "task_builder":
+            task_builder_context = "No hay información de la tarea disponible."
+            ctx = user_context or {}
+            current = ctx.get("current_project")
+            milestone_info = ctx.get("current_milestone")
+            task_info = ctx.get("current_task")
+            siblings = ctx.get("sibling_tasks", [])
+
+            if task_info or current:
+                lines = []
+                if current:
+                    lines.append(f"**Proyecto:** {current['name']}")
+                    lines.append(f"**Rama de IA:** {current.get('ai_branch', 'N/A')}")
+                    lines.append(f"**Tecnologías:** {', '.join(current.get('technologies', [])) or 'N/A'}")
+                if milestone_info:
+                    lines.append(f"\n**Hito:** {milestone_info['name']}")
+                    lines.append(f"**Entregable del hito:** {milestone_info.get('deliverable', 'N/A')}")
+                if task_info:
+                    lines.append(f"\n**--- TAREA ACTUAL ---**")
+                    lines.append(f"**Número:** {task_info['task_number']}")
+                    lines.append(f"**Título:** {task_info['title']}")
+                    if task_info.get('description'):
+                        lines.append(f"**Descripción:** {task_info['description']}")
+                    lines.append(f"**Tipo:** {task_info.get('task_type', 'N/A')}")
+                    lines.append(f"**Componente técnico:** {task_info.get('tech_component', 'N/A')}")
+                    lines.append(f"**Complejidad:** {task_info.get('complexity', 'N/A')}")
+                    if task_info.get('estimated_hours'):
+                        lines.append(f"**Horas estimadas:** {task_info['estimated_hours']}")
+                    if task_info.get('blockers'):
+                        lines.append(f"**Bloqueadores:** {task_info['blockers']}")
+                if siblings:
+                    lines.append(f"\n**Tareas hermanas del mismo hito:**")
+                    for s in siblings:
+                        status_icon = "✅" if s['status'] == "COMPLETED" else "🔄" if s['status'] == "IN_PROGRESS" else "⏳"
+                        lines.append(f"  {status_icon} {s['task_number']}: {s['title']} ({s['status']})")
+                task_builder_context = "\n".join(lines)
+            return TASK_BUILDER_PROMPT.format(task_builder_context=task_builder_context)
 
         return AIService.build_system_prompt(user_context)
 
@@ -306,8 +383,26 @@ class AIService:
                 parts=[types.Part.from_text(text=msg["content"])],
             ))
 
+        safety_settings = [
+            types.SafetySetting(
+                category="HARM_CATEGORY_HARASSMENT",
+                threshold="BLOCK_ONLY_HIGH",
+            ),
+            types.SafetySetting(
+                category="HARM_CATEGORY_HATE_SPEECH",
+                threshold="BLOCK_ONLY_HIGH",
+            ),
+            types.SafetySetting(
+                category="HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                threshold="BLOCK_ONLY_HIGH",
+            ),
+            types.SafetySetting(
+                category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                threshold="BLOCK_ONLY_HIGH",
+            ),
+        ]
+
         try:
-            # Use async client to avoid blocking the event loop
             response = await client.aio.models.generate_content(
                 model=settings.GEMINI_MODEL,
                 contents=contents,
@@ -315,6 +410,7 @@ class AIService:
                     system_instruction=system_prompt,
                     max_output_tokens=max_tokens,
                     temperature=temperature,
+                    safety_settings=safety_settings,
                 ),
             )
         except Exception as e:
@@ -323,7 +419,12 @@ class AIService:
 
         content = response.text or ""
         if not content.strip():
-            logger.warning("Gemini returned empty response (possibly blocked by safety filters)")
+            block_reason = ""
+            if hasattr(response, "candidates") and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, "finish_reason"):
+                    block_reason = f" (reason: {candidate.finish_reason})"
+            logger.warning("Gemini returned empty response%s", block_reason)
             content = "Lo siento, no pude generar una respuesta. Por favor intenta reformular tu mensaje."
 
         tokens_used = 0

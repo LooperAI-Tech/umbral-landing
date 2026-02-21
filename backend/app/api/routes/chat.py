@@ -104,6 +104,13 @@ async def send_message(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail=str(e))
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error("Unexpected error in send_message: %s", e, exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error interno del servidor. Por favor intenta de nuevo.",
+        )
 
 
 @router.get("/sessions/{session_id}/messages", response_model=List[ChatMessageResponse])

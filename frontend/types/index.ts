@@ -17,7 +17,8 @@ export type ProjectStatus =
   | "IN_PROGRESS"
   | "ON_HOLD"
   | "COMPLETED"
-  | "ARCHIVED";
+  | "ARCHIVED"
+  | "DELETED";
 
 export type Priority = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
@@ -448,6 +449,7 @@ export interface CreateSessionData {
   title?: string;
   project_id?: string;
   milestone_id?: string;
+  task_id?: string;
   session_type?: string;
 }
 

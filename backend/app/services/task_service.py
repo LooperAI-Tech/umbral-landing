@@ -9,7 +9,7 @@ from datetime import datetime
 from sqlalchemy import select, func, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.task import Task
+from app.models.task import Task, TaskStatus
 from app.models.milestone import Milestone
 from app.models.project import Project
 from app.schemas.task import TaskCreate, TaskUpdate
@@ -88,7 +88,7 @@ class TaskService:
 
         result = await db.execute(
             select(Task)
-            .where(Task.milestone_id == milestone_id)
+            .where(and_(Task.milestone_id == milestone_id, Task.status != TaskStatus.DELETED))
             .order_by(Task.order_index)
         )
         return list(result.scalars().all())
@@ -137,6 +137,7 @@ class TaskService:
         if not task:
             return False
 
-        await db.delete(task)
+        task.status = TaskStatus.DELETED
+        task.updated_at = datetime.utcnow()
         await db.flush()
         return True

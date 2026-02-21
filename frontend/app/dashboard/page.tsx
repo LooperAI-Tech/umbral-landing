@@ -83,6 +83,11 @@ export default function DashboardPage() {
 
   const displayStats = stats || (!statsLoading ? EMPTY_STATS : null);
 
+  // Last 3 active projects only
+  const activeProjects = (projects ?? [])
+    .filter((p) => p.status === "IN_PROGRESS")
+    .slice(0, 3);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -135,23 +140,23 @@ export default function DashboardPage() {
         ) : projectsError ? (
           <div className="bg-card border border-border rounded-lg p-8 text-center">
             <p className="text-muted-foreground">
-              No se pudieron cargar los proyectos. Asegúrate de que el backend esté corriendo.
+              No se pudieron cargar los proyectos. Asegura que el backend este corriendo.
             </p>
           </div>
-        ) : projects.length === 0 ? (
+        ) : activeProjects.length === 0 ? (
           <div className="bg-card border border-border rounded-lg p-8 text-center">
             <p className="text-muted-foreground mb-4">
-Aún no hay proyectos! Empieza a construir tu camino en IA!
+              Sin proyectos activos.
             </p>
             <Button variant="gradient" asChild>
               <Link href="/dashboard/projects/new">
-                Crea Tu Primer Proyecto
+                Crear Nuevo Proyecto
               </Link>
             </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(projects ?? []).map((project) => (
+            {activeProjects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>

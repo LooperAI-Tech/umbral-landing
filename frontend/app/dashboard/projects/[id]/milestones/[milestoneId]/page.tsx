@@ -184,7 +184,7 @@ export default function MilestoneDetailPage() {
 
         <Dialog open={showTaskChat} onOpenChange={setShowTaskChat}>
           <DialogContent
-            className="sm:max-w-2xl p-0 gap-0 overflow-hidden"
+            className="sm:max-w-4xl p-0 gap-0 overflow-hidden"
             showCloseButton={false}
           >
             <TaskGenerationChat
@@ -198,7 +198,7 @@ export default function MilestoneDetailPage() {
           </DialogContent>
         </Dialog>
 
-        <TaskBoard key={taskRefreshKey} milestoneId={milestoneId} />
+        <TaskBoard key={taskRefreshKey} milestoneId={milestoneId} projectId={projectId} projectName={project.name} />
       </div>
     </div>
   );

@@ -60,7 +60,7 @@ class ProjectService:
         limit: int = 50,
         offset: int = 0,
     ) -> Tuple[List[Project], int]:
-        conditions = [Project.user_id == user_id]
+        conditions = [Project.user_id == user_id, Project.status != ProjectStatus.DELETED]
         if status:
             conditions.append(Project.status == status)
 
@@ -106,7 +106,7 @@ class ProjectService:
         if not project:
             return False
 
-        project.status = ProjectStatus.ARCHIVED
+        project.status = ProjectStatus.DELETED
         project.updated_at = datetime.utcnow()
         await db.flush()
         return True

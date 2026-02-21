@@ -6,35 +6,28 @@ import { Quote } from "lucide-react";
 const testimonials = [
   {
     name: "Hans Figueroa",
-    role: "ML Engineer en formación",
+    role: "Steve Jobs de Zarate",
     quote:
       "Umbral me ayudó a organizar mi primer proyecto de NLP desde cero. El asistente de IA me guió paso a paso y ahora tengo un chatbot desplegado en producción.",
     avatar: "HF",
   },
   {
     name: "Kevin Huaman",
-    role: "Full Stack Developer",
+    role: "El Hechicero del Backend",
     quote:
       "Lo mejor es el repositorio de aprendizajes. Antes perdía mis notas en docs sueltos, ahora todo está conectado a mis proyectos y puedo revisarlo cuando quiera.",
     avatar: "KH",
   },
   {
-    name: "Edhu Nuñez",
-    role: "Data Scientist",
-    quote:
-      "La comunidad AI PlayGrounds es increíble. Construir proyectos reales mientras aprendes es mucho más efectivo que solo ver tutoriales. Umbral hace que todo fluya.",
-    avatar: "EN",
-  },
-  {
     name: "Max Veramendi",
-    role: "Estudiante de Ingeniería",
+    role: "JAVA y Bombero Man",
     quote:
       "En dos semanas pasé de tener solo una idea a tener un MVP desplegado con métricas. El sistema de hitos y tareas te mantiene enfocado sin sentirte abrumado.",
     avatar: "MV",
   },
   {
     name: "Edith Canelo",
-    role: "Product Manager",
+    role: "Data Analyst",
     quote:
       "No soy técnica pero quería entender IA. Con Umbral pude crear mi propio proyecto de computer vision con la guía del asistente. Ahora entiendo lo que construye mi equipo.",
     avatar: "EC",
