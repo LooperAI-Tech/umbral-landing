@@ -65,9 +65,14 @@ export const useProjectStore = create<ProjectState>((set) => ({
   updateProject: async (id: string, data: ProjectUpdate) => {
     try {
       const updated = await projectsApi.update(id, data);
+      const isDeleted = updated.status === "DELETED";
       set((state) => ({
-        projects: state.projects.map((p) => (p.id === id ? updated : p)),
-        currentProject: state.currentProject?.id === id ? updated : state.currentProject,
+        projects: isDeleted
+          ? state.projects.filter((p) => p.id !== id)
+          : state.projects.map((p) => (p.id === id ? updated : p)),
+        currentProject: isDeleted
+          ? (state.currentProject?.id === id ? null : state.currentProject)
+          : (state.currentProject?.id === id ? updated : state.currentProject),
       }));
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Failed to update project";

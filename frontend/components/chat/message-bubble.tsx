@@ -167,7 +167,7 @@ export function MessageBubble({ message, onActionClick }: MessageBubbleProps) {
         {isUser ? (
           <p className="whitespace-pre-wrap">{message.content}</p>
         ) : (
-          <div className="prose prose-invert prose-sm max-w-none [&_pre]:bg-[var(--bg-terminal)] [&_pre]:border [&_pre]:border-[var(--border-subtle)] [&_pre]:rounded-md [&_code]:font-mono [&_code]:text-neon-cyan [&_a]:text-brand-skyblue">
+          <div className="prose prose-invert prose-sm max-w-none [&_pre]:bg-[var(--bg-terminal)] [&_pre]:border [&_pre]:border-[var(--border-subtle)] [&_pre]:rounded-md [&_code]:font-mono [&_code]:text-neon-cyan [&_a]:text-brand-skyblue [&_table]:w-full [&_table]:border-collapse [&_table]:text-xs [&_table]:font-mono [&_th]:bg-brand-skyblue/10 [&_th]:text-brand-skyblue [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:border [&_th]:border-border [&_th]:font-semibold [&_td]:px-3 [&_td]:py-2 [&_td]:border [&_td]:border-border [&_td]:text-foreground [&_tr:hover]:bg-brand-skyblue/5">
             <ReactMarkdown remarkPlugins={[remarkGfm]}>
               {message.content}
             </ReactMarkdown>

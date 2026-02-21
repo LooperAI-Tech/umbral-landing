@@ -17,6 +17,7 @@ class ChatSession(Base):
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     project_id = Column(String, ForeignKey("projects.id", ondelete="SET NULL"), nullable=True, index=True)
     milestone_id = Column(String, ForeignKey("milestones.id", ondelete="SET NULL"), nullable=True, index=True)
+    task_id = Column(String, ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True, index=True)
 
     # Session info
     title = Column(String(255), nullable=True)

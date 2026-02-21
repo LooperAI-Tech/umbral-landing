@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Trash2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ChevronDown, AlertTriangle } from "lucide-react";
 import { useProjectStore } from "@/stores/projectStore";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,26 +19,66 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import type { ProjectStatus } from "@/types";
 
-const statusVariant: Record<string, "secondary" | "warning" | "success" | "info"> = {
+const STATUS_OPTIONS: {
+  value: ProjectStatus;
+  label: string;
+  variant: "secondary" | "warning" | "success" | "destructive";
+}[] = [
+  { value: "PLANNED", label: "Planificado", variant: "secondary" },
+  { value: "IN_PROGRESS", label: "Activo", variant: "warning" },
+  { value: "COMPLETED", label: "Desplegado", variant: "success" },
+  { value: "DELETED", label: "Eliminado", variant: "destructive" },
+];
+
+const statusVariant: Record<string, "secondary" | "warning" | "success" | "info" | "destructive"> = {
   PLANNED: "secondary",
   IN_PROGRESS: "warning",
   ON_HOLD: "info",
   COMPLETED: "success",
   ARCHIVED: "secondary",
+  DELETED: "destructive",
+};
+
+const statusLabel: Record<string, string> = {
+  PLANNED: "Planificado",
+  IN_PROGRESS: "Activo",
+  ON_HOLD: "En Pausa",
+  COMPLETED: "Desplegado",
+  ARCHIVED: "Archivado",
+  DELETED: "Eliminado",
 };
 
 export default function ProjectDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { currentProject, isLoading, fetchProject, deleteProject } = useProjectStore();
+  const { currentProject, isLoading, fetchProject, updateProject, deleteProject } =
+    useProjectStore();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchProject(id);
   }, [id, fetchProject]);
+
+  const handleStatusChange = async (newStatus: ProjectStatus) => {
+    if (newStatus === currentProject?.status) return;
+
+    if (newStatus === "DELETED") {
+      setShowDeleteDialog(true);
+      return;
+    }
+
+    await updateProject(id, { status: newStatus });
+  };
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -66,33 +106,58 @@ export default function ProjectDetailPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <button
-            onClick={() => router.push("/dashboard/projects")}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Volver a Proyectos
-          </button>
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-sm text-muted-foreground">
-              {project.display_id}
-            </span>
-            <h1 className="text-2xl font-display font-bold text-foreground">
-              {project.name}
-            </h1>
-            <Badge variant={statusVariant[project.status] || "secondary"}>
-              {project.status.replace("_", " ")}
-            </Badge>
-          </div>
-          {project.description && (
-            <p className="text-muted-foreground mt-2">{project.description}</p>
-          )}
+      <div>
+        <button
+          onClick={() => router.push("/dashboard/projects")}
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver a Proyectos
+        </button>
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-sm text-muted-foreground">
+            {project.display_id}
+          </span>
+          <h1 className="text-2xl font-display font-bold text-foreground">
+            {project.name}
+          </h1>
+
+          {/* Status dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button type="button" className="focus:outline-none">
+                <Badge
+                  variant={statusVariant[project.status] || "secondary"}
+                  className="cursor-pointer"
+                >
+                  {statusLabel[project.status] || project.status.replace("_", " ")}
+                  <ChevronDown className="w-3 h-3 ml-1 opacity-60" />
+                </Badge>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[170px]">
+              {STATUS_OPTIONS.map((opt) => (
+                <DropdownMenuItem
+                  key={opt.value}
+                  onClick={() => handleStatusChange(opt.value)}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Badge variant={opt.variant} className="text-[10px] px-2 py-0">
+                    {opt.label}
+                  </Badge>
+                  {project.status === opt.value && (
+                    <span className="ml-auto text-[10px] text-muted-foreground">
+                      actual
+                    </span>
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <Button variant="destructive" size="icon-sm" onClick={() => setShowDeleteDialog(true)}>
-          <Trash2 className="w-4 h-4" />
-        </Button>
+        {project.description && (
+          <p className="text-muted-foreground mt-2">{project.description}</p>
+        )}
       </div>
 
       {/* Progress */}
@@ -108,7 +173,7 @@ export default function ProjectDetailPage() {
 
       {/* Info grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <InfoItem label="Rama IA" value={project.ai_branch.replace("_", " ")} />
+        <InfoItem label="Rama de la IA" value={project.ai_branch.replace("_", " ")} />
         <InfoItem label="Prioridad" value={project.priority} />
         <InfoItem label="Usuario Objetivo" value={project.target_user} />
         <InfoItem
@@ -151,7 +216,9 @@ export default function ProjectDetailPage() {
                 <DialogTitle>Eliminar Proyecto</DialogTitle>
                 <DialogDescription className="mt-1">
                   Esta accion eliminara permanentemente{" "}
-                  <span className="font-semibold text-foreground">{project.name}</span>{" "}
+                  <span className="font-semibold text-foreground">
+                    {project.name}
+                  </span>{" "}
                   y todos sus hitos, tareas y despliegues asociados.
                 </DialogDescription>
               </div>

@@ -35,6 +35,7 @@ class ChatService:
             title=session_data.title,
             project_id=session_data.project_id,
             milestone_id=getattr(session_data, "milestone_id", None),
+            task_id=getattr(session_data, "task_id", None),
             session_type=getattr(session_data, "session_type", "general") or "general",
             status="active",
             total_messages=0,
@@ -152,7 +153,7 @@ class ChatService:
     @staticmethod
     async def _build_user_context(
         db: AsyncSession, user_id: str, project_id: Optional[str] = None,
-        milestone_id: Optional[str] = None
+        milestone_id: Optional[str] = None, task_id: Optional[str] = None
     ) -> Dict:
         """Build context for the AI from user's projects and learnings."""
         from app.services.user_service import UserService
@@ -189,8 +190,12 @@ class ChatService:
             if current:
                 context["current_project"] = {
                     "name": current.name,
+                    "description": current.description or "",
+                    "ai_branch": current.ai_branch.value if current.ai_branch else "",
                     "problem_statement": current.problem_statement,
                     "target_user": current.target_user,
+                    "technologies": current.technologies or [],
+                    "priority": current.priority.value if current.priority else "",
                     "milestones": [
                         {
                             "milestone_number": m.milestone_number,
@@ -228,6 +233,47 @@ class ChatService:
                         for t in (milestone.tasks or [])
                     ],
                 }
+
+        # Current task context (for task_builder)
+        if task_id:
+            from app.models.task import TaskStatus as TaskStatusEnum
+            result = await db.execute(
+                select(Task).where(Task.id == task_id)
+            )
+            current_task = result.scalar_one_or_none()
+            if current_task:
+                context["current_task"] = {
+                    "task_number": current_task.task_number,
+                    "title": current_task.title,
+                    "description": current_task.description or "",
+                    "task_type": current_task.task_type.value if current_task.task_type else "",
+                    "tech_component": current_task.tech_component or "",
+                    "complexity": current_task.complexity.value if current_task.complexity else "",
+                    "estimated_hours": current_task.estimated_hours,
+                    "status": current_task.status.value if current_task.status else "",
+                    "blockers": current_task.blockers or "",
+                    "notes": current_task.notes or "",
+                }
+                # Include sibling tasks for dependency awareness
+                sibling_result = await db.execute(
+                    select(Task)
+                    .where(and_(
+                        Task.milestone_id == current_task.milestone_id,
+                        Task.status != TaskStatusEnum.DELETED,
+                        Task.id != task_id,
+                    ))
+                    .order_by(Task.order_index)
+                )
+                siblings = sibling_result.scalars().all()
+                context["sibling_tasks"] = [
+                    {
+                        "task_number": s.task_number,
+                        "title": s.title,
+                        "status": s.status.value if s.status else "",
+                        "tech_component": s.tech_component or "",
+                    }
+                    for s in siblings
+                ]
 
         # Recent learnings
         result = await db.execute(
@@ -433,7 +479,8 @@ class ChatService:
         # Build user context for AI
         user_context = await ChatService._build_user_context(
             db, user_id, session.project_id,
-            milestone_id=getattr(session, "milestone_id", None)
+            milestone_id=getattr(session, "milestone_id", None),
+            task_id=getattr(session, "task_id", None),
         )
 
         # Use session-type-aware system prompt

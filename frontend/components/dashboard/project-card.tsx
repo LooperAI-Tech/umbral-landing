@@ -5,12 +5,22 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import type { Project } from "@/types";
 
-const statusVariant: Record<string, "default" | "warning" | "success" | "secondary" | "info"> = {
+const statusVariant: Record<string, "default" | "warning" | "success" | "secondary" | "info" | "destructive"> = {
   PLANNED: "secondary",
   IN_PROGRESS: "warning",
   ON_HOLD: "info",
   COMPLETED: "success",
   ARCHIVED: "secondary",
+  DELETED: "destructive",
+};
+
+const statusLabel: Record<string, string> = {
+  PLANNED: "Planificado",
+  IN_PROGRESS: "Activo",
+  ON_HOLD: "En Pausa",
+  COMPLETED: "Desplegado",
+  ARCHIVED: "Archivado",
+  DELETED: "Eliminado",
 };
 
 export function ProjectCard({ project }: { project: Project }) {
@@ -29,7 +39,7 @@ export function ProjectCard({ project }: { project: Project }) {
           </h3>
         </div>
         <Badge variant={statusVariant[project.status] || "secondary"}>
-          {project.status.replace("_", " ")}
+          {statusLabel[project.status] || project.status.replace("_", " ")}
         </Badge>
       </div>
 

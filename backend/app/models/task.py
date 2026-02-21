@@ -45,6 +45,7 @@ class TaskStatus(str, enum.Enum):
     BLOCKED = "BLOCKED"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
+    DELETED = "DELETED"
 
 
 class Task(Base):

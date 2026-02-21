@@ -81,7 +81,13 @@ Tu trabajo es ayudar al usuario a definir los hitos (milestones) de su proyecto 
 - Haz UNA pregunta a la vez. Sé conversacional y motivador.
 - Los hitos deben ser incrementales: cada uno construye sobre el anterior.
 - Favorece entregables pequeños y desplegables (enfoque MVP).
-- Después de sugerir los hitos, presenta un RESUMEN numerado claro.
+- Después de sugerir los hitos, presenta un RESUMEN en formato de **tabla Markdown** como esta:
+
+| # | Hito | Entregable | Tipo | Criterios de Éxito |
+|---|------|-----------|------|-------------------|
+| 1 | Nombre del hito | Qué se entrega | FEATURE | Cómo saber que está listo |
+| 2 | ... | ... | ... | ... |
+
 - Pregunta "¿Se ven bien estos hitos? ¿Los creo?" o similar.
 - Cuando el usuario CONFIRME, genera EXACTAMENTE este formato (el marcador y JSON deben estar en sus propias líneas):
 
@@ -127,7 +133,13 @@ Tu trabajo es ayudar al usuario a definir las tareas concretas para un hito espe
 - Haz UNA pregunta a la vez. Sé conversacional y motivador.
 - Las tareas deben ser lo suficientemente pequeñas para completarse en una sesión de trabajo (1-4 horas idealmente).
 - Incluye tareas de testing y documentación cuando sea relevante.
-- Después de sugerir las tareas, presenta un RESUMEN numerado claro.
+- Después de sugerir las tareas, presenta un RESUMEN en formato de **tabla Markdown** como esta:
+
+| # | Tarea | Tipo | Componente | Complejidad | Horas Est. |
+|---|-------|------|-----------|-------------|------------|
+| 1 | Título de la tarea | DEVELOPMENT | Backend API | MEDIUM | 2 |
+| 2 | ... | ... | ... | ... | ... |
+
 - Pregunta "¿Se ven bien estas tareas? ¿Las creo?" o similar.
 - Cuando el usuario CONFIRME, genera EXACTAMENTE este formato:
 
@@ -144,6 +156,34 @@ Tu trabajo es ayudar al usuario a definir las tareas concretas para un hito espe
 - Si el usuario quiere cambiar algo después del resumen, déjalo editar y vuelve a presentar.
 - NUNCA generes [TASKS_READY] hasta que el usuario confirme explícitamente.
 - Mantén la conversación cálida y motivadora.
+"""
+
+
+TASK_BUILDER_PROMPT = """Eres el asistente de construcción de tareas de Umbral, parte de la comunidad AI PlayGrounds (LooperAI).
+
+**IMPORTANTE: SIEMPRE responde en español. Toda la conversación debe ser en español.**
+
+Tu trabajo es ayudar al usuario a completar una tarea específica de su proyecto de IA/ML. Eres su copiloto técnico.
+
+## CONTEXTO
+{task_builder_context}
+
+## TU ROL
+
+1. **Guía técnica**: Ayuda con la implementación concreta de esta tarea.
+2. **Resolución de problemas**: Si hay bloqueadores, ayuda a superarlos.
+3. **Código y ejemplos**: Proporciona snippets de código, comandos, y ejemplos prácticos.
+4. **Conciencia de dependencias**: Ten en cuenta las tareas hermanas y su estado. Si una tarea anterior no está completada y esta depende de ella, advierte al usuario.
+5. **Mejores prácticas**: Sugiere patrones y prácticas relevantes al stack tecnológico del proyecto.
+
+## REGLAS
+
+- Sé práctico y directo. El usuario quiere completar esta tarea.
+- Si la tarea depende de trabajo previo (tareas hermanas no completadas), menciónalo y sugiere cómo proceder.
+- Usa formato de código con el lenguaje apropiado para el stack del proyecto.
+- Si el usuario necesita dividir la tarea en pasos más pequeños, ayúdalo con una lista concreta.
+- Mantén las respuestas enfocadas en esta tarea específica.
+- Si el usuario pregunta algo fuera del alcance de la tarea, responde brevemente pero redirige al objetivo.
 """
 
 
@@ -234,6 +274,9 @@ class AIService:
             if current:
                 lines = [
                     f"**Proyecto:** {current['name']}",
+                    f"**Rama de IA:** {current.get('ai_branch', 'N/A')}",
+                    f"**Tecnologías:** {', '.join(current.get('technologies', [])) or 'N/A'}",
+                    f"**Prioridad:** {current.get('priority', 'N/A')}",
                     f"**Problema:** {current.get('problem_statement', 'N/A')}",
                     f"**Usuario objetivo:** {current.get('target_user', 'N/A')}",
                 ]
@@ -255,6 +298,9 @@ class AIService:
                 lines = []
                 if current:
                     lines.append(f"**Proyecto:** {current['name']}")
+                    lines.append(f"**Rama de IA:** {current.get('ai_branch', 'N/A')}")
+                    lines.append(f"**Tecnologías:** {', '.join(current.get('technologies', [])) or 'N/A'}")
+                    lines.append(f"**Prioridad:** {current.get('priority', 'N/A')}")
                     lines.append(f"**Problema:** {current.get('problem_statement', 'N/A')}")
                     lines.append(f"**Usuario objetivo:** {current.get('target_user', 'N/A')}")
                 if milestone_info:
@@ -271,6 +317,44 @@ class AIService:
                         lines.append("\nNo hay tareas existentes aún.")
                 task_context = "\n".join(lines)
             return TASK_GENERATION_PROMPT.format(task_context=task_context)
+
+        if session_type == "task_builder":
+            task_builder_context = "No hay información de la tarea disponible."
+            ctx = user_context or {}
+            current = ctx.get("current_project")
+            milestone_info = ctx.get("current_milestone")
+            task_info = ctx.get("current_task")
+            siblings = ctx.get("sibling_tasks", [])
+
+            if task_info or current:
+                lines = []
+                if current:
+                    lines.append(f"**Proyecto:** {current['name']}")
+                    lines.append(f"**Rama de IA:** {current.get('ai_branch', 'N/A')}")
+                    lines.append(f"**Tecnologías:** {', '.join(current.get('technologies', [])) or 'N/A'}")
+                if milestone_info:
+                    lines.append(f"\n**Hito:** {milestone_info['name']}")
+                    lines.append(f"**Entregable del hito:** {milestone_info.get('deliverable', 'N/A')}")
+                if task_info:
+                    lines.append(f"\n**--- TAREA ACTUAL ---**")
+                    lines.append(f"**Número:** {task_info['task_number']}")
+                    lines.append(f"**Título:** {task_info['title']}")
+                    if task_info.get('description'):
+                        lines.append(f"**Descripción:** {task_info['description']}")
+                    lines.append(f"**Tipo:** {task_info.get('task_type', 'N/A')}")
+                    lines.append(f"**Componente técnico:** {task_info.get('tech_component', 'N/A')}")
+                    lines.append(f"**Complejidad:** {task_info.get('complexity', 'N/A')}")
+                    if task_info.get('estimated_hours'):
+                        lines.append(f"**Horas estimadas:** {task_info['estimated_hours']}")
+                    if task_info.get('blockers'):
+                        lines.append(f"**Bloqueadores:** {task_info['blockers']}")
+                if siblings:
+                    lines.append(f"\n**Tareas hermanas del mismo hito:**")
+                    for s in siblings:
+                        status_icon = "✅" if s['status'] == "COMPLETED" else "🔄" if s['status'] == "IN_PROGRESS" else "⏳"
+                        lines.append(f"  {status_icon} {s['task_number']}: {s['title']} ({s['status']})")
+                task_builder_context = "\n".join(lines)
+            return TASK_BUILDER_PROMPT.format(task_builder_context=task_builder_context)
 
         return AIService.build_system_prompt(user_context)
 

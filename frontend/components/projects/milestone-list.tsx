@@ -75,7 +75,7 @@ export function MilestoneList({
 
       <Dialog open={showChat} onOpenChange={setShowChat}>
         <DialogContent
-          className="sm:max-w-2xl p-0 gap-0 overflow-hidden"
+          className="sm:max-w-4xl p-0 gap-0 overflow-hidden"
           showCloseButton={false}
         >
           <MilestoneGenerationChat
