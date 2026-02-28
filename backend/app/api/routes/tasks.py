@@ -42,6 +42,18 @@ async def create_task(
     return task
 
 
+@router.get("/tasks/{task_id}", response_model=TaskResponse)
+async def get_task(
+    task_id: str,
+    user_id: str = Depends(get_current_user_id),
+    db: AsyncSession = Depends(get_db),
+):
+    task = await TaskService.get(db, task_id, user_id)
+    if not task:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    return task
+
+
 @router.patch("/tasks/{task_id}", response_model=TaskResponse)
 async def update_task(
     task_id: str,

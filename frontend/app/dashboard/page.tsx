@@ -97,7 +97,7 @@ export default function DashboardPage() {
             Panel
           </h1>
           <p className="text-muted-foreground font-mono text-sm mt-1">
-            Resumen de tu B&oacute;veda de Aprendizaje en IA
+            Resumen de tu Bóveda de Aprendizaje en IA
           </p>
         </div>
         <Button variant="gradient" asChild>

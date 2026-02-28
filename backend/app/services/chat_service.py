@@ -23,6 +23,69 @@ from app.services.ai_service import AIService
 logger = logging.getLogger(__name__)
 
 
+def _extract_json_object(text: str) -> Optional[str]:
+    """Extract the first balanced JSON object {...} from text, handling nested braces and arrays."""
+    # Strip markdown code fences first
+    cleaned = re.sub(r'```(?:json)?\s*', '', text)
+    start = cleaned.find('{')
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(cleaned)):
+        c = cleaned[i]
+        if escape:
+            escape = False
+            continue
+        if c == '\\' and in_string:
+            escape = True
+            continue
+        if c == '"' and not escape:
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+            if depth == 0:
+                return cleaned[start:i + 1]
+    return None
+
+
+def _extract_json_array(text: str) -> Optional[str]:
+    """Extract the first balanced JSON array [...] from text."""
+    cleaned = re.sub(r'```(?:json)?\s*', '', text)
+    start = cleaned.find('[')
+    if start == -1:
+        return None
+    depth = 0
+    in_string = False
+    escape = False
+    for i in range(start, len(cleaned)):
+        c = cleaned[i]
+        if escape:
+            escape = False
+            continue
+        if c == '\\' and in_string:
+            escape = True
+            continue
+        if c == '"' and not escape:
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if c == '[':
+            depth += 1
+        elif c == ']':
+            depth -= 1
+            if depth == 0:
+                return cleaned[start:i + 1]
+    return None
+
+
 class ChatService:
 
     @staticmethod
@@ -209,7 +272,7 @@ class ChatService:
 
         # Current milestone context (for task generation)
         if milestone_id:
-            from app.models.milestone import Milestone as MilestoneModel
+
             result = await db.execute(
                 select(Milestone)
                 .options(selectinload(Milestone.tasks))
@@ -302,11 +365,11 @@ class ChatService:
                 marker_idx = response_content.index("[PROJECT_READY]")
                 after_marker = response_content[marker_idx + len("[PROJECT_READY]"):]
 
-                json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_marker, re.DOTALL)
-                if not json_match:
+                json_text = _extract_json_object(after_marker)
+                if not json_text:
                     return None
 
-                project_data = json.loads(json_match.group())
+                project_data = json.loads(json_text)
                 project_create = ProjectCreate(**project_data)
 
                 from app.services.project_service import ProjectService
@@ -333,14 +396,10 @@ class ChatService:
                 marker_idx = response_content.index("[MILESTONES_READY]")
                 after_marker = response_content[marker_idx + len("[MILESTONES_READY]"):]
 
-                # Extract JSON array (may be wrapped in ```json ... ```)
-                json_match = re.search(r'\[.*\]', after_marker, re.DOTALL)
-                if not json_match:
+                json_text = _extract_json_array(after_marker)
+                if not json_text:
                     return None
 
-                json_text = json_match.group()
-                # Strip markdown code fences if wrapping the array
-                json_text = json_text.strip()
                 milestones_data = json.loads(json_text)
 
                 if not isinstance(milestones_data, list) or not milestones_data:
@@ -398,11 +457,10 @@ class ChatService:
                 marker_idx = response_content.index("[TASKS_READY]")
                 after_marker = response_content[marker_idx + len("[TASKS_READY]"):]
 
-                json_match = re.search(r'\[.*\]', after_marker, re.DOTALL)
-                if not json_match:
+                json_text = _extract_json_array(after_marker)
+                if not json_text:
                     return None
 
-                json_text = json_match.group().strip()
                 tasks_data = json.loads(json_text)
 
                 if not isinstance(tasks_data, list) or not tasks_data:
@@ -519,12 +577,16 @@ class ChatService:
                 marker_idx = ai_message.content.index(marker)
                 clean_text = ai_message.content[:marker_idx].strip()
                 if not clean_text:
-                    # If no text before marker, use a friendly fallback
-                    clean_text = ai_message.content[marker_idx + len(marker):]
-                    # Strip JSON block (```json ... ``` or raw { ... })
-                    clean_text = re.sub(r'```(?:json)?\s*\{.*?\}\s*```', '', clean_text, flags=re.DOTALL)
-                    clean_text = re.sub(r'```(?:json)?\s*\[.*?\]\s*```', '', clean_text, flags=re.DOTALL)
-                    clean_text = clean_text.strip()
+                    # If no text before marker, try text after the JSON payload
+                    remainder = ai_message.content[marker_idx + len(marker):]
+                    # Strip code-fenced JSON blocks
+                    remainder = re.sub(r'```(?:json)?\s*[\s\S]*?```', '', remainder)
+                    # Strip raw JSON objects/arrays that aren't code-fenced
+                    for extractor in (_extract_json_object, _extract_json_array):
+                        raw = extractor(remainder)
+                        if raw:
+                            remainder = remainder.replace(raw, '')
+                    clean_text = remainder.strip()
                 ai_message.content = clean_text or "Listo."
 
         # Detect UI action markers (non-DB actions, just frontend hints)
@@ -555,14 +617,14 @@ class ChatService:
                 try:
                     marker_idx = response_content.index("[PROJECT_SUMMARY]")
                     after_marker = response_content[marker_idx + len("[PROJECT_SUMMARY]"):]
-                    json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', after_marker, re.DOTALL)
-                    if json_match:
-                        summary_data = json.loads(json_match.group())
+                    json_text = _extract_json_object(after_marker)
+                    if json_text:
+                        summary_data = json.loads(json_text)
                         # Text before the marker becomes the message content
                         text_before = response_content[:marker_idx].strip()
                         # Text after the JSON block (e.g. confirmation question)
-                        json_end = marker_idx + len("[PROJECT_SUMMARY]") + json_match.end()
-                        text_after = response_content[json_end:].strip()
+                        json_pos = after_marker.find(json_text)
+                        text_after = after_marker[json_pos + len(json_text):].strip() if json_pos >= 0 else ""
                         # Strip markdown code fences from text_after
                         text_after = re.sub(r'```(?:json)?\s*', '', text_after).strip()
                         combined = f"{text_before}\n\n{text_after}".strip() if text_after else text_before

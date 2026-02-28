@@ -63,6 +63,8 @@ class ChatMessageResponse(ChatMessageBase):
 class ChatSessionResponse(ChatSessionBase):
     id: str
     user_id: str
+    milestone_id: Optional[str] = None
+    task_id: Optional[str] = None
     status: str
     session_type: str = "general"
     total_messages: int

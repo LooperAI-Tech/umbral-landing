@@ -6,7 +6,7 @@ Create Date: 2026-02-14
 """
 from typing import Sequence, Union
 
-from alembic import op
+from alembic import op # type: ignore
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 

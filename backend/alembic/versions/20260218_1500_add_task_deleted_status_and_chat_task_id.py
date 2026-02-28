@@ -5,7 +5,7 @@ Revises: cc50bca6d646
 Create Date: 2026-02-18 15:00:00.000000
 
 """
-from alembic import op
+from alembic import op  # type: ignore
 import sqlalchemy as sa
 
 

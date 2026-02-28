@@ -34,6 +34,8 @@ class ChatSession(Base):
     # Relationships
     user = relationship("User", back_populates="chat_sessions")
     project = relationship("Project", back_populates="chat_sessions")
+    milestone = relationship("Milestone", foreign_keys=[milestone_id])
+    task = relationship("Task", foreign_keys=[task_id])
     messages = relationship("ChatMessage", back_populates="session", cascade="all, delete-orphan", order_by="ChatMessage.sequence_number")
 
     def __repr__(self):

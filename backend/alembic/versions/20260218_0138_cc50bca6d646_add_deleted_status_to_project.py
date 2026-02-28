@@ -5,7 +5,7 @@ Revises: 6fee2c7e3774
 Create Date: 2026-02-18 01:38:43.040341
 
 """
-from alembic import op
+from alembic import op # type: ignore
 
 
 # revision identifiers, used by Alembic.
