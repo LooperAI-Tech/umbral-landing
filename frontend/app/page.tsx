@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import {
   Lightbulb,
   BookOpen,
@@ -82,13 +80,7 @@ const steps = [
   },
 ];
 
-export default async function LandingPage() {
-  const { userId } = await auth();
-
-  if (userId) {
-    redirect("/dashboard");
-  }
-
+export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navegación */}
@@ -114,16 +106,10 @@ export default async function LandingPage() {
             </nav>
             <div className="flex items-center gap-4">
               <Link
-                href="/sign-in"
-                className="text-muted-foreground hover:text-foreground font-medium transition-colors text-sm"
-              >
-                Iniciar Sesión
-              </Link>
-              <Link
-                href="/sign-up"
+                href="/early-access"
                 className="bg-[image:var(--gradient-brand)] text-white px-4 py-2 rounded-lg hover:shadow-[var(--shadow-glow)] transition-all font-semibold text-sm"
               >
-                Comenzar
+                Acceso Anticipado
               </Link>
             </div>
           </div>
