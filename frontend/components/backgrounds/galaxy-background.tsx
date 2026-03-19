@@ -1,42 +1,14 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
-
-const Galaxy = dynamic(() => import("./galaxy"), { ssr: false });
-
 export default function GalaxyBackground() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.05 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div ref={containerRef} className="absolute inset-0 z-0 pointer-events-none">
-      {visible && (
-        <Galaxy
-          hueShift={200}
-          speed={0.5}
-          density={0.6}
-          saturation={0.3}
-          glowIntensity={0.3}
-          twinkleIntensity={0.3}
-          rotationSpeed={0.03}
-          mouseRepulsion={true}
-          repulsionStrength={2}
-          transparent={true}
-        />
-      )}
+    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      {/* Base radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_20%,rgba(14,165,233,0.08)_0%,transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_70%_60%,rgba(59,130,246,0.06)_0%,transparent_50%)]" />
+
+      {/* Star layers — each uses a different size, count, and animation speed */}
+      <div className="stars-small" />
+      <div className="stars-medium" />
+      <div className="stars-large" />
     </div>
   );
 }

@@ -15,7 +15,7 @@ export default function NotFound() {
           La página que buscas no existe en esta bóveda.
         </p>
         <Button variant="gradient" asChild>
-          <Link href="/dashboard">Volver al Panel</Link>
+          <Link href="/">Volver al Inicio</Link>
         </Button>
       </div>
     </div>

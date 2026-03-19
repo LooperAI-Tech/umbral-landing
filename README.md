@@ -1,273 +1,257 @@
-# Umbral EdTech Platform
+# Umbral - Your AI Learning Vault
 
-An AI-powered educational platform that revolutionizes learning through personalized, visual, and open access to knowledge.
+An AI-powered learning vault platform built by the **AI PlayGrounds** community (LooperTech). Umbral helps users learn AI/ML concepts through hands-on project building, with AI-assisted planning, milestone tracking, and contextual task assistance.
 
 ## Overview
 
-Umbral enables students to learn through **interactive concept graphs**, **multiple teaching methodologies**, and **AI-driven explanations** while maintaining **full ownership** and **portability** of their learning data through the **OpenFree** context and memory export system.
+Umbral enables learners to manage their AI/ML learning journey through personal "vaults" containing project ideas, milestones, tasks, deployments, and documented learnings. The platform features conversational AI assistants that help at every stage — from project creation to task completion.
 
 ## Project Structure
 
 ```
 umbral-edtech/
-├── frontend/              # Next.js frontend application
-│   ├── app/              # Next.js App Router pages
-│   ├── components/       # React components
-│   ├── lib/              # Utilities and helpers
-│   └── public/           # Static assets
-├── backend/              # FastAPI backend application
+├── frontend/                      # Next.js 14 Application
 │   ├── app/
-│   │   ├── api/         # API routes and webhooks
-│   │   ├── core/        # Core configuration and utilities
-│   │   ├── models/      # SQLAlchemy database models
-│   │   ├── schemas/     # Pydantic schemas
-│   │   ├── services/    # Business logic
-│   │   └── scripts/     # Utility scripts
-│   ├── alembic/         # Database migrations
-│   └── main.py          # Application entry point
-├── shared/               # Shared types and schemas
-└── docs/                 # Documentation
+│   │   ├── (landing)/            # Public landing page + early access
+│   │   └── dashboard/            # Authenticated dashboard
+│   │       ├── projects/         # Project CRUD + detail views
+│   │       │   └── [id]/
+│   │       │       └── milestones/[milestoneId]/  # Milestone detail + tasks
+│   │       ├── assistant/        # General AI chat interface
+│   │       ├── learnings/        # Knowledge repository
+│   │       └── settings/         # User preferences
+│   ├── components/
+│   │   ├── ui/                   # Base UI components (terminal-style)
+│   │   ├── layout/               # Sidebar, header, mobile nav
+│   │   ├── dashboard/            # Stats grid, project cards
+│   │   ├── projects/             # Milestone list, task board
+│   │   └── chat/                 # All AI chat components
+│   ├── lib/                      # API clients, utilities
+│   ├── stores/                   # Zustand state management
+│   └── types/                    # TypeScript interfaces
+├── backend/                       # FastAPI Backend
+│   ├── app/
+│   │   ├── api/routes/           # REST API endpoints
+│   │   ├── core/                 # Config, database, security
+│   │   ├── models/               # SQLAlchemy models
+│   │   ├── schemas/              # Pydantic schemas
+│   │   └── services/             # Business logic + AI integration
+│   ├── alembic/                  # Database migrations
+│   └── main.py                   # Application entry point
+└── infrastructure/                # Terraform IaC + deploy scripts
+    └── terraform/                # AWS infrastructure definitions
 ```
 
 ## Tech Stack
 
 ### Frontend
-- **Framework**: Next.js 14+ with TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Visualization**: @xyflow/react (for concept graphs)
+- **Framework**: Next.js 14 with TypeScript (App Router)
+- **Styling**: Tailwind CSS with custom terminal-futuristic theme
+- **UI Components**: Radix UI primitives (Dialog, Dropdown, etc.)
 - **State Management**: Zustand
 - **Authentication**: Clerk
-- **Real-time**: Socket.io Client
+- **Markdown**: react-markdown + remark-gfm (GFM tables, code blocks)
 
 ### Backend
-- **Framework**: Python 3.11+ with FastAPI
-- **Database**: PostgreSQL with SQLAlchemy (async)
-- **Vector DB**: ChromaDB
-- **AI Models**: OpenAI (GPT-4), Anthropic (Claude) via LiteLLM
-- **Real-time**: Socket.io
+- **Framework**: Python 3.12 with FastAPI
+- **Database**: PostgreSQL 17.6 (Supabase) with SQLAlchemy async + asyncpg
+- **AI Model**: Google Gemini (gemini-2.5-flash)
 - **Authentication**: Clerk JWT verification
 - **Migrations**: Alembic
 
 ### Infrastructure
-- **Cloud Platform**: Microsoft Azure
-- **Frontend Hosting**: Azure Static Web Apps
-- **Backend Hosting**: Azure App Service
-- **Database**: Azure Database for PostgreSQL (Flexible Server)
-- **CI/CD**: GitHub Actions
+- **Cloud**: AWS (Lambda, API Gateway, S3, CloudFront)
+- **Database**: Supabase (hosted PostgreSQL)
+- **Frontend Hosting**: Vercel
+- **DNS**: Cloudflare
+- **IaC**: Terraform
+
+## Core Features
+
+### Project Management
+- Create and manage AI/ML learning projects with full metadata (AI branch, technologies, priority, target user)
+- Track project status: Planned, In Progress, On Hold, Completed, Archived
+- Soft-delete support for projects
+
+### AI Chat Assistants
+Umbral features multiple specialized AI assistants, each with contextual awareness:
+
+| Assistant | Session Type | Purpose |
+|-----------|-------------|---------|
+| **Project Creator** | `project_creation` | Guides users through defining a new project via conversation |
+| **Milestone Planner** | `milestone_generation` | Suggests milestones based on project context; outputs markdown tables |
+| **Task Generator** | `task_generation` | Proposes tasks for a milestone; outputs markdown tables |
+| **Task Builder** | `task_builder` | Contextual copilot for completing a specific task |
+| **General Assistant** | `general` | Free-form AI chat with project/learning context |
+
+#### Task Builder (Contextual Assistant)
+Each task has an AI builder button that opens a scoped assistant. The assistant receives:
+- Full project context (name, AI branch, technologies, priority)
+- Current milestone details (deliverable, success criteria)
+- The specific task being worked on (title, description, type, complexity)
+- All sibling tasks with their statuses (for dependency awareness)
+
+This means the AI knows what's already been completed, what's in progress, and can warn about dependencies without the user having to explain context.
+
+### Milestone Tracking
+- AI-generated milestones with deliverable types (MVP, Feature, Integration, etc.)
+- Progress tracking with visual progress bars
+- Sequential milestone planning with dependency awareness
+
+### Task Management
+- **Status options**: Planned, In Progress, Completed, Cancelled
+- **Soft-delete**: Deleted tasks are marked as `DELETED` in the database (not removed)
+- **Optimistic UI updates**: Status changes reflect instantly without full page refresh
+- **Delete confirmation**: Popup dialog before deletion
+- **AI Builder**: Per-task contextual assistant button
+
+### Learnings Repository
+- Document what you learned, when to use it, when NOT to use it
+- Categorized by AI/ML domain (Prompt Engineering, RAG, Fine-tuning, etc.)
+- Confidence tracking (Exploring → Learning → Practicing → Confident → Expert)
+
+### Deployments
+- Log deployment versions with release notes
+- Track environments (Development, Staging, Production)
+- Capture feedback and metrics per deployment
+
+## Data Model
+
+### Key Entities
+- **User** — Authenticated via Clerk, owns all data
+- **Project** — AI/ML learning project with metadata
+- **Milestone** — Deliverable-focused phase of a project
+- **Task** — Concrete work item within a milestone
+- **Deployment** — Versioned release with metrics
+- **Learning** — Documented knowledge nugget
+- **ChatSession** — AI conversation scoped to project/milestone/task
+- **ActivityLog** — Audit trail of all user actions
+
+### Task Statuses
+```
+PLANNED → IN_PROGRESS → COMPLETED
+                      → CANCELLED
+                      → DELETED (soft-delete, hidden from UI)
+```
+
+### Chat Session Types
+```
+general | project_creation | milestone_generation | task_generation | task_builder
+```
 
 ## Getting Started
 
 ### Prerequisites
-
 - Node.js 18+ and npm
-- Python 3.11+
-- PostgreSQL 14+
-- Git
+- Python 3.12+
+- PostgreSQL 14+ (or Supabase account)
+- Clerk account (authentication)
+- Google Gemini API key
 
 ### Frontend Setup
 
-1. Navigate to the frontend directory:
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Copy the environment template:
-```bash
 cp .env.local.example .env.local
-```
-
-4. Update `.env.local` with your configuration:
-   - Clerk API keys
-   - API URL (default: http://localhost:8000)
-
-5. Run the development server:
-```bash
+# Configure: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY, NEXT_PUBLIC_API_URL
 npm run dev
 ```
 
-The frontend will be available at http://localhost:3000
+The frontend runs at http://localhost:3000
 
 ### Backend Setup
 
-1. Navigate to the backend directory:
 ```bash
 cd backend
-```
-
-2. Create a virtual environment:
-```bash
-python -m venv venv
-```
-
-3. Activate the virtual environment:
-   - Windows: `venv\Scripts\activate`
-   - macOS/Linux: `source venv/bin/activate`
-
-4. Install dependencies:
-```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate | macOS/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-```
-
-5. Copy the environment template:
-```bash
 cp .env.example .env
-```
-
-6. Update `.env` with your configuration:
-   - Database URL
-   - Clerk API keys
-   - OpenAI API key
-   - Anthropic API key
-
-7. Initialize the database:
-```bash
+# Configure: DATABASE_URL, CLERK_SECRET_KEY, GEMINI_API_KEY
 alembic upgrade head
-```
-
-8. Run the development server:
-```bash
-python main.py
-```
-
-Or with uvicorn directly:
-```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-The API will be available at http://localhost:8000
-
-API documentation available at:
+The API runs at http://localhost:8000
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-## Core Features (MVP)
-
-### Phase 1 - Must Have (P0)
-- ✅ User authentication (Clerk)
-- 🚧 AI chat with multiple models (GPT-4, Claude)
-- 🚧 Teaching method selection
-- 🚧 Interactive concept graph visualization
-- 🚧 Basic progress tracking
-- 🚧 OpenFree export (chat transcripts)
-
-### Phase 2 - Should Have (P1)
-- ⏳ Real-time WebSocket chat
-- ⏳ Learning path generation
-- ⏳ Concept search and filtering
-- ⏳ User profile settings
-- ⏳ Basic assessments
-
-## Development Workflow
-
-### Running Both Servers
-
-Terminal 1 (Backend):
-```bash
-cd backend
-python main.py
-```
-
-Terminal 2 (Frontend):
-```bash
-cd frontend
-npm run dev
-```
-
 ### Database Migrations
 
-Create a new migration:
 ```bash
 cd backend
+# Create a new migration
 alembic revision --autogenerate -m "description"
-```
-
-Apply migrations:
-```bash
+# Apply all migrations
 alembic upgrade head
 ```
 
-### Adding shadcn/ui Components
+## API Endpoints
 
-```bash
-cd frontend
-npx shadcn@latest add button
-```
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/webhook` | Clerk webhook for user sync |
+| GET | `/api/auth/me` | Current user profile |
+| GET/POST | `/api/projects` | List/create projects |
+| GET/PATCH/DELETE | `/api/projects/:id` | Get/update/delete project |
+| GET/POST | `/api/milestones/:projectId/milestones` | List/create milestones |
+| PATCH/DELETE | `/api/milestones/:id` | Update/delete milestone |
+| GET/POST | `/api/milestones/:milestoneId/tasks` | List/create tasks |
+| PATCH/DELETE | `/api/tasks/:id` | Update/delete task |
+| GET/POST | `/api/chat/sessions` | List/create chat sessions |
+| POST | `/api/chat/sessions/:id/messages` | Send message to AI |
+| GET/POST | `/api/learnings` | List/create learnings |
+| GET/POST | `/api/deployments` | List/create deployments |
+| GET | `/api/dashboard/stats` | Dashboard statistics |
+| POST | `/api/early-access` | Early access signup |
 
 ## Environment Variables
 
 ### Frontend (.env.local)
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` - Clerk public key
-- `CLERK_SECRET_KEY` - Clerk secret key
-- `NEXT_PUBLIC_API_URL` - Backend API URL
-- `NEXT_PUBLIC_WS_URL` - WebSocket URL
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk public key |
+| `CLERK_SECRET_KEY` | Clerk secret key |
+| `NEXT_PUBLIC_API_URL` | Backend API URL |
+| `NEXT_PUBLIC_PRODUCT_NAME` | Product name (default: Umbral) |
 
 ### Backend (.env)
-- `DATABASE_URL` - PostgreSQL connection string
-- `CLERK_SECRET_KEY` - Clerk secret key for JWT verification
-- `OPENAI_API_KEY` - OpenAI API key
-- `ANTHROPIC_API_KEY` - Anthropic API key
-- `CHROMA_PERSIST_DIRECTORY` - ChromaDB storage path
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `CLERK_SECRET_KEY` | Clerk secret key for JWT verification |
+| `GEMINI_API_KEY` | Google Gemini API key |
+| `GEMINI_MODEL` | Model name (default: gemini-2.5-flash) |
+
+## Brand & Theme
+
+Umbral uses a **terminal-futuristic dark theme**:
+- **Primary**: Sky Blue `#0EA5E9`
+- **Accent**: Soft Yellow `#FCD34D`
+- **Background**: Deep dark blue-black `#0A0F1A`
+- **Typography**: JetBrains Mono (code), Space Grotesk (headings), Inter (body)
 
 ## Deployment
 
-### Microsoft Azure (Recommended)
+### Production
+- **Frontend**: Deployed to Vercel via `vercel deploy`
+- **Backend**: AWS Lambda behind API Gateway (Terraform managed)
+- **Database**: Supabase (connection via pooler on port 5432)
+- **Domain**: `learn.loopertech.net` (Cloudflare DNS)
 
-This project is configured for deployment to Microsoft Azure using:
-- **Azure Static Web Apps** for Next.js frontend
-- **Azure App Service** for FastAPI backend
-- **Azure Database for PostgreSQL** for the database
-
-#### Quick Deploy with Azure CLI
-
+### Infrastructure as Code
 ```bash
-# Deploy everything
-cd scripts/azure
-./setup-azure.sh
-
-# Or deploy individually
-./deploy-backend.sh   # Deploy backend + database
-./deploy-frontend.sh  # Deploy frontend
+cd infrastructure/terraform
+terraform init
+terraform plan -var-file=environments/prod.tfvars
+terraform apply -var-file=environments/prod.tfvars
 ```
-
-#### Manual Deployment
-
-See the comprehensive [Azure Deployment Guide](./docs/AZURE_DEPLOYMENT.md) for detailed step-by-step instructions.
-
-**Estimated Azure Cost (Development):** ~$25-30/month
-
-### Local Development Deployment
-
-For local testing without cloud deployment:
-
-```bash
-# Terminal 1: Run backend locally
-cd backend
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-python main.py
-
-# Terminal 2: Run frontend locally
-cd frontend
-npm install
-npm run dev
-```
-
-## Documentation
-
-- [Full Project Requirements](./docs/PROJECT_REQUIREMENTS.md)
-- [Prototype Requirements](./docs/PROTOTYPE_REQUIREMENTS.md)
-- [Azure Deployment Guide](./docs/AZURE_DEPLOYMENT.md)
 
 ## License
 
-MIT License - Copyright (c) 2026 Looper AI
+MIT License - Copyright (c) 2026 LooperAI Tech
 
 ## Contributing
 
-This is a prototype project. For questions or contributions, please contact the development team.
+This project is maintained by the AI PlayGrounds community. For questions or contributions, open an issue at the repository.

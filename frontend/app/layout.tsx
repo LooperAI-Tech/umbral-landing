@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
-import { dark } from "@clerk/themes";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import AosProvider from "@/components/ui/aos-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -30,14 +29,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider appearance={{ baseTheme: dark }}>
-      <html lang="es" className="dark">
-        <body
-          className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} antialiased`}
-        >
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="es" className="dark">
+      <body
+        className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} antialiased`}
+      >
+        <AosProvider>{children}</AosProvider>
+      </body>
+    </html>
   );
 }
