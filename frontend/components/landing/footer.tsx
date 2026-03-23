@@ -19,7 +19,7 @@ export default function Footer() {
           {/* Product */}
           <div>
             <h4 className="font-mono text-xs text-brand-skyblue uppercase tracking-wider mb-3">
-              Producto
+              Umbral
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
@@ -43,7 +43,7 @@ export default function Footer() {
           {/* Program */}
           <div>
             <h4 className="font-mono text-xs text-brand-skyblue uppercase tracking-wider mb-3">
-              Programa
+              AI TechProducts
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
@@ -69,21 +69,21 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* About */}
           <div>
             <h4 className="font-mono text-xs text-brand-skyblue uppercase tracking-wider mb-3">
-              Legal
+              Sobre Nosotros
             </h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              {/* TODO: Add real legal pages */}
               <li>
-                <span className="text-muted-foreground/50">Privacidad</span>
+                <a href="#" className="hover:text-foreground transition-colors">
+                  AI PlayGrounds
+                </a>
               </li>
               <li>
-                <span className="text-muted-foreground/50">Términos</span>
-              </li>
-              <li>
-                <span className="text-muted-foreground/50">Contacto</span>
+                <a href="#" className="hover:text-foreground transition-colors">
+                  LooperAI
+                </a>
               </li>
             </ul>
           </div>

@@ -21,8 +21,8 @@ export default function FinalCTA() {
               <span className="text-gradient-brand">Construye lo que importa.</span>
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
-              Únete a {COMMUNITY_NAME} y sé parte del primer batch de builders
-              que aprenden IA construyendo productos reales. Cupos limitados.
+              Únete a {COMMUNITY_NAME} y sé parte del equipo que esta revolucionando la forma en
+              la que se aprende y desarrolla con IA. Cupos limitados.
             </p>
             <Link
               href="/early-access"
@@ -31,9 +31,6 @@ export default function FinalCTA() {
               <Sparkles className="w-5 h-5" />
               Obtener Acceso Anticipado
             </Link>
-            <p className="text-xs text-muted-foreground mt-4">
-              Acceso anticipado gratuito. Sin tarjeta. Sin spam.
-            </p>
           </div>
         </div>
       </div>

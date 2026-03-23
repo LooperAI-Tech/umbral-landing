@@ -8,6 +8,7 @@ import { PRODUCT_NAME } from "@/lib/constants";
 const navLinks = [
   { label: "Cómo Funciona", href: "#how-it-works" },
   { label: "AI TechProducts", href: "#ai-techproducts" },
+  { label: "AI PlayGrounds", href: "#" },
   { label: "Para Quién", href: "#audience" },
   { label: "FAQ", href: "#faq" },
 ];

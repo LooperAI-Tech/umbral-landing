@@ -10,42 +10,42 @@ import {
   Presentation,
   Bot,
   ShieldCheck,
-  Rocket,
+  Rocket
 } from "lucide-react";
 
 const milestones = [
   {
     week: "S1",
     title: "Ideación",
-    desc: "Define problema, usuario, solución, tech stack. Crea plan con hitos y tareas. Setup + primer deploy.",
+    desc: "Define problema, usuario, solución, tech stack. Crea plan con hitos y tareas. Setup inicial.",
     icon: Lightbulb,
   },
   {
     week: "S2",
     title: "Desarrollo",
-    desc: "Construye el núcleo e integra IA. Registra progreso en Umbral. Verificación de comprensión del componente de IA.",
+    desc: "Construye el núcleo de tu solución usando IA. Controla tu progreso en Umbral. Verifica la comprensión de lo que has desarrollado.",
     icon: Code2,
   },
   {
     week: "S3",
     title: "Refinamiento",
-    desc: "Optimiza, edge cases, documenta. Auto-debugging sin IA. Repo completo. Defensa de tradeoffs.",
+    desc: "Optimiza, itera, documenta. Auto-debugging sin IA. Explicación de tradeoffs.",
     icon: Settings,
   },
   {
     week: "S4",
     title: "Demo Day",
-    desc: "Deploy final con URL. Testeo con usuario real. Presentación técnica: 3-5 min técnica + 2 min demo + Q&A.",
+    desc: "Deploy final en línea. Testeo con usuarios reales. Presentación técnica + demo + Q&A.",
     icon: Presentation,
   },
 ];
 
 const evaluation = [
-  { label: "Comprensión Técnica", weight: "30%", color: "bg-brand-skyblue" },
-  { label: "Funcionalidad", weight: "20%", color: "bg-status-completed" },
-  { label: "Diseño del Producto", weight: "20%", color: "bg-community-yellow" },
+  { label: "Comprensión Técnica", weight: "35%", color: "bg-brand-skyblue" },
+  { label: "Diseño del Producto", weight: "25%", color: "bg-community-yellow" },
+  { label: "Funcionalidad", weight: "25%", color: "bg-status-completed" },
   { label: "Innovación", weight: "15%", color: "bg-[#A78BFA]" },
-  { label: "Presentación", weight: "15%", color: "bg-neon-cyan" },
+  { label: "Presentación", weight: "10%", color: "bg-neon-cyan" },
 ];
 
 const differentiators = [
@@ -62,7 +62,7 @@ const differentiators = [
   {
     icon: Rocket,
     title: "Productos reales con usuarios reales",
-    desc: "No son ejercicios ni tutoriales reempacados. Cada producto se despliega, se testea con usuarios reales, y se presenta en Demo Day.",
+    desc: "No son ejercicios ni tutoriales reempacados. Cada producto se despliega, se testea con usuarios reales, y se presenta en Demo Days.",
   },
 ];
 
@@ -72,15 +72,20 @@ export default function AITechProducts() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Badge + Header */}
         <div className="text-center mb-14" data-aos="fade-up">
-          <span className="inline-block bg-brand-skyblue/10 border border-brand-skyblue/30 text-brand-skyblue text-xs font-mono px-3 py-1 rounded-full mb-4">
-            Powered by Umbral
-          </span>
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-            AI Technical Products
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-brand-skyblue/10 border border-brand-skyblue/30 text-brand-skyblue text-xs font-mono px-3 py-1 rounded-full mb-4 hover:bg-brand-skyblue/20 transition-colors"
+          >
+            Powered by AI PlayGrounds
+          </a>
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
+            AI TechProducts
           </h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            3 meses. 3 productos. 100% autodidacta. Un programa donde construyes
-            productos reales de IA y demuestras que entiendes cada decisión.
+            Un programa donde construyes productos usando IA con un grupo de mentores expertos
+            y en un espacio diseñado para que explotes todo tu potencial.
           </p>
         </div>
 
@@ -93,14 +98,14 @@ export default function AITechProducts() {
           <blockquote className="bg-card border border-community-yellow/30 rounded-xl p-8 text-center relative">
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-3">
               <span className="text-community-yellow font-mono text-xs uppercase tracking-wider">
-                El estándar
+                Aspecto Clave
               </span>
             </div>
             <p className="text-xl md:text-2xl font-display font-bold text-foreground italic leading-relaxed">
-              &ldquo;Si no puedes explicarlo, no lo construiste
+              &ldquo;Dejar de que la IA hagas las cosas por mí
               <br />
               <span className="text-community-yellow">
-                — solo lo generaste.
+                — y empezar a co-crear con ella.
               </span>
               &rdquo;
             </p>
@@ -113,7 +118,7 @@ export default function AITechProducts() {
             className="text-center font-mono text-sm text-brand-skyblue mb-8 tracking-wider uppercase"
             data-aos="fade-up"
           >
-            Ciclo por Producto (4 Semanas)
+            Ciclo por Batch
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {milestones.map((m, i) => (
@@ -158,7 +163,7 @@ export default function AITechProducts() {
                     Duración
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    3 meses por ciclo. 1 producto por mes. Sprints de 4 semanas.
+                    3 meses por ciclo. Sprints de 4 semanas.
                   </p>
                 </div>
               </div>
@@ -167,8 +172,8 @@ export default function AITechProducts() {
                 <div>
                   <p className="text-foreground font-medium text-sm">Formato</p>
                   <p className="text-muted-foreground text-xs">
-                    Autodidacta con facilitación. 1 sesión grupal semanal
-                    obligatoria (virtual). Individual o equipos de máx. 2.
+                    Autodidacta con espacios dedicados para tu crecimiento.
+                    1 Sesión grupal semanal con mentores expertos.
                   </p>
                 </div>
               </div>
@@ -179,8 +184,20 @@ export default function AITechProducts() {
                     Qué obtienes
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Mínimo 3 productos desplegados, perfil de comprensión
-                    detallado, documentación pública, portafolio defendible.
+                    Productos desplegados, perfil de comprensión
+                    detallado, portafolio defendible y fuente de conocimiento personal.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Award className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-foreground font-medium text-sm">
+                    Qué obtienes
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    Productos desplegados, perfil de comprensión
+                    detallado, portafolio defendible y fuente de conocimiento personal.
                   </p>
                 </div>
               </div>

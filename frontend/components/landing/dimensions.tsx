@@ -1,8 +1,8 @@
 const dimensions = [
   {
     letter: "B",
-    title: "Can Build",
-    desc: "El código funciona y resuelve el problema.",
+    title: "¿Puedes Explicar?",
+    desc: "El código funciona, resuelve el problema y entiendo como desplegarlo.",
     question: '"¿Sé cómo corre esto?"',
     color: "text-status-completed",
     borderColor: "border-status-completed/30",
@@ -10,16 +10,16 @@ const dimensions = [
   },
   {
     letter: "E",
-    title: "Can Explain",
-    desc: "Puedes articular POR QUÉ funciona, con tus propias palabras.",
-    question: '"Explícame tus decisiones de schema."',
+    title: "¿Puedes Explicar?",
+    desc: "Puedes articular POR QUÉ funciona, POR QUÉ esta diseñado y construido así, etc.",
+    question: '"Explícame las decisiones que has tomado."',
     color: "text-[#A78BFA]",
     borderColor: "border-[#A78BFA]/30",
     bgColor: "from-[#A78BFA]/5",
   },
   {
     letter: "D",
-    title: "Can Debug",
+    title: "¿Puedes Corregir?",
     desc: "Puedes encontrar y arreglar errores sin ayuda de IA.",
     question: '"Aquí hay una versión rota — ¿qué está mal?"',
     color: "text-status-blocked",
@@ -28,9 +28,9 @@ const dimensions = [
   },
   {
     letter: "T",
-    title: "Can Transfer",
+    title: "¿Puedes Transferir?",
     desc: "Puedes aplicar el patrón a un dominio completamente diferente.",
-    question: '"¿Cómo funcionaría esto para healthcare?"',
+    question: '"¿Cómo funcionaría esto en otro contexto"',
     color: "text-neon-cyan",
     borderColor: "border-neon-cyan/30",
     bgColor: "from-neon-cyan/5",
@@ -43,10 +43,10 @@ export default function Dimensions() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14" data-aos="fade-up">
           <p className="font-mono text-sm text-community-yellow mb-2 tracking-wider uppercase">
-            El diferenciador
+            Nuestro Diferenciador
           </p>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-            Las 4 Dimensiones de Comprensión
+            Las 4 Dimensiones de la Comprensión
           </h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
             Más allá de &quot;¿funciona el código?&quot; — medimos lo que la
@@ -81,7 +81,7 @@ export default function Dimensions() {
         </div>
 
         {/* Insight callout */}
-        <div
+        {/* <div
           className="max-w-3xl mx-auto bg-card border border-community-yellow/30 rounded-lg p-6 text-center"
           data-aos="fade-up"
         >
@@ -97,7 +97,7 @@ export default function Dimensions() {
             = estás generando código que no te pertenece intelectualmente. Umbral
             detecta este patrón y te desafía a cerrarlo.
           </p>
-        </div>
+        </div> */}
       </div>
     </section>
   );
