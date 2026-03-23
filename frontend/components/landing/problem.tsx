@@ -23,8 +23,8 @@ export default function Problem() {
     <section className="py-20 border-t border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14" data-aos="fade-up">
-          <p className="font-mono text-sm text-community-blue-light mb-2 tracking-wider uppercase">
-            El nuevo AI-Dependence
+          <p className="font-mono text-lr text-community-blue-light mb-2 tracking-wider uppercase">
+            El nuevo AI-Dependency
           </p>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
             La IA genera tu solución.

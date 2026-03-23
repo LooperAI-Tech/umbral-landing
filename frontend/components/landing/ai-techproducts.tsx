@@ -10,7 +10,7 @@ import {
   Presentation,
   Bot,
   ShieldCheck,
-  Rocket,
+  Rocket
 } from "lucide-react";
 
 const milestones = [
@@ -72,15 +72,20 @@ export default function AITechProducts() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Badge + Header */}
         <div className="text-center mb-14" data-aos="fade-up">
-          <span className="inline-block bg-brand-skyblue/10 border border-brand-skyblue/30 text-brand-skyblue text-xs font-mono px-3 py-1 rounded-full mb-4">
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-brand-skyblue/10 border border-brand-skyblue/30 text-brand-skyblue text-xs font-mono px-3 py-1 rounded-full mb-4 hover:bg-brand-skyblue/20 transition-colors"
+          >
             Powered by AI PlayGrounds
-          </span>
+          </a>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
             AI TechProducts
           </h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Un programa donde construyes productos reales usando IA con un grupo de mentores expertos
-            y en un espacio diseñado para que explotes tu potencial.
+            Un programa donde construyes productos usando IA con un grupo de mentores expertos
+            y en un espacio diseñado para que explotes todo tu potencial.
           </p>
         </div>
 
@@ -169,6 +174,18 @@ export default function AITechProducts() {
                   <p className="text-muted-foreground text-xs">
                     Autodidacta con espacios dedicados para tu crecimiento.
                     1 Sesión grupal semanal con mentores expertos.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Award className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-foreground font-medium text-sm">
+                    Qué obtienes
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    Productos desplegados, perfil de comprensión
+                    detallado, portafolio defendible y fuente de conocimiento personal.
                   </p>
                 </div>
               </div>

@@ -11,13 +11,13 @@ const steps = [
     number: "02",
     icon: Code2,
     title: "Construye con IA que te desafía",
-    desc: "Cada día sigues un loop de aprendizaje: Te Orientamos → Te Retamos → Descubres → Construyes → Explicas → Reflejas lo Principal. Nuestros agentes te hacen guían en el proceso, no solo respuestas. Umbral verifica que realmente entiendes.",
+    desc: "Cada día sigues un loop de aprendizaje: Te Orientamos → Te Retamos → Descubres → Construyes → Explicas → Reflejas lo Principal. Nuestros agentes te guían en el proceso, no solo recibes respuestas. Umbral verifica que realmente entiendes.",
   },
   {
     number: "03",
     icon: Rocket,
     title: "Despliega y demuestra que entiendes",
-    desc: "Despliega tu producto en línea. Recoge feedback de usuarios. Tu knowledge graph se actualiza — e iteras nuevamente.",
+    desc: "Despliega tu producto en línea. Recoge feedback de usuarios. Tu base de conocimiento se actualiza — e iteras nuevamente.",
   },
 ];
 

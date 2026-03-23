@@ -43,10 +43,10 @@ export default function Dimensions() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14" data-aos="fade-up">
           <p className="font-mono text-sm text-community-yellow mb-2 tracking-wider uppercase">
-            El diferenciador
+            Nuestro Diferenciador
           </p>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-            Las 4 Dimensiones de Comprensión
+            Las 4 Dimensiones de la Comprensión
           </h2>
           <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
             Más allá de &quot;¿funciona el código?&quot; — medimos lo que la
