@@ -24,13 +24,13 @@ export default function Problem() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14" data-aos="fade-up">
           <p className="font-mono text-sm text-community-blue-light mb-2 tracking-wider uppercase">
-            El nuevo tutorial hell
+            El nuevo AI-Dependence
           </p>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-            La IA genera tu código.
+            La IA genera tu solución.
             <br />
             <span className="text-muted-foreground">
-              ¿Pero tú entiendes lo que generó?
+              ¿Pero tú lo entiendes?
             </span>
           </h2>
         </div>
@@ -63,8 +63,8 @@ export default function Problem() {
             <span className="text-community-blue-light font-semibold">
               AI Dependency Signal:
             </span>{" "}
-            Alto en &quot;Can Build&quot; + bajo en &quot;Explain / Debug /
-            Transfer&quot; = estás generando código que no te pertenece
+            Alto en &quot;Construye&quot; + bajo en &quot;Explica / Debugea /
+            Transfiere&quot; = estás generando código que no te pertenece
             intelectualmente.
           </p>
         </div>

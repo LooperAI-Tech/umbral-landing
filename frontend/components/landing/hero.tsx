@@ -5,10 +5,9 @@ import { TerminalHeader } from "@/components/ui/terminal-header";
 import GalaxyBackground from "@/components/backgrounds/galaxy-background";
 
 const trustStats = [
-  { value: "3", label: "productos por ciclo" },
-  { value: "4", label: "dimensiones de comprensión" },
-  { value: "5", label: "agentes IA" },
-  { value: "100%", label: "autodidacta" },
+  { value: "4", label: "dimensiones de Comprensión" },
+  { value: "3", label: "Niveles Cognitivos" },
+  { value: "100%", label: "autodidacta con guías de expertos" },
 ];
 
 export default function Hero() {
@@ -32,8 +31,8 @@ export default function Hero() {
               data-aos-delay="200"
             >
               La plataforma donde aprendes construyendo productos reales con IA
-              — y demuestras que entiendes cada línea. Para developers que
-              quieren ir más allá de copiar y pegar.
+              — y demuestras que entiendes lo que haces. Para personas que
+              quieren ir más allá.
             </p>
             <div
               className="flex flex-wrap gap-4"
@@ -57,18 +56,18 @@ export default function Hero() {
 
             {/* Trust stats */}
             <div
-              className="flex flex-wrap gap-6 mt-10 pt-6 border-t border-border/50"
+              className="flex flex-nowrap gap-4 mt-10 pt-6 border-t border-border/50"
               data-aos="fade-up"
               data-aos-delay="600"
             >
               {trustStats.map((stat) => (
-                <div key={stat.label} className="text-center">
-                  <div className="text-2xl font-bold font-mono text-brand-skyblue">
+                <div key={stat.label} className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold font-mono text-brand-skyblue">
                     {stat.value}
-                  </div>
-                  <div className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
+                  </span>
+                  <span className="text-xs text-muted-foreground font-mono uppercase tracking-wider">
                     {stat.label}
-                  </div>
+                  </span>
                 </div>
               ))}
             </div>

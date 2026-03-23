@@ -15,9 +15,9 @@ const personas = [
     icon: Briefcase,
     role: "Engineering Manager / CTO",
     problem:
-      "Tu equipo entrega código que funciona pero no sabes si realmente entienden lo que construyen con IA.",
+      "Tu equipo entrega código hecho con IA pero no sabes si realmente están entregando soluciones analizadas correctamente.",
     outcome:
-      "Assessment real de comprensión técnica. Identifica quién entiende vs. quién solo genera.",
+      "Assessment real de entrega de valor segura. Identifica quién entiende vs. quién solo genera.",
     color: "text-community-yellow",
     borderColor: "border-community-yellow/30",
   },
@@ -27,7 +27,7 @@ const personas = [
     problem:
       "Completaste cursos y tutoriales pero tu portafolio no resiste preguntas técnicas reales.",
     outcome:
-      "Productos reales desplegados, no ejercicios. Un perfil de comprensión que demuestra profundidad, no solo completitud.",
+      "Productos reales desplegados, fundamentados y probados. Un perfil de comprensión que demuestra profundidad, no solo completitud.",
     color: "text-neon-cyan",
     borderColor: "border-neon-cyan/30",
   },
@@ -38,13 +38,13 @@ export default function Audience() {
     <section id="audience" className="py-20 border-t border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14" data-aos="fade-up">
-          <p className="font-mono text-sm text-brand-skyblue mb-2 tracking-wider uppercase">
+          <p className="font-mono text-lr text-brand-skyblue mb-2 tracking-wider uppercase">
             ¿Para quién es?
           </p>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-            Construido para quienes quieren
+            La primera escuela de tecnología
             <br />
-            <span className="text-gradient-brand">entender, no solo entregar</span>
+            <span className="text-gradient-brand">para la AI Era</span>
           </h2>
         </div>
 

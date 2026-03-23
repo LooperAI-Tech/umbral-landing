@@ -21,8 +21,8 @@ export default function FinalCTA() {
               <span className="text-gradient-brand">Construye lo que importa.</span>
             </h2>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
-              Únete a {COMMUNITY_NAME} y sé parte del primer batch de builders
-              que aprenden IA construyendo productos reales. Cupos limitados.
+              Únete a {COMMUNITY_NAME} y sé parte del equipo que esta revolucionando la forma en
+              la que se desarrolla . Cupos limitados.
             </p>
             <Link
               href="/early-access"
