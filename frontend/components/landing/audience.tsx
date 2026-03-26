@@ -44,7 +44,7 @@ export default function Audience() {
           <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
             La primera escuela de tecnología
             <br />
-            <span className="text-gradient-brand">para la AI Era</span>
+            <span className="text-gradient-brand">hecha a la medida para la AI-Era</span>
           </h2>
         </div>
 

@@ -1,30 +1,119 @@
-import { Compass, Code2, Rocket } from "lucide-react";
+import { Focus, Compass, Code2, Rocket, Brain, RefreshCw } from "lucide-react";
 
 const steps = [
   {
     number: "01",
-    icon: Compass,
-    title: "Define tu proyecto",
-    desc: "Elige un problema real que te importe resolver. Umbral te ayuda a definir alcance, usuario objetivo y milestones. La IA maneja la infraestructura — tú te enfocas en las decisiones de diseño.",
+    icon: Focus,
+    title: "Identifica tus prioridades",
+    desc: "Definimos qué áreas son tu prioridad profesional y cuáles son complementarias.",
+    color: "text-brand-skyblue",
+    border: "from-brand-skyblue/20 to-brand-skyblue/5",
+    borderHover: "group-hover:from-brand-skyblue/40 group-hover:to-brand-skyblue/20",
   },
   {
     number: "02",
-    icon: Code2,
-    title: "Construye con IA que te desafía",
-    desc: "Cada día sigues un loop de aprendizaje: Te Orientamos → Te Retamos → Descubres → Construyes → Explicas → Reflejas lo Principal. Nuestros agentes te guían en el proceso, no solo recibes respuestas. Umbral verifica que realmente entiendes.",
+    icon: Compass,
+    title: "Diseña tu producto",
+    desc: "Problema, usuarios, tech stack, arquitectura e hitos. Tú decides, la IA facilita.",
+    color: "text-community-yellow",
+    border: "from-community-yellow/20 to-community-yellow/5",
+    borderHover: "group-hover:from-community-yellow/40 group-hover:to-community-yellow/20",
   },
   {
     number: "03",
+    icon: Code2,
+    title: "Construye y valida",
+    desc: "Loop de aprendizaje activo tarea por tarea. Comprehension Gate en cada hito.",
+    color: "text-neon-cyan",
+    border: "from-neon-cyan/20 to-neon-cyan/5",
+    borderHover: "group-hover:from-neon-cyan/40 group-hover:to-neon-cyan/20",
+  },
+  {
+    number: "04",
     icon: Rocket,
-    title: "Despliega y demuestra que entiendes",
-    desc: "Despliega tu producto en línea. Recoge feedback de usuarios. Tu base de conocimiento se actualiza — e iteras nuevamente.",
+    title: "Despliega con usuarios",
+    desc: "Publica en línea, feedback de usuarios reales. Valida tu idea y tu desarrollo.",
+    color: "text-brand-skyblue",
+    border: "from-brand-skyblue/20 to-brand-skyblue/5",
+    borderHover: "group-hover:from-brand-skyblue/40 group-hover:to-brand-skyblue/20",
+  },
+  {
+    number: "05",
+    icon: Brain,
+    title: "Consolida tu comprensión",
+    desc: "Conceptos, debugging y decisiones en tu base de conocimiento personal.",
+    color: "text-community-yellow",
+    border: "from-community-yellow/20 to-community-yellow/5",
+    borderHover: "group-hover:from-community-yellow/40 group-hover:to-community-yellow/20",
+  },
+  {
+    number: "06",
+    icon: RefreshCw,
+    title: "Itera en un nuevo producto",
+    desc: "Profundiza la misma idea o toma una ruta nueva. Cada ciclo fortalece tu perfil.",
+    color: "text-neon-cyan",
+    border: "from-neon-cyan/20 to-neon-cyan/5",
+    borderHover: "group-hover:from-neon-cyan/40 group-hover:to-neon-cyan/20",
   },
 ];
 
+function HexCard({
+  step,
+  delay,
+}: {
+  step: (typeof steps)[0];
+  delay: number;
+}) {
+  const hexClip = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
+
+  return (
+    <div
+      className="relative group"
+      data-aos="fade-up"
+      data-aos-delay={delay}
+    >
+      <div
+        className="w-44 h-48 sm:w-48 sm:h-52 relative transition-all group-hover:scale-105"
+        style={{ clipPath: hexClip }}
+      >
+        {/* Border glow */}
+        <div
+          className={`absolute inset-0 bg-gradient-to-b ${step.border} ${step.borderHover} transition-all`}
+          style={{ clipPath: hexClip }}
+        />
+        {/* Inner content */}
+        <div
+          className="absolute inset-[1px] bg-card flex flex-col items-center justify-center text-center px-5 py-6"
+          style={{ clipPath: hexClip }}
+        >
+          <div className="flex items-center gap-1.5 mb-2">
+            <span className={`font-mono text-xs ${step.color} font-bold`}>
+              {step.number}
+            </span>
+            <step.icon className={`w-4 h-4 ${step.color}`} />
+          </div>
+          <h3 className="text-xs sm:text-sm font-semibold text-foreground font-display leading-tight mb-1">
+            {step.title}
+          </h3>
+          <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight px-1">
+            {step.desc}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function HowItWorks() {
+  const rows = [
+    { pair: [steps[0], steps[1]], align: "justify-start" },
+    { pair: [steps[2], steps[3]], align: "justify-center" },
+    { pair: [steps[4], steps[5]], align: "justify-end" },
+  ];
+
   return (
     <section id="how-it-works" className="py-20 border-t border-border/50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14" data-aos="fade-up">
           <p className="font-mono text-sm text-brand-skyblue mb-2 tracking-wider uppercase">
             Cómo funciona Umbral
@@ -34,35 +123,38 @@ export default function HowItWorks() {
             <br />
             Demuestra explicando.
           </h2>
+          <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm">
+            Un ciclo iterativo que se repite con cada producto — cada vuelta
+            profundiza tu comprensión.
+          </p>
         </div>
 
-        <div className="space-y-0">
-          {steps.map((step, i) => (
+        {/* Desktop: Hex honeycomb stepping left → center → right */}
+        <div className="hidden md:flex flex-col -space-y-8">
+          {rows.map((row, rowIndex) => (
             <div
-              key={step.number}
-              className="relative flex gap-6 pb-12"
-              data-aos="fade-up"
-              data-aos-delay={i * 200}
+              key={rowIndex}
+              className={`flex gap-2 sm:gap-3 ${row.align}`}
             >
-              {i < steps.length - 1 && (
-                <div className="absolute left-[23px] top-12 bottom-0 w-px bg-border" />
-              )}
-              <div className="shrink-0 w-12 h-12 rounded-full bg-card border border-brand-skyblue/30 flex items-center justify-center font-mono text-sm text-brand-skyblue font-bold z-10">
-                {step.number}
-              </div>
-              <div className="pt-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <step.icon className="w-5 h-5 text-brand-skyblue" />
-                  <h3 className="text-lg font-semibold text-foreground font-display">
-                    {step.title}
-                  </h3>
-                </div>
-                <p className="text-muted-foreground text-sm leading-relaxed max-w-lg">
-                  {step.desc}
-                </p>
-              </div>
+              <HexCard step={row.pair[0]} delay={rowIndex * 150} />
+              <HexCard step={row.pair[1]} delay={rowIndex * 150 + 100} />
             </div>
           ))}
+        </div>
+
+        {/* Mobile: 2-column grid */}
+        <div className="md:hidden grid grid-cols-2 gap-2 place-items-center">
+          {steps.map((step, i) => (
+            <HexCard key={step.number} step={step} delay={i * 80} />
+          ))}
+        </div>
+
+        {/* Loop indicator */}
+        <div className="text-center mt-10" data-aos="fade-up">
+          <span className="inline-flex items-center gap-2 font-mono text-lr text-brand-skyblue/60 bg-brand-skyblue/5 border border-brand-skyblue/10 px-4 py-1.5 rounded-full">
+            <RefreshCw className="w-3 h-3" />
+            Cada producto es un ciclo completo — repite para profundizar
+          </span>
         </div>
       </div>
     </section>
