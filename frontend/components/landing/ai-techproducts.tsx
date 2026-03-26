@@ -1,18 +1,19 @@
-import Link from "next/link";
 import {
-  FileText,
   Clock,
   Users,
   Award,
   Lightbulb,
   Code2,
   Settings,
-  Presentation,
-  Bot,
-  ShieldCheck,
   Rocket,
+  Presentation,
   MessageCircle,
   Star,
+  Shuffle,
+  SearchX,
+  CircleOff,
+  Heart,
+  ArrowRight,
 } from "lucide-react";
 
 const milestones = [
@@ -36,302 +37,342 @@ const milestones = [
   },
   {
     week: "S4",
+    title: "Despliegue y Testing",
+    desc: "Despliega tu producto en línea. Testea con usuarios reales. Recoge feedback y valida tu solución en un entorno real.",
+    icon: Rocket,
+  },
+  {
+    week: "S5",
     title: "Demo Day",
-    desc: "Despliegue final en línea. Testea con usuarios reales. Presenta tu pitch a nuestros advisors de comunidad.",
+    desc: "Presenta tu producto final. Pitch técnico de 3-5 min + demo en vivo + sesión de Q&A con advisors de la comunidad.",
     icon: Presentation,
   },
 ];
 
-const evaluation = [
-  { label: "Comprensión Técnica", weight: 30, cssColor: "#0EA5E9" },
-  { label: "Diseño del Producto", weight: 20, cssColor: "#FCD34D" },
-  { label: "Funcionalidad", weight: 20, cssColor: "#4ADE80" },
-  { label: "Innovación", weight: 15, cssColor: "#A78BFA" },
-  { label: "Presentación", weight: 15, cssColor: "#22D3EE" },
+const programDetails = [
+  { icon: Code2, title: "Acceso completo a Umbral", desc: "Acceso total a la plataforma usando tu coding assistant de preferencia para guiarte en cada paso del desarrollo de tu producto." },
+  { icon: Users, title: "Instructores dedicados", desc: "Instructores a tiempo completo que te acompañan semana a semana, asegurando que avances con claridad y profundidad." },
+  { icon: Star, title: "Mentores especializados", desc: "Sesiones 1:1 o grupales con mentores expertos en tu sector o tecnología específica. Orientación personalizada cuando más la necesitas." },
+  { icon: Lightbulb, title: "Metodología de vanguardia", desc: "Nuestra metodología propia basada en la investigación más reciente sobre cómo desarrollar software en la AI-Era. Diseñada para maximizar tu comprensión." },
+  { icon: Presentation, title: "Demo Days y feedback", desc: "Presenta tu producto ante los advisors de nuestra comunidad. Recibe feedback directo y valida tu trabajo con expertos reales." },
 ];
 
-function buildDonutGradient() {
-  const gap = 1; // % gap between all segments
-  const bgColor = "#111827"; // matches card background
-  const totalGaps = evaluation.length * gap;
-  const usable = 100 - totalGaps; // space left for actual segments
-  let cumulative = 0;
-  const stops: string[] = [];
-  for (const e of evaluation) {
-    // Gap before each segment
-    stops.push(`${bgColor} ${cumulative}%`);
-    cumulative += gap;
-    stops.push(`${bgColor} ${cumulative}%`);
-    // Segment
-    const segSize = (e.weight / 100) * usable;
-    stops.push(`${e.cssColor} ${cumulative}%`);
-    cumulative += segSize;
-    stops.push(`${e.cssColor} ${cumulative}%`);
-  }
-  return `conic-gradient(from -90deg, ${stops.join(", ")})`;
-}
-
-const differentiators = [
-  {
-    icon: Bot,
-    title: "Usa CUALQUIER herramienta de IA",
-    desc: "No restringimos herramientas. Usa ChatGPT, Copilot, Claude, lo que quieras. La señal no es si usaste IA — es si entiendes lo que produjo.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Demuestra comprensión, no solo output",
-    desc: "No evaluamos si funciona. Evaluamos si puedes explicar por qué funciona, debuggear sin ayuda, y defender tus decisiones técnicas.",
-  },
-  {
-    icon: Rocket,
-    title: "Productos reales con usuarios reales",
-    desc: "No son ejercicios ni tutoriales reempacados. Cada producto se despliega, se testea con usuarios reales, y se presenta en Demo Days.",
-  },
-];
 
 export default function AITechProducts() {
   return (
-    <section id="ai-techproducts" className="py-20 border-t border-border/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+    <section id="ai-techproducts" className="w-full max-w-6xl mx-auto px-6 py-16 md:py-20 flex flex-col items-center">
+      <div className="w-full">
         {/* Badge + Header */}
-        <div className="text-center mb-14" data-aos="fade-up">
-          <a
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-brand-skyblue/10 border border-brand-skyblue/30 text-brand-skyblue text-xs font-mono px-3 py-1 rounded-full mb-4 hover:bg-brand-skyblue/20 transition-colors"
-          >
+        <div className="text-center mb-14 flex flex-col items-center" data-aos="fade-up">
+          <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
             Powered by AI PlayGrounds
-          </a>
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            AI TechProducts
+          </span>
+          <h2 className="text-4xl md:text-5xl font-medium tracking-tight text-zinc-900">
+            AI Technical Products
           </h2>
-          <p className="text-muted-foreground mt-3 max-w-2xl mx-auto">
+          <p className="text-zinc-500 mt-3 max-w-3xl text-lg font-normal">
             Un programa donde construyes productos usando IA con un grupo de mentores expertos
             y en un espacio diseñado para que explotes todo tu potencial.
           </p>
         </div>
 
-        {/* Philosophy quote */}
-        <div
-          className="max-w-3xl mx-auto mb-14"
-          data-aos="fade-up"
-          data-aos-delay="100"
-        >
-          <blockquote className="bg-card border border-community-yellow/30 rounded-xl p-8 text-center relative">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-background px-3">
-              <span className="text-community-yellow font-mono text-xs uppercase tracking-wider">
-                Aspecto Clave
-              </span>
-            </div>
-            <p className="text-xl md:text-2xl font-display font-bold text-foreground italic leading-relaxed">
-              &ldquo;Dejar que la IA haga todo el trabajo por mí
-              <br />
-              <span className="text-community-yellow">
-                — y empezar a co-crear y comprender con ella.
-              </span>
-              &rdquo;
-            </p>
-          </blockquote>
-        </div>
-
-        {/* Milestones timeline */}
+        {/* Problem section */}
         <div className="mb-14">
-          <h3
-            className="text-center font-mono text-sm text-brand-skyblue mb-8 tracking-wider uppercase"
-            data-aos="fade-up"
-          >
-            Ciclo por Batch
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {milestones.map((m, i) => (
+          <div className="mb-8 flex flex-col items-center text-center" data-aos="fade-up">
+            <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
+              El problema
+            </span>
+            <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-zinc-900 max-w-3xl">
+              Generar código con IA es <span className="italic text-zinc-500">fácil.</span> Entender lo que generaste, no.
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: Shuffle,
+                title: "Generación sin comprensión",
+                desc: "La IA genera tu solución en segundos, pero no sabes cómo funciona, por qué se diseñó así, ni cómo corregirla cuando falla. El gap entre generar y comprender sigue creciendo.",
+              },
+              {
+                icon: SearchX,
+                title: "Sin espacios reales para construir",
+                desc: "Faltan entornos donde puedas construir productos de IA con acompañamiento real de expertos. Los cursos enseñan teoría, pero nadie te guía mientras construyes algo de verdad.",
+              },
+              {
+                icon: CircleOff,
+                title: "Cursos, bootcamps, videos... y parálisis",
+                desc: "Has invertido tiempo y dinero en formación, pero a la hora de construir no sabes por dónde empezar. El miedo a fallar te paraliza porque nadie te enseñó que fallar es parte del proceso.",
+              },
+            ].map((item, i) => (
               <div
-                key={m.week}
-                className="bg-card border border-border rounded-lg p-5 glow-hover transition-all relative"
+                key={item.title}
+                className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4"
                 data-aos="fade-up"
-                data-aos-delay={i * 150}
+                data-aos-delay={i * 100}
               >
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="font-mono text-xs text-brand-skyblue font-bold bg-brand-skyblue/10 px-2 py-0.5 rounded">
-                    {m.week}
-                  </span>
-                  <m.icon className="w-4 h-4 text-muted-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                  <item.icon className="w-5 h-5 text-zinc-800" />
                 </div>
-                <h4 className="text-base font-semibold text-foreground mb-2 font-display">
-                  {m.title}
-                </h4>
-                <p className="text-muted-foreground text-xs leading-relaxed">
-                  {m.desc}
-                </p>
+                <div>
+                  <h4 className="text-lg font-medium text-zinc-900 mb-1">{item.title}</h4>
+                  <p className="text-sm font-normal text-zinc-500 leading-relaxed">{item.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Program details + Evaluation */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-14 items-stretch">
-          {/* Details */}
-          <div
-            className="bg-card border border-border rounded-xl p-8"
-            data-aos="fade-right"
-          >
-            <h3 className="text-lg font-display font-bold text-foreground mb-6">
-              Detalles del Programa
+        {/* Milestones — 5 weeks */}
+        <div className="mb-14">
+          <div className="mb-8 flex flex-col items-center text-center" data-aos="fade-up">
+            <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
+              Ciclos por Cohorte
+            </span>
+            <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-zinc-900 max-w-2xl">
+              5 semanas para construir, desplegar y <span className="italic text-zinc-500">demostrar.</span>
             </h3>
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <Clock className="w-5 h-5 text-brand-skyblue shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-foreground font-medium text-sm">
-                    Duración
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    3 meses por ciclo. Sprints de 4 semanas.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Users className="w-5 h-5 text-community-yellow shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-foreground font-medium text-sm">Formato</p>
-                  <p className="text-muted-foreground text-xs">
-                    Autodidacta con espacios dedicados para tu crecimiento.
-                    Sesiones grupales semanales con mentores expertos.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Award className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-foreground font-medium text-sm">
-                    Qué obtienes
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    Productos desplegados, perfil de skills detallado, portafolio personal para la AI-Era
-                    y base de conocimiento personal replicable en cualquier proyecto.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <MessageCircle className="w-5 h-5 text-brand-skyblue shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-foreground font-medium text-sm">
-                    Sesiones activas
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    Espacios para compartir tus descubrimientos, pedir feedback o ayuda, mostrar lo que aprendiste y escuchar a otros hacerlo. Aprendizaje colaborativo real.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <Star className="w-5 h-5 text-community-yellow shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-foreground font-medium text-sm">
-                    Comunidad y beneficios
-                  </p>
-                  <p className="text-muted-foreground text-xs">
-                    Acceso a la comunidad AI PlayGrounds enfocada en el human layer de la IA. Prioridad y descuentos en todos los programas futuros: bootcamps, workshops, eventos y más.
-                  </p>
-                </div>
-              </div>
-            </div>
           </div>
-
-          {/* Evaluation — Donut + tags */}
-          <div
-            className="bg-card border border-border rounded-xl p-8"
-            data-aos="fade-left"
-          >
-            <h3 className="text-lg font-display font-bold text-foreground mb-6">
-              Evaluación
-            </h3>
-
-            <div className="flex items-center gap-6 justify-center">
-              {/* Donut */}
-              <div className="relative w-48 h-48 shrink-0">
-                <div
-                  className="w-full h-full rounded-full"
-                  style={{ background: buildDonutGradient() }}
-                />
-                <div className="absolute inset-[30%] rounded-full bg-card" />
-              </div>
-
-              {/* Tags with percentage */}
-              <div className="flex flex-col gap-2 flex-1">
-                {evaluation.map((e) => (
-                  <div key={e.label} className="flex items-center gap-2">
-                    <span
-                      className="font-mono text-xs font-bold w-10 text-right"
-                      style={{ color: e.cssColor }}
-                    >
-                      {e.weight}%
-                    </span>
-                    <span
-                      className="text-xs font-semibold px-2.5 py-0.5 rounded-full border"
-                      style={{
-                        color: e.cssColor,
-                        borderColor: `${e.cssColor}40`,
-                        backgroundColor: `${e.cssColor}15`,
-                      }}
-                    >
-                      {e.label}
-                    </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {milestones.map((m, i) => (
+              <div
+                key={m.week}
+                className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4 group"
+                data-aos="fade-up"
+                data-aos-delay={i * 100}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-zinc-400">{m.week}</span>
+                  <div className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                    <m.icon className="w-4 h-4 text-zinc-800" />
                   </div>
-                ))}
+                </div>
+                <div>
+                  <h4 className="text-lg font-medium text-zinc-900 mb-1">{m.title}</h4>
+                  <p className="text-sm font-normal text-zinc-500 leading-relaxed">{m.desc}</p>
+                </div>
               </div>
-            </div>
-
-            <p className="text-xs text-muted-foreground mt-5 italic">
-              La Comprensión Técnica es el criterio de mayor peso. No basta con
-              que funcione — debes demostrar que entiendes cómo y por qué.
-            </p>
+            ))}
           </div>
         </div>
 
-        {/* Differentiators */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
-          {differentiators.map((d, i) => (
-            <div
-              key={d.title}
-              className="bg-card border border-border rounded-lg p-6 glow-hover transition-all group"
-              data-aos="fade-up"
-              data-aos-delay={i * 100}
-            >
-              <d.icon className="w-8 h-8 text-brand-skyblue mb-4 group-hover:scale-110 transition-transform" />
-              <h4 className="text-base font-semibold text-foreground mb-2 font-display">
-                {d.title}
-              </h4>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {d.desc}
+        {/* Detalles del Programa — full width section */}
+        <div className="mb-14">
+          <div className="mb-8 flex flex-col items-center text-center" data-aos="fade-up">
+            <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
+              El Programa
+            </span>
+            <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-zinc-900 max-w-3xl">
+              Todo lo que necesitas para <span className="italic text-zinc-500">maximizar tu comprensión</span> al desarrollar productos de IA.
+            </h3>
+          </div>
+          <div className="flex flex-wrap justify-center gap-6">
+            {programDetails.map((item, i) => (
+              <div
+                key={item.title}
+                className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4 w-full md:w-[calc(33.333%-1rem)]"
+                data-aos="fade-up"
+                data-aos-delay={i * 100}
+              >
+                <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                  <item.icon className="w-5 h-5 text-zinc-800" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-medium text-zinc-900 mb-1">{item.title}</h4>
+                  <p className="text-sm font-normal text-zinc-500 leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Para quién — list style, no more boxes */}
+        <div className="mb-14 w-full max-w-3xl mx-auto">
+          <div className="mb-8 flex flex-col items-center text-center" data-aos="fade-up">
+            <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
+              ¿Para quién es?
+            </span>
+            <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-zinc-900 max-w-2xl">
+              Creado para quienes quieren ser los<span className="italic text-zinc-500"> creadores del software del futuro.</span>
+            </h3>
+          </div>
+          <div className="flex flex-col gap-0" data-aos="fade-up">
+            {[
+              {
+                headline: "Developers que sienten que la IA hace el trabajo por ellos",
+                desc: "Usas coding assistants todos los días pero sientes que solo aceptas lo que generan. Quieres recuperar el control y entender cada decisión de lo que construyes.",
+              },
+              {
+                headline: "Personas que quieren usar IA para construir — y entender qué hacen",
+                desc: "Te entusiasma la idea de crear con coding assistants, pero no quieres solo copiar y pegar. Quieres saber qué está pasando, por qué funciona y cómo mejorarlo.",
+              },
+              {
+                headline: "Profesionales que quieren dar el salto a AI como builders",
+                desc: "Vienes de otro campo o estás empezando en tech. Quieres un camino concreto para construir productos de IA con coding assistants, no más cursos solo teóricos.",
+              },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="flex gap-4 py-6 border-b border-zinc-100 last:border-b-0 group"
+                data-aos="fade-up"
+                data-aos-delay={i * 100}
+              >
+                <div className="shrink-0 w-8 h-8 rounded-full bg-zinc-900 text-white flex items-center justify-center text-sm font-medium mt-0.5">
+                  {i + 1}
+                </div>
+                <div>
+                  <h4 className="text-base font-medium text-zinc-900 mb-1 group-hover:text-zinc-600 transition-colors">
+                    {item.headline}
+                  </h4>
+                  <p className="text-sm font-normal text-zinc-500 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    {/* Pricing — full width dark section */}
+    <section className="w-full bg-zinc-900 text-white py-16 md:py-20 px-6" data-aos="fade-up">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-12 flex flex-col items-center text-center">
+          <span className="bg-white/10 backdrop-blur-md border border-white/10 text-white text-xs font-medium px-4 py-1.5 rounded-full mb-6">
+            Pago único
+          </span>
+          <h2 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight max-w-2xl">
+            Una inversión. Todo <span className="italic text-zinc-400">incluido.</span>
+          </h2>
+        </div>
+
+        {/* Pricing card */}
+        <div className="max-w-5xl mx-auto bg-zinc-950 rounded-[2rem] border border-zinc-800 p-8 md:p-12 flex flex-col lg:flex-row gap-10 relative overflow-hidden">
+          <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "radial-gradient(circle at top right, rgba(255,255,255,0.05) 0%, transparent 40%)" }} />
+
+          {/* Left — price */}
+          <div className="relative flex-1 flex flex-col justify-between">
+            <div>
+              <div className="flex items-end gap-2 mb-4">
+                <span className="text-5xl md:text-6xl font-medium tracking-tight">$600</span>
+                <span className="text-lg text-zinc-500 font-normal mb-2">USD</span>
+              </div>
+              <p className="text-sm font-normal text-zinc-400 max-w-sm leading-relaxed">
+                Postúlate al programa y accede a todos los beneficios de AI Technical Products por una única inversión.
               </p>
             </div>
-          ))}
-        </div>
+          </div>
 
-        {/* CTAs */}
-        <div className="text-center" data-aos="fade-up">
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <a
-              href="/docs/ai-technical-products-reglamento.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 border border-[var(--brand-skyblue)] text-[var(--brand-skyblue)] px-8 py-3 rounded-lg text-base font-semibold hover:bg-[var(--brand-skyblue)]/10 hover:shadow-[var(--shadow-glow)] transition-all"
-            >
-              <FileText className="w-5 h-5" />
-              Ver Reglamento Completo
-            </a>
+          {/* Right — what's included */}
+          <div className="relative flex-1 bg-zinc-900/50 rounded-2xl p-8 border border-zinc-800">
+            <h4 className="text-sm font-medium text-white mb-5">Qué incluye</h4>
+            <ul className="flex flex-col gap-3 mb-8">
+              {[
+                "12 sesiones con instructor a lo largo del programa",
+                "Acceso a nuestro pool de mentores en sector y tecnología",
+                "Plataforma Umbral con coding assistant integrado",
+                "Metodologías de vanguardia sin sacrificar comprensión",
+                "Demo Days con feedback de advisors de la comunidad",
+                "Acceso a la comunidad AI PlayGrounds y beneficios futuros",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm font-normal text-zinc-300">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+
             <a
               href="https://register.aiplaygrounds.org"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-[image:var(--gradient-brand)] text-white px-8 py-3 rounded-lg text-base font-semibold hover:shadow-[var(--shadow-glow)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+              className="w-full bg-white text-zinc-900 hover:bg-zinc-100 transition-colors py-4 rounded-full text-center text-sm font-medium block"
             >
               {/* TODO: Update URL when registration app is live */}
-              Postúlate aquí
+              Postula aquí
             </a>
+          </div>
+        </div>
+
+        {/* Becas — Mission Block */}
+        <div className="max-w-5xl mx-auto mt-12" data-aos="fade-up">
+          <div className="relative rounded-[2rem] border border-zinc-700 overflow-hidden">
+            {/* Gradient accent top border */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+
+            <div className="p-8 md:p-12">
+              {/* Icon + label */}
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-white/10 border border-white/10 flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
+                  Nuestra misión
+                </span>
+              </div>
+
+              {/* Two-column layout */}
+              <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
+                {/* Left — mission statement */}
+                <div className="flex-1">
+                  <h3 className="text-2xl md:text-3xl font-medium tracking-tight text-white mb-4 leading-snug">
+                    El talento no debería tener{" "}
+                    <span className="italic text-zinc-400">barreras económicas.</span>
+                  </h3>
+                  <p className="text-sm text-zinc-400 leading-relaxed max-w-lg">
+                    AI PlayGrounds nació con una convicción: que el acceso a oportunidades reales de
+                    aprendizaje no puede depender de tu situación económica. Por eso ofrecemos becas
+                    en cada cohorte — porque creemos que invertir en talento comprometido es la mejor
+                    inversión que podemos hacer como comunidad.
+                  </p>
+                </div>
+
+                {/* Right — details + CTA */}
+                <div className="flex-1 flex flex-col justify-between">
+                  {/* Quote callout */}
+                  <blockquote className="border-l-2 border-white/20 pl-5 mb-6">
+                    <p className="text-base text-zinc-300 italic leading-relaxed">
+                      "Nadie con talento y compromiso debería quedarse fuera. Cada postulación es
+                      evaluada de forma individual — lo que nos importa es tu determinación, no tu
+                      billetera."
+                    </p>
+                  </blockquote>
+
+                  {/* How it works */}
+                  <div className="flex flex-col gap-3 mb-6">
+                    {[
+                      "Completa tu postulación normalmente",
+                      "Indica que necesitas apoyo económico",
+                      "Cada caso se evalúa de forma individual y confidencial",
+                    ].map((step, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <span className="w-6 h-6 rounded-full bg-white/10 text-white text-xs font-medium flex items-center justify-center shrink-0">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm text-zinc-400">{step}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <a
+                    href="https://register.aiplaygrounds.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-medium text-white hover:text-zinc-300 transition-colors group"
+                  >
+                    Postula y solicita tu beca
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
+  </>
   );
 }

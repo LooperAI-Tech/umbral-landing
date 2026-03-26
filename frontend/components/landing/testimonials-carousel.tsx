@@ -62,61 +62,36 @@ export default function TestimonialsCarousel() {
     return () => cancelAnimationFrame(animationId);
   }, []);
 
-  // Duplicate items for seamless loop
   const items = [...testimonials, ...testimonials];
 
   return (
-    <section className="py-20 border-t border-border/50 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
-          <p className="font-mono text-sm text-brand-skyblue mb-2 tracking-wider uppercase">
-            Testimonios
-          </p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-            Lo que dicen nuestros builders
-          </h2>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-            Personas reales construyendo proyectos reales con Umbral.
-          </p>
-        </div>
-      </div>
-
-      <div
-        className="relative"
-        onMouseEnter={() => { pausedRef.current = true; }}
-        onMouseLeave={() => { pausedRef.current = false; }}
-      >
-        {/* Fade edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-
-        <div ref={trackRef} className="flex gap-6 w-max">
-          {items.map((t, i) => (
-            <div
-              key={`${t.name}-${i}`}
-              className="w-[350px] shrink-0 bg-card border border-border rounded-lg p-6 transition-all hover:border-brand-skyblue/30 hover:shadow-[var(--shadow-glow)]"
-            >
-              <Quote className="w-5 h-5 text-brand-skyblue/40 mb-3" />
-              <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                &ldquo;{t.quote}&rdquo;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[image:var(--gradient-brand)] flex items-center justify-center text-xs font-bold text-white font-mono">
-                  {t.avatar}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    {t.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground font-mono">
-                    {t.role}
-                  </p>
-                </div>
+    <div
+      className="relative overflow-hidden mask-edges"
+      onMouseEnter={() => { pausedRef.current = true; }}
+      onMouseLeave={() => { pausedRef.current = false; }}
+    >
+      <div ref={trackRef} className="flex gap-6 w-max py-4">
+        {items.map((t, i) => (
+          <div
+            key={`${t.name}-${i}`}
+            className="w-[350px] shrink-0 bg-zinc-800/50 border border-zinc-700 rounded-3xl p-8 flex flex-col gap-6"
+          >
+            <Quote className="w-6 h-6 text-zinc-500" />
+            <p className="text-sm font-normal leading-relaxed text-zinc-300 flex-grow">
+              &ldquo;{t.quote}&rdquo;
+            </p>
+            <div className="flex items-center gap-4 mt-auto">
+              <div className="w-12 h-12 rounded-full bg-zinc-700 flex items-center justify-center text-xs font-bold text-white">
+                {t.avatar}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">{t.name}</p>
+                <p className="text-xs text-zinc-500">{t.role}</p>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
-    </section>
+    </div>
   );
 }

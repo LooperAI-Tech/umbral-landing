@@ -84,39 +84,39 @@
   --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
 
   /* ============================================
-     UMBRAL DARK THEME (default - dark first)
+     UMBRAL LIGHT THEME (Aura-inspired)
      ============================================ */
 
   /* Base surfaces */
-  --background: #0A0F1A;
-  --foreground: #F1F5F9;
-  --card: #111827;
-  --card-foreground: #F1F5F9;
-  --popover: #111827;
-  --popover-foreground: #F1F5F9;
+  --background: #FAFAFA;
+  --foreground: #18181B;
+  --card: #FFFFFF;
+  --card-foreground: #18181B;
+  --popover: #FFFFFF;
+  --popover-foreground: #18181B;
 
   /* Primary = Brand Sky Blue */
   --primary: #0EA5E9;
   --primary-foreground: #FFFFFF;
 
-  /* Secondary = Dark elevated */
-  --secondary: #1F2937;
-  --secondary-foreground: #F1F5F9;
+  /* Secondary */
+  --secondary: #F4F4F5;
+  --secondary-foreground: #18181B;
 
   /* Muted */
-  --muted: #1F2937;
-  --muted-foreground: #94A3B8;
+  --muted: #F4F4F5;
+  --muted-foreground: #71717A;
 
   /* Accent */
-  --accent: #1E293B;
-  --accent-foreground: #F1F5F9;
+  --accent: #F4F4F5;
+  --accent-foreground: #18181B;
 
   /* Destructive */
-  --destructive: #F87171;
+  --destructive: #EF4444;
 
   /* Borders */
-  --border: rgba(148, 163, 184, 0.2);
-  --input: rgba(148, 163, 184, 0.2);
+  --border: #E4E4E7;
+  --input: #E4E4E7;
   --ring: #0EA5E9;
 
   /* Charts */
@@ -127,27 +127,27 @@
   --chart-5: #F87171;
 
   /* Sidebar */
-  --sidebar: #111827;
-  --sidebar-foreground: #F1F5F9;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #18181B;
   --sidebar-primary: #0EA5E9;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #1E293B;
-  --sidebar-accent-foreground: #F1F5F9;
-  --sidebar-border: rgba(148, 163, 184, 0.1);
+  --sidebar-accent: #F4F4F5;
+  --sidebar-accent-foreground: #18181B;
+  --sidebar-border: #E4E4E7;
   --sidebar-ring: #0EA5E9;
 
   /* Umbral-specific tokens */
-  --bg-terminal: #0D1321;
-  --border-subtle: rgba(148, 163, 184, 0.1);
-  --border-accent: rgba(14, 165, 233, 0.5);
+  --bg-terminal: #FAFAFA;
+  --border-subtle: #E4E4E7;
+  --border-accent: rgba(14, 165, 233, 0.3);
   --border-glow: #0EA5E9;
-  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.3);
-  --shadow-glow-yellow: 0 0 20px rgba(252, 211, 77, 0.3);
+  --shadow-glow: 0 0 20px rgba(14, 165, 233, 0.15);
+  --shadow-glow-yellow: 0 0 20px rgba(252, 211, 77, 0.15);
   --gradient-brand: linear-gradient(135deg, #0EA5E9 0%, #3B82F6 100%);
   --gradient-accent: linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%);
   --gradient-warm: linear-gradient(135deg, #FCD34D 0%, #0EA5E9 100%);
-  --gradient-card: linear-gradient(180deg, rgba(14, 165, 233, 0.05) 0%, transparent 100%);
-  --gradient-glow: radial-gradient(ellipse at center, rgba(14, 165, 233, 0.3) 0%, transparent 70%);
+  --gradient-card: linear-gradient(180deg, rgba(14, 165, 233, 0.03) 0%, transparent 100%);
+  --gradient-glow: radial-gradient(ellipse at center, rgba(14, 165, 233, 0.08) 0%, transparent 70%);
 }
 
 @layer base {
@@ -155,21 +155,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans antialiased;
   }
-}
-
-/* Terminal block styling */
-.terminal-block {
-  background: var(--bg-terminal);
-  border: 1px solid var(--border-subtle);
-  border-radius: 0.5rem;
-}
-
-/* Glow effect on hover */
-.glow-hover:hover {
-  box-shadow: var(--shadow-glow);
-  border-color: var(--border-glow);
 }
 
 /* Brand gradient text */
@@ -180,7 +167,48 @@
   background-clip: text;
 }
 
-/* Pulse animation for status indicators */
+/* Glow effect on hover (subtle for light theme) */
+.glow-hover:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-color: #D4D4D8;
+}
+
+/* ============================================
+   Marquee animation (Aura-style)
+   ============================================ */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Mask edges for marquee fade */
+.mask-edges {
+  mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+/* Hide scrollbar */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
 @keyframes pulse-glow {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
@@ -199,7 +227,7 @@
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling (light) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -210,76 +238,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.2);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.4);
-}
-
-/* ============================================
-   CSS Starfield Background
-   Three layers with different sizes & speeds
-   ============================================ */
-
-.stars-small,
-.stars-medium,
-.stars-large {
-  position: absolute;
-  inset: 0;
-  background-repeat: repeat;
-  will-change: transform;
-}
-
-/* Small stars — many, dim, slow drift */
-.stars-small {
-  background-image:
-    radial-gradient(1px 1px at  20px  30px, rgba(255,255,255,0.5) 50%, transparent 100%),
-    radial-gradient(1px 1px at  80px 120px, rgba(255,255,255,0.4) 50%, transparent 100%),
-    radial-gradient(1px 1px at 150px  50px, rgba(255,255,255,0.35) 50%, transparent 100%),
-    radial-gradient(1px 1px at 210px 170px, rgba(255,255,255,0.45) 50%, transparent 100%),
-    radial-gradient(1px 1px at  50px 200px, rgba(255,255,255,0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 280px  90px, rgba(255,255,255,0.4) 50%, transparent 100%),
-    radial-gradient(1px 1px at 320px 230px, rgba(255,255,255,0.35) 50%, transparent 100%),
-    radial-gradient(1px 1px at 100px 280px, rgba(255,255,255,0.5) 50%, transparent 100%),
-    radial-gradient(1px 1px at 370px 140px, rgba(255,255,255,0.3) 50%, transparent 100%),
-    radial-gradient(1px 1px at 250px 310px, rgba(255,255,255,0.45) 50%, transparent 100%);
-  background-size: 400px 350px;
-  animation: drift 120s linear infinite;
-}
-
-/* Medium stars — fewer, brighter, moderate drift */
-.stars-medium {
-  background-image:
-    radial-gradient(1.5px 1.5px at  40px  80px, rgba(14,165,233,0.6)  50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 180px 200px, rgba(255,255,255,0.7) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 300px  40px, rgba(59,130,246,0.5)  50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 130px 300px, rgba(255,255,255,0.6) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 350px 260px, rgba(14,165,233,0.5)  50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 480px 130px, rgba(255,255,255,0.55) 50%, transparent 100%),
-    radial-gradient(1.5px 1.5px at  70px 420px, rgba(59,130,246,0.45)  50%, transparent 100%);
-  background-size: 550px 500px;
-  animation: drift 80s linear infinite reverse;
-}
-
-/* Large stars — few, bright, with twinkle */
-.stars-large {
-  background-image:
-    radial-gradient(2px 2px at 100px 150px, rgba(14,165,233,0.8)  50%, transparent 100%),
-    radial-gradient(2px 2px at 350px  70px, rgba(255,255,255,0.9) 50%, transparent 100%),
-    radial-gradient(2.5px 2.5px at 500px 300px, rgba(59,130,246,0.7)  50%, transparent 100%),
-    radial-gradient(2px 2px at 220px 400px, rgba(255,255,255,0.8) 50%, transparent 100%);
-  background-size: 650px 500px;
-  animation: drift 200s linear infinite, twinkle 4s ease-in-out infinite alternate;
-}
-
-@keyframes drift {
-  from { transform: translate(0, 0); }
-  to   { transform: translate(-100px, -50px); }
-}
-
-@keyframes twinkle {
-  from { opacity: 0.6; }
-  to   { opacity: 1; }
+  background: rgba(0, 0, 0, 0.2);
 }
