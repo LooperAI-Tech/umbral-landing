@@ -5,157 +5,85 @@ const steps = [
     number: "01",
     icon: Focus,
     title: "Identifica tus prioridades",
-    desc: "Definimos qué áreas son tu prioridad profesional y cuáles son complementarias.",
-    color: "text-brand-skyblue",
-    border: "from-brand-skyblue/20 to-brand-skyblue/5",
-    borderHover: "group-hover:from-brand-skyblue/40 group-hover:to-brand-skyblue/20",
+    desc: "Definimos qué áreas del desarrollo son tu prioridad profesional y cuáles son complementarias. Umbral adapta la experiencia a tu perfil.",
   },
   {
     number: "02",
     icon: Compass,
     title: "Diseña tu producto",
-    desc: "Problema, usuarios, tech stack, arquitectura e hitos. Tú decides, la IA facilita.",
-    color: "text-community-yellow",
-    border: "from-community-yellow/20 to-community-yellow/5",
-    borderHover: "group-hover:from-community-yellow/40 group-hover:to-community-yellow/20",
+    desc: "Nombre, problema, usuarios, tech stack, arquitectura e hitos. Tú tomas las decisiones — la IA facilita, no decide por ti.",
   },
   {
     number: "03",
     icon: Code2,
     title: "Construye y valida",
-    desc: "Loop de aprendizaje activo tarea por tarea. Comprehension Gate en cada hito.",
-    color: "text-neon-cyan",
-    border: "from-neon-cyan/20 to-neon-cyan/5",
-    borderHover: "group-hover:from-neon-cyan/40 group-hover:to-neon-cyan/20",
+    desc: "Avanza tarea por tarea con un loop de aprendizaje activo. Cada hito incluye un Comprehension Gate antes de seguir.",
   },
   {
     number: "04",
     icon: Rocket,
     title: "Despliega con usuarios",
-    desc: "Publica en línea, feedback de usuarios reales. Valida tu idea y tu desarrollo.",
-    color: "text-brand-skyblue",
-    border: "from-brand-skyblue/20 to-brand-skyblue/5",
-    borderHover: "group-hover:from-brand-skyblue/40 group-hover:to-brand-skyblue/20",
+    desc: "Publica en línea y ponlo frente a usuarios reales. El feedback externo valida si tu idea y tu desarrollo funcionan.",
   },
   {
     number: "05",
     icon: Brain,
     title: "Consolida tu comprensión",
-    desc: "Conceptos, debugging y decisiones en tu base de conocimiento personal.",
-    color: "text-community-yellow",
-    border: "from-community-yellow/20 to-community-yellow/5",
-    borderHover: "group-hover:from-community-yellow/40 group-hover:to-community-yellow/20",
+    desc: "Conceptos, debugging, arquitectura y decisiones quedan en tu base de conocimiento personal — compartida entre proyectos.",
   },
   {
     number: "06",
     icon: RefreshCw,
     title: "Itera en un nuevo producto",
-    desc: "Profundiza la misma idea o toma una ruta nueva. Cada ciclo fortalece tu perfil.",
-    color: "text-neon-cyan",
-    border: "from-neon-cyan/20 to-neon-cyan/5",
-    borderHover: "group-hover:from-neon-cyan/40 group-hover:to-neon-cyan/20",
+    desc: "Profundiza la misma idea, explora el mismo concepto desde otro ángulo, o toma una ruta nueva. Cada ciclo fortalece tu perfil.",
   },
 ];
 
-function HexCard({
-  step,
-  delay,
-}: {
-  step: (typeof steps)[0];
-  delay: number;
-}) {
-  const hexClip = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)";
-
-  return (
-    <div
-      className="relative group"
-      data-aos="fade-up"
-      data-aos-delay={delay}
-    >
-      <div
-        className="w-44 h-48 sm:w-48 sm:h-52 relative transition-all group-hover:scale-105"
-        style={{ clipPath: hexClip }}
-      >
-        {/* Border glow */}
-        <div
-          className={`absolute inset-0 bg-gradient-to-b ${step.border} ${step.borderHover} transition-all`}
-          style={{ clipPath: hexClip }}
-        />
-        {/* Inner content */}
-        <div
-          className="absolute inset-[1px] bg-card flex flex-col items-center justify-center text-center px-5 py-6"
-          style={{ clipPath: hexClip }}
-        >
-          <div className="flex items-center gap-1.5 mb-2">
-            <span className={`font-mono text-xs ${step.color} font-bold`}>
-              {step.number}
-            </span>
-            <step.icon className={`w-4 h-4 ${step.color}`} />
-          </div>
-          <h3 className="text-xs sm:text-sm font-semibold text-foreground font-display leading-tight mb-1">
-            {step.title}
-          </h3>
-          <p className="text-[10px] sm:text-xs text-muted-foreground leading-tight px-1">
-            {step.desc}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function HowItWorks() {
-  const rows = [
-    { pair: [steps[0], steps[1]], align: "justify-start" },
-    { pair: [steps[2], steps[3]], align: "justify-center" },
-    { pair: [steps[4], steps[5]], align: "justify-end" },
-  ];
-
   return (
-    <section id="how-it-works" className="py-20 border-t border-border/50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14" data-aos="fade-up">
-          <p className="font-mono text-sm text-brand-skyblue mb-2 tracking-wider uppercase">
-            Cómo funciona Umbral
-          </p>
-          <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-            Aprende construyendo.
-            <br />
-            Demuestra explicando.
-          </h2>
-          <p className="text-muted-foreground mt-3 max-w-xl mx-auto text-sm">
-            Un ciclo iterativo que se repite con cada producto — cada vuelta
-            profundiza tu comprensión.
-          </p>
-        </div>
+    <section id="how-it-works" className="w-full max-w-6xl mx-auto px-6 py-16 md:py-20 flex flex-col items-center">
+      <div className="mb-16 flex flex-col items-center text-center" data-aos="fade-up">
+        <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
+          Cómo funciona
+        </span>
+        <h2 className="text-4xl md:text-5xl font-medium tracking-tight text-zinc-900 max-w-2xl">
+          Aprende construyendo. Demuestra <span className="italic text-zinc-500">explicando.</span>
+        </h2>
+      </div>
 
-        {/* Desktop: Hex honeycomb stepping left → center → right */}
-        <div className="hidden md:flex flex-col -space-y-8">
-          {rows.map((row, rowIndex) => (
-            <div
-              key={rowIndex}
-              className={`flex gap-2 sm:gap-3 ${row.align}`}
-            >
-              <HexCard step={row.pair[0]} delay={rowIndex * 150} />
-              <HexCard step={row.pair[1]} delay={rowIndex * 150 + 100} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+        {steps.map((step, i) => (
+          <div
+            key={step.number}
+            className="bg-white rounded-3xl p-8 border border-zinc-100 shadow-sm flex flex-col gap-4 group"
+            data-aos="fade-up"
+            data-aos-delay={i * 100}
+          >
+            {/* Icon + number */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-500">
+                <step.icon className="w-5 h-5 text-zinc-800" />
+              </div>
+              <span className="text-xs font-medium text-zinc-400 font-mono">{step.number}</span>
             </div>
-          ))}
-        </div>
 
-        {/* Mobile: 2-column grid */}
-        <div className="md:hidden grid grid-cols-2 gap-2 place-items-center">
-          {steps.map((step, i) => (
-            <HexCard key={step.number} step={step} delay={i * 80} />
-          ))}
-        </div>
+            {/* Title + desc */}
+            <div>
+              <h3 className="text-xl font-medium tracking-tight text-zinc-900 mb-1">{step.title}</h3>
+              <p className="text-sm font-normal text-zinc-500 leading-relaxed">
+                {step.desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
 
-        {/* Loop indicator */}
-        <div className="text-center mt-10" data-aos="fade-up">
-          <span className="inline-flex items-center gap-2 font-mono text-lr text-brand-skyblue/60 bg-brand-skyblue/5 border border-brand-skyblue/10 px-4 py-1.5 rounded-full">
-            <RefreshCw className="w-3 h-3" />
-            Cada producto es un ciclo completo — repite para profundizar
-          </span>
-        </div>
+      {/* Loop indicator */}
+      <div className="flex items-center gap-2 mt-10 text-zinc-400" data-aos="fade-up">
+        <RefreshCw className="w-4 h-4" />
+        <span className="text-sm font-medium">
+          Cada producto es un ciclo completo — repite para profundizar
+        </span>
       </div>
     </section>
   );

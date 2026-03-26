@@ -6,14 +6,14 @@ import Dimensions from "@/components/landing/dimensions";
 import Audience from "@/components/landing/audience";
 import SocialProof from "@/components/landing/social-proof";
 import FAQ from "@/components/landing/faq";
-import FinalCTA from "@/components/landing/final-cta";
+
 import Footer from "@/components/landing/footer";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-zinc-50 text-zinc-900 font-sans flex flex-col relative">
       <Navbar />
-      <main>
+      <main className="flex-grow flex flex-col items-center w-full">
         <Hero />
         <Problem />
         <HowItWorks />
@@ -21,7 +21,7 @@ export default function LandingPage() {
         <Audience />
         <SocialProof />
         <FAQ />
-        <FinalCTA />
+
       </main>
       <Footer />
     </div>
