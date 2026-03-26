@@ -38,7 +38,7 @@ import {
   INITIAL_FORM_DATA,
 } from "@/types/early-access";
 import { PRODUCT_NAME } from "@/lib/constants";
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 
 const TOTAL_STEPS = 6;
 
@@ -119,7 +119,7 @@ export default function EarlyAccessPage() {
 
   const checkEmailExists = async (email: string): Promise<boolean> => {
     try {
-      const { data: exists, error: rpcError } = await supabase.rpc(
+      const { data: exists, error: rpcError } = await getSupabase().rpc(
         "check_email_exists",
         { check_email: email }
       );
@@ -177,7 +177,7 @@ export default function EarlyAccessPage() {
 
     try {
       const now = new Date().toISOString();
-      const { error: dbError } = await supabase.from("early_access").insert({
+      const { error: dbError } = await getSupabase().from("early_access").insert({
         id: crypto.randomUUID(),
         name: data.name,
         email: data.email,
