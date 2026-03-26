@@ -3,7 +3,6 @@ import Hero from "@/components/landing/hero";
 import Problem from "@/components/landing/problem";
 import HowItWorks from "@/components/landing/how-it-works";
 import Dimensions from "@/components/landing/dimensions";
-import AITechProducts from "@/components/landing/ai-techproducts";
 import Audience from "@/components/landing/audience";
 import SocialProof from "@/components/landing/social-proof";
 import FAQ from "@/components/landing/faq";
@@ -19,7 +18,6 @@ export default function LandingPage() {
         <Problem />
         <HowItWorks />
         <Dimensions />
-        <AITechProducts />
         <Audience />
         <SocialProof />
         <FAQ />

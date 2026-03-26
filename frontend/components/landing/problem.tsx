@@ -1,10 +1,10 @@
-import { ShieldQuestion, RefreshCw, HelpCircle } from "lucide-react";
+import { ShieldQuestion, RefreshCw, HelpCircle, CircleOff } from "lucide-react";
 
 const painPoints = [
   {
     icon: RefreshCw,
     title: "El ciclo de dependencia",
-    desc: "Generas código con IA → lo despliegas → se rompe → no sabes por qué → vuelves a la IA. Repites sin aprender.",
+    desc: "Le pides a la IA que lo construya y funciona. Se rompe, le pides que lo arregle y también funciona. En ambos casos no sabes qué hizo ni cómo.",
   },
   {
     icon: HelpCircle,
@@ -15,6 +15,11 @@ const painPoints = [
     icon: ShieldQuestion,
     title: "Tu portafolio no resiste preguntas",
     desc: "Tienes proyectos desplegados, pero en una entrevista técnica no puedes defender las decisiones de arquitectura ni debuggear en vivo.",
+  },
+  {
+    icon: CircleOff,
+    title: "La parálisis de los cursos en línea",
+    desc: "Has completado cursos, workshops y bootcamps pero no te sientes preparado para lanzar algo. No sabes cómo iniciar y la duda te paraliza en avanzar.",
   },
 ];
 
@@ -35,7 +40,7 @@ export default function Problem() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {painPoints.map((point, i) => (
             <div
               key={point.title}
@@ -63,9 +68,8 @@ export default function Problem() {
             <span className="text-community-blue-light font-semibold">
               AI Dependency Signal:
             </span>{" "}
-            Alto en &quot;Construye&quot; + bajo en &quot;Explica / Debugea /
-            Transfiere&quot; = estás generando código que no te pertenece
-            intelectualmente.
+            Puedes &quot;Construir&quot; pero no puedes &quot;Explicar, Debugear o
+            Transferir&quot;. Como profesionales en tecnología, debemos ser capaces nivelar estos cuatro componentes.
           </p>
         </div>
       </div>

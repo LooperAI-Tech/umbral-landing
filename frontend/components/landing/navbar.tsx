@@ -7,7 +7,6 @@ import { PRODUCT_NAME } from "@/lib/constants";
 
 const navLinks = [
   { label: "Cómo Funciona", href: "#how-it-works" },
-  { label: "AI TechProducts", href: "#ai-techproducts" },
   { label: "AI PlayGrounds", href: "#" },
   { label: "Para Quién", href: "#audience" },
   { label: "FAQ", href: "#faq" },
@@ -54,18 +53,21 @@ export default function Navbar() {
           {/* Desktop CTAs */}
           <div className="hidden md:flex items-center gap-3">
             <a
-              href="#ai-techproducts"
+              href="/ai-techproducts"
               className="flex items-center gap-2 border border-[var(--brand-skyblue)] text-[var(--brand-skyblue)] px-4 py-2 rounded-lg hover:bg-[var(--brand-skyblue)]/10 hover:shadow-[var(--shadow-glow)] transition-all font-semibold text-sm"
             >
               <Trophy className="w-4 h-4" />
               AI TechProducts
             </a>
-            <Link
-              href="/early-access"
+            {/* TODO: Update Calendly URL when ready */}
+            <a
+              href="https://calendly.com/tryumbral/30min"
+              target="_blank"
+              rel="noopener noreferrer"
               className="bg-[image:var(--gradient-brand)] text-white px-4 py-2 rounded-lg hover:shadow-[var(--shadow-glow)] transition-all font-semibold text-sm"
             >
-              Acceso Anticipado
-            </Link>
+              Reserva una demo
+            </a>
           </div>
 
           {/* Mobile hamburger */}
@@ -93,20 +95,22 @@ export default function Navbar() {
             ))}
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
               <a
-                href="#ai-techproducts"
+                href="/ai-techproducts"
                 className="flex items-center justify-center gap-2 border border-[var(--brand-skyblue)] text-[var(--brand-skyblue)] px-4 py-2 rounded-lg font-semibold text-sm"
                 onClick={() => setMobileOpen(false)}
               >
                 <Trophy className="w-4 h-4" />
                 AI TechProducts
               </a>
-              <Link
-                href="/early-access"
+              <a
+                href="https://calendly.com/tryumbral/30min"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="bg-[image:var(--gradient-brand)] text-white px-4 py-2 rounded-lg text-center font-semibold text-sm"
                 onClick={() => setMobileOpen(false)}
               >
-                Acceso Anticipado
-              </Link>
+                Reserva una demo
+              </a>
             </div>
           </div>
         )}

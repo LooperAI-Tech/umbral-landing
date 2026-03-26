@@ -10,14 +10,16 @@ import {
   Presentation,
   Bot,
   ShieldCheck,
-  Rocket
+  Rocket,
+  MessageCircle,
+  Star,
 } from "lucide-react";
 
 const milestones = [
   {
     week: "S1",
     title: "Ideación",
-    desc: "Define problema, usuario, solución, tech stack. Crea plan con hitos y tareas. Setup inicial.",
+    desc: "Define la fase inicial. Crea plan con hitos y tareas. Configura tu setup inicial.",
     icon: Lightbulb,
   },
   {
@@ -29,24 +31,45 @@ const milestones = [
   {
     week: "S3",
     title: "Refinamiento",
-    desc: "Optimiza, itera, documenta. Auto-debugging sin IA. Explicación de tradeoffs.",
+    desc: "Optimiza, itera, documenta el desarrollo de tu producto. Comprende los tradeoffs y las decisiones clave.",
     icon: Settings,
   },
   {
     week: "S4",
     title: "Demo Day",
-    desc: "Deploy final en línea. Testeo con usuarios reales. Presentación técnica + demo + Q&A.",
+    desc: "Despliegue final en línea. Testea con usuarios reales. Presenta tu pitch a nuestros advisors de comunidad.",
     icon: Presentation,
   },
 ];
 
 const evaluation = [
-  { label: "Comprensión Técnica", weight: "35%", color: "bg-brand-skyblue" },
-  { label: "Diseño del Producto", weight: "25%", color: "bg-community-yellow" },
-  { label: "Funcionalidad", weight: "25%", color: "bg-status-completed" },
-  { label: "Innovación", weight: "15%", color: "bg-[#A78BFA]" },
-  { label: "Presentación", weight: "10%", color: "bg-neon-cyan" },
+  { label: "Comprensión Técnica", weight: 30, cssColor: "#0EA5E9" },
+  { label: "Diseño del Producto", weight: 20, cssColor: "#FCD34D" },
+  { label: "Funcionalidad", weight: 20, cssColor: "#4ADE80" },
+  { label: "Innovación", weight: 15, cssColor: "#A78BFA" },
+  { label: "Presentación", weight: 15, cssColor: "#22D3EE" },
 ];
+
+function buildDonutGradient() {
+  const gap = 1; // % gap between all segments
+  const bgColor = "#111827"; // matches card background
+  const totalGaps = evaluation.length * gap;
+  const usable = 100 - totalGaps; // space left for actual segments
+  let cumulative = 0;
+  const stops: string[] = [];
+  for (const e of evaluation) {
+    // Gap before each segment
+    stops.push(`${bgColor} ${cumulative}%`);
+    cumulative += gap;
+    stops.push(`${bgColor} ${cumulative}%`);
+    // Segment
+    const segSize = (e.weight / 100) * usable;
+    stops.push(`${e.cssColor} ${cumulative}%`);
+    cumulative += segSize;
+    stops.push(`${e.cssColor} ${cumulative}%`);
+  }
+  return `conic-gradient(from -90deg, ${stops.join(", ")})`;
+}
 
 const differentiators = [
   {
@@ -102,10 +125,10 @@ export default function AITechProducts() {
               </span>
             </div>
             <p className="text-xl md:text-2xl font-display font-bold text-foreground italic leading-relaxed">
-              &ldquo;Dejar de que la IA hagas las cosas por mí
+              &ldquo;Dejar que la IA haga todo el trabajo por mí
               <br />
               <span className="text-community-yellow">
-                — y empezar a co-crear con ella.
+                — y empezar a co-crear y comprender con ella.
               </span>
               &rdquo;
             </p>
@@ -146,7 +169,7 @@ export default function AITechProducts() {
         </div>
 
         {/* Program details + Evaluation */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-14">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-14 items-stretch">
           {/* Details */}
           <div
             className="bg-card border border-border rounded-xl p-8"
@@ -173,7 +196,7 @@ export default function AITechProducts() {
                   <p className="text-foreground font-medium text-sm">Formato</p>
                   <p className="text-muted-foreground text-xs">
                     Autodidacta con espacios dedicados para tu crecimiento.
-                    1 Sesión grupal semanal con mentores expertos.
+                    Sesiones grupales semanales con mentores expertos.
                   </p>
                 </div>
               </div>
@@ -184,53 +207,81 @@ export default function AITechProducts() {
                     Qué obtienes
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Productos desplegados, perfil de comprensión
-                    detallado, portafolio defendible y fuente de conocimiento personal.
+                    Productos desplegados, perfil de skills detallado, portafolio personal para la AI-Era
+                    y base de conocimiento personal replicable en cualquier proyecto.
                   </p>
                 </div>
               </div>
               <div className="flex gap-3">
-                <Award className="w-5 h-5 text-neon-cyan shrink-0 mt-0.5" />
+                <MessageCircle className="w-5 h-5 text-brand-skyblue shrink-0 mt-0.5" />
                 <div>
                   <p className="text-foreground font-medium text-sm">
-                    Qué obtienes
+                    Sesiones activas
                   </p>
                   <p className="text-muted-foreground text-xs">
-                    Productos desplegados, perfil de comprensión
-                    detallado, portafolio defendible y fuente de conocimiento personal.
+                    Espacios para compartir tus descubrimientos, pedir feedback o ayuda, mostrar lo que aprendiste y escuchar a otros hacerlo. Aprendizaje colaborativo real.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Star className="w-5 h-5 text-community-yellow shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-foreground font-medium text-sm">
+                    Comunidad y beneficios
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    Acceso a la comunidad AI PlayGrounds enfocada en el human layer de la IA. Prioridad y descuentos en todos los programas futuros: bootcamps, workshops, eventos y más.
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Evaluation */}
+          {/* Evaluation — Donut + tags */}
           <div
             className="bg-card border border-border rounded-xl p-8"
             data-aos="fade-left"
           >
             <h3 className="text-lg font-display font-bold text-foreground mb-6">
-              Evaluación (100 pts)
+              Evaluación
             </h3>
-            <div className="space-y-3">
-              {evaluation.map((e) => (
-                <div key={e.label} className="flex items-center gap-3">
-                  <div className="w-12 text-right font-mono text-sm text-foreground font-bold">
-                    {e.weight}
+
+            <div className="flex items-center gap-6 justify-center">
+              {/* Donut */}
+              <div className="relative w-48 h-48 shrink-0">
+                <div
+                  className="w-full h-full rounded-full"
+                  style={{ background: buildDonutGradient() }}
+                />
+                <div className="absolute inset-[30%] rounded-full bg-card" />
+              </div>
+
+              {/* Tags with percentage */}
+              <div className="flex flex-col gap-2 flex-1">
+                {evaluation.map((e) => (
+                  <div key={e.label} className="flex items-center gap-2">
+                    <span
+                      className="font-mono text-xs font-bold w-10 text-right"
+                      style={{ color: e.cssColor }}
+                    >
+                      {e.weight}%
+                    </span>
+                    <span
+                      className="text-xs font-semibold px-2.5 py-0.5 rounded-full border"
+                      style={{
+                        color: e.cssColor,
+                        borderColor: `${e.cssColor}40`,
+                        backgroundColor: `${e.cssColor}15`,
+                      }}
+                    >
+                      {e.label}
+                    </span>
                   </div>
-                  <div className="flex-1 h-2 bg-border rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${e.color} rounded-full`}
-                      style={{ width: e.weight }}
-                    />
-                  </div>
-                  <div className="text-muted-foreground text-xs w-40">
-                    {e.label}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mt-4 italic">
+
+            <p className="text-xs text-muted-foreground mt-5 italic">
               La Comprensión Técnica es el criterio de mayor peso. No basta con
               que funcione — debes demostrar que entiendes cómo y por qué.
             </p>
@@ -269,12 +320,15 @@ export default function AITechProducts() {
               <FileText className="w-5 h-5" />
               Ver Reglamento Completo
             </a>
-            <Link
-              href="/early-access"
+            <a
+              href="https://register.aiplaygrounds.org"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-[image:var(--gradient-brand)] text-white px-8 py-3 rounded-lg text-base font-semibold hover:shadow-[var(--shadow-glow)] hover:scale-[1.02] active:scale-[0.98] transition-all"
             >
-              Solicitar Acceso
-            </Link>
+              {/* TODO: Update URL when registration app is live */}
+              Postúlate aquí
+            </a>
           </div>
         </div>
       </div>
