@@ -2,18 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Sparkles } from "lucide-react";
+import { global, hero } from "@/lib/content";
 
-const words = ["explicarlo", "debuggearlo", "transferirlo", "defenderlo"];
 const TYPING_SPEED = 100;
 const DELETING_SPEED = 60;
 const PAUSE_AFTER_WORD = 2000;
 
-const marqueeKeywords = [
-  "RAG", "LLMOps", "AI-Assisted Coding", "Fine-tuning", "ML&DL",
-  "Prompt Engineering", "LLMs", "Agents", "MLOps", "SDD",
-  "RAG", "LLMOps", "AI-Assisted Coding", "Fine-tuning", "ML&DL",
-  "Prompt Engineering", "LLMs", "Agents", "MLOps", "SDD",
-];
+const marqueeKeywords = [...hero.marqueeKeywords, ...hero.marqueeKeywords];
 
 function useTypewriter(wordList: string[]) {
   const [index, setIndex] = useState(0);
@@ -48,7 +43,7 @@ function useTypewriter(wordList: string[]) {
 }
 
 export default function Hero() {
-  const typed = useTypewriter(words);
+  const typed = useTypewriter(hero.typewriterWords);
 
   return (
     <div className="relative w-full">
@@ -79,23 +74,22 @@ export default function Hero() {
           data-aos="fade-up"
         >
           <span className="whitespace-nowrap">
-            Si no puedes{" "}
+            {hero.headingPrefix}{" "}
             <span className="italic text-zinc-500">
               {typed}
               <span className="animate-pulse text-zinc-400">|</span>
             </span>
           </span>
           <br />
-          no lo construiste.
+          {hero.headingSuffix}
         </h1>
 
         <p
-          className="text-lg md:text-xl font-normal text-zinc-500 mb-10 max-w-lg leading-relaxed"
+          className="text-lg md:text-xl font-normal text-zinc-500 mb-10 max-w-xl leading-relaxed"
           data-aos="fade-up"
           data-aos-delay="200"
         >
-          La plataforma donde aprendes a desarrollar productos de IA y tecnología usando agentes de codificación — y
-          demuestras que entiendes lo que haces.
+          {hero.subheading}
         </p>
 
         <div
@@ -103,21 +97,20 @@ export default function Hero() {
           data-aos="fade-up"
           data-aos-delay="400"
         >
-          {/* TODO: Update Calendly URL when ready */}
           <a
-            href="https://calendly.com/tryumbral/30min"
+            href={global.calendlyUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white transition-colors rounded-full py-4 px-8 text-base font-medium flex justify-center items-center gap-2"
           >
             <Sparkles className="w-5 h-5" />
-            Reserva una demo
+            {hero.ctaPrimary}
           </a>
           <a
             href="#how-it-works"
             className="w-full sm:w-auto bg-white border border-zinc-200 hover:border-zinc-300 transition-colors rounded-full py-4 px-8 text-base font-medium text-zinc-900 flex justify-center items-center shadow-sm"
           >
-            Cómo Funciona
+            {hero.ctaSecondary}
           </a>
         </div>
       </div>

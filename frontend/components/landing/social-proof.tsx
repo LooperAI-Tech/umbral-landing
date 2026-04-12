@@ -1,4 +1,5 @@
 import TestimonialsCarousel from "@/components/landing/testimonials-carousel";
+import { socialProof } from "@/lib/content";
 
 export default function SocialProof() {
   return (
@@ -6,11 +7,11 @@ export default function SocialProof() {
       <div className="max-w-6xl mx-auto px-6">
         {/* Header */}
         <div className="mb-16 flex flex-col items-center text-center" data-aos="fade-up">
-          <span className="bg-white/10 backdrop-blur-md border border-white/10 text-white text-xs font-medium px-4 py-1.5 rounded-full mb-6">
-            Comunidad
+          <span className="bg-white/10 backdrop-blur-md border border-white/10 text-white text-sm font-medium px-4 py-1.5 rounded-full mb-6">
+            {socialProof.badge}
           </span>
           <h2 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight max-w-2xl">
-            Personas que ya están <span className="italic text-zinc-400">construyendo</span> diferente.
+            {socialProof.heading} <span className="italic text-zinc-400">{socialProof.headingItalic}</span> {socialProof.headingSuffix}
           </h2>
         </div>
 

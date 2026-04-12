@@ -15,48 +15,20 @@ import {
   Heart,
   ArrowRight,
 } from "lucide-react";
+import {
+  header,
+  problem,
+  milestones,
+  programDetails,
+  audience,
+  pricing,
+  mission,
+  page,
+} from "@/lib/content-techproducts";
 
-const milestones = [
-  {
-    week: "S1",
-    title: "Ideación",
-    desc: "Define la fase inicial. Crea plan con hitos y tareas. Configura tu setup inicial.",
-    icon: Lightbulb,
-  },
-  {
-    week: "S2",
-    title: "Desarrollo",
-    desc: "Construye el núcleo de tu solución usando IA. Controla tu progreso en Umbral. Verifica la comprensión de lo que has desarrollado.",
-    icon: Code2,
-  },
-  {
-    week: "S3",
-    title: "Refinamiento",
-    desc: "Optimiza, itera, documenta el desarrollo de tu producto. Comprende los tradeoffs y las decisiones clave.",
-    icon: Settings,
-  },
-  {
-    week: "S4",
-    title: "Despliegue y Testing",
-    desc: "Despliega tu producto en línea. Testea con usuarios reales. Recoge feedback y valida tu solución en un entorno real.",
-    icon: Rocket,
-  },
-  {
-    week: "S5",
-    title: "Demo Day",
-    desc: "Presenta tu producto final. Pitch técnico de 3-5 min + demo en vivo + sesión de Q&A con advisors de la comunidad.",
-    icon: Presentation,
-  },
-];
-
-const programDetails = [
-  { icon: Code2, title: "Acceso completo a Umbral", desc: "Acceso total a la plataforma usando tu coding assistant de preferencia para guiarte en cada paso del desarrollo de tu producto." },
-  { icon: Users, title: "Instructores dedicados", desc: "Instructores a tiempo completo que te acompañan semana a semana, asegurando que avances con claridad y profundidad." },
-  { icon: Star, title: "Mentores especializados", desc: "Sesiones 1:1 o grupales con mentores expertos en tu sector o tecnología específica. Orientación personalizada cuando más la necesitas." },
-  { icon: Lightbulb, title: "Metodología de vanguardia", desc: "Nuestra metodología propia basada en la investigación más reciente sobre cómo desarrollar software en la AI-Era. Diseñada para maximizar tu comprensión." },
-  { icon: Presentation, title: "Demo Days y feedback", desc: "Presenta tu producto ante los advisors de nuestra comunidad. Recibe feedback directo y valida tu trabajo con expertos reales." },
-];
-
+const problemIcons = [Shuffle, SearchX, CircleOff];
+const milestoneIcons = [Lightbulb, Code2, Settings, Rocket, Presentation];
+const programIcons = [Code2, Users, Star, Lightbulb, Presentation];
 
 export default function AITechProducts() {
   return (
@@ -66,60 +38,46 @@ export default function AITechProducts() {
         {/* Badge + Header */}
         <div className="text-center mb-14 flex flex-col items-center" data-aos="fade-up">
           <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
-            Powered by AI PlayGrounds
+            {header.badge}
           </span>
-          <h2 className="text-4xl md:text-5xl font-medium tracking-tight text-zinc-900">
-            AI Technical Products
+          <h2 className="text-5xl md:text-7xl lg:text-[5rem] font-medium tracking-tight leading-[1.1] text-zinc-900">
+            {header.title}
           </h2>
           <p className="text-zinc-500 mt-3 max-w-3xl text-lg font-normal">
-            Un programa donde construyes productos usando IA con un grupo de mentores expertos
-            y en un espacio diseñado para que explotes todo tu potencial.
+            {header.subtitle}
           </p>
         </div>
 
         {/* Problem section */}
         <div className="mb-14">
           <div className="mb-8 flex flex-col items-center text-center" data-aos="fade-up">
-            <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
-              El problema
+            <span className="bg-white border border-zinc-200 text-zinc-800 text-xl font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
+              {problem.badge}
             </span>
             <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-zinc-900 max-w-3xl">
-              Generar código con IA es <span className="italic text-zinc-500">fácil.</span> Entender lo que generaste, no.
+              {problem.heading} <span className="italic text-zinc-500">{problem.headingItalic}</span> {problem.headingSuffix}
             </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: Shuffle,
-                title: "Generación sin comprensión",
-                desc: "La IA genera tu solución en segundos, pero no sabes cómo funciona, por qué se diseñó así, ni cómo corregirla cuando falla. El gap entre generar y comprender sigue creciendo.",
-              },
-              {
-                icon: SearchX,
-                title: "Sin espacios reales para construir",
-                desc: "Faltan entornos donde puedas construir productos de IA con acompañamiento real de expertos. Los cursos enseñan teoría, pero nadie te guía mientras construyes algo de verdad.",
-              },
-              {
-                icon: CircleOff,
-                title: "Cursos, bootcamps, videos... y parálisis",
-                desc: "Has invertido tiempo y dinero en formación, pero a la hora de construir no sabes por dónde empezar. El miedo a fallar te paraliza porque nadie te enseñó que fallar es parte del proceso.",
-              },
-            ].map((item, i) => (
-              <div
-                key={item.title}
-                className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4"
-                data-aos="fade-up"
-                data-aos-delay={i * 100}
-              >
-                <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-zinc-800" />
+            {problem.items.map((item, i) => {
+              const Icon = problemIcons[i];
+              return (
+                <div
+                  key={item.title}
+                  className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4"
+                  data-aos="fade-up"
+                  data-aos-delay={i * 100}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-zinc-800" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-medium text-zinc-900 mb-1">{item.title}</h4>
+                    <p className="text-sm font-normal text-zinc-500 leading-relaxed">{item.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-medium text-zinc-900 mb-1">{item.title}</h4>
-                  <p className="text-sm font-normal text-zinc-500 leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -127,90 +85,83 @@ export default function AITechProducts() {
         <div className="mb-14">
           <div className="mb-8 flex flex-col items-center text-center" data-aos="fade-up">
             <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
-              Ciclos por Cohorte
+              {milestones.badge}
             </span>
             <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-zinc-900 max-w-2xl">
-              5 semanas para construir, desplegar y <span className="italic text-zinc-500">demostrar.</span>
+              {milestones.heading} <span className="italic text-zinc-500">{milestones.headingItalic}</span>
             </h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {milestones.map((m, i) => (
-              <div
-                key={m.week}
-                className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4 group"
-                data-aos="fade-up"
-                data-aos-delay={i * 100}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-zinc-400">{m.week}</span>
-                  <div className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                    <m.icon className="w-4 h-4 text-zinc-800" />
+            {milestones.items.map((m, i) => {
+              const Icon = milestoneIcons[i];
+              return (
+                <div
+                  key={m.week}
+                  className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4 group"
+                  data-aos="fade-up"
+                  data-aos-delay={i * 100}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-zinc-400">{m.week}</span>
+                    <div className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                      <Icon className="w-4 h-4 text-zinc-800" />
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-medium text-zinc-900 mb-1">{m.title}</h4>
+                    <p className="text-sm font-normal text-zinc-500 leading-relaxed">{m.desc}</p>
                   </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-medium text-zinc-900 mb-1">{m.title}</h4>
-                  <p className="text-sm font-normal text-zinc-500 leading-relaxed">{m.desc}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Detalles del Programa — full width section */}
+        {/* Detalles del Programa */}
         <div className="mb-14">
           <div className="mb-8 flex flex-col items-center text-center" data-aos="fade-up">
             <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
-              El Programa
+              {programDetails.badge}
             </span>
             <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-zinc-900 max-w-3xl">
-              Todo lo que necesitas para <span className="italic text-zinc-500">maximizar tu comprensión</span> al desarrollar productos de IA.
+              {programDetails.heading} <span className="italic text-zinc-500">{programDetails.headingItalic}</span> {programDetails.headingSuffix}
             </h3>
           </div>
           <div className="flex flex-wrap justify-center gap-6">
-            {programDetails.map((item, i) => (
-              <div
-                key={item.title}
-                className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4 w-full md:w-[calc(33.333%-1rem)]"
-                data-aos="fade-up"
-                data-aos-delay={i * 100}
-              >
-                <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-zinc-800" />
+            {programDetails.items.map((item, i) => {
+              const Icon = programIcons[i];
+              return (
+                <div
+                  key={item.title}
+                  className="bg-white rounded-2xl p-6 border border-zinc-100 shadow-sm flex flex-col gap-4 w-full md:w-[calc(33.333%-1rem)]"
+                  data-aos="fade-up"
+                  data-aos-delay={i * 100}
+                >
+                  <div className="w-10 h-10 rounded-xl bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+                    <Icon className="w-5 h-5 text-zinc-800" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-medium text-zinc-900 mb-1">{item.title}</h4>
+                    <p className="text-sm font-normal text-zinc-500 leading-relaxed">{item.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-medium text-zinc-900 mb-1">{item.title}</h4>
-                  <p className="text-sm font-normal text-zinc-500 leading-relaxed">{item.desc}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Para quién — list style, no more boxes */}
+        {/* Para quién */}
         <div className="mb-14 w-full max-w-3xl mx-auto">
           <div className="mb-8 flex flex-col items-center text-center" data-aos="fade-up">
             <span className="bg-white border border-zinc-200 text-zinc-800 text-xs font-medium px-4 py-1.5 rounded-full mb-6 shadow-sm">
-              ¿Para quién es?
+              {audience.badge}
             </span>
             <h3 className="text-3xl md:text-4xl font-medium tracking-tight text-zinc-900 max-w-2xl">
-              Creado para quienes quieren ser los<span className="italic text-zinc-500"> creadores del software del futuro.</span>
+              {audience.heading}<span className="italic text-zinc-500">{audience.headingItalic}</span>
             </h3>
           </div>
           <div className="flex flex-col gap-0" data-aos="fade-up">
-            {[
-              {
-                headline: "Developers que sienten que la IA hace el trabajo por ellos",
-                desc: "Usas coding assistants todos los días pero sientes que solo aceptas lo que generan. Quieres recuperar el control y entender cada decisión de lo que construyes.",
-              },
-              {
-                headline: "Personas que quieren usar IA para construir — y entender qué hacen",
-                desc: "Te entusiasma la idea de crear con coding assistants, pero no quieres solo copiar y pegar. Quieres saber qué está pasando, por qué funciona y cómo mejorarlo.",
-              },
-              {
-                headline: "Profesionales que quieren dar el salto a AI como builders",
-                desc: "Vienes de otro campo o estás empezando en tech. Quieres un camino concreto para construir productos de IA con coding assistants, no más cursos solo teóricos.",
-              },
-            ].map((item, i) => (
+            {audience.items.map((item, i) => (
               <div
                 key={i}
                 className="flex gap-4 py-6 border-b border-zinc-100 last:border-b-0 group"
@@ -242,10 +193,10 @@ export default function AITechProducts() {
         {/* Header */}
         <div className="mb-12 flex flex-col items-center text-center">
           <span className="bg-white/10 backdrop-blur-md border border-white/10 text-white text-xs font-medium px-4 py-1.5 rounded-full mb-6">
-            Pago único
+            {pricing.badge}
           </span>
           <h2 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight max-w-2xl">
-            Una inversión. Todo <span className="italic text-zinc-400">incluido.</span>
+            {pricing.heading} <span className="italic text-zinc-400">{pricing.headingItalic}</span>
           </h2>
         </div>
 
@@ -257,27 +208,20 @@ export default function AITechProducts() {
           <div className="relative flex-1 flex flex-col justify-between">
             <div>
               <div className="flex items-end gap-2 mb-4">
-                <span className="text-5xl md:text-6xl font-medium tracking-tight">$600</span>
-                <span className="text-lg text-zinc-500 font-normal mb-2">USD</span>
+                <span className="text-5xl md:text-6xl font-medium tracking-tight">{pricing.price}</span>
+                <span className="text-lg text-zinc-500 font-normal mb-2">{pricing.currency}</span>
               </div>
               <p className="text-sm font-normal text-zinc-400 max-w-sm leading-relaxed">
-                Postúlate al programa y accede a todos los beneficios de AI Technical Products por una única inversión.
+                {pricing.priceDescription}
               </p>
             </div>
           </div>
 
           {/* Right — what's included */}
           <div className="relative flex-1 bg-zinc-900/50 rounded-2xl p-8 border border-zinc-800">
-            <h4 className="text-sm font-medium text-white mb-5">Qué incluye</h4>
+            <h4 className="text-sm font-medium text-white mb-5">{pricing.includedTitle}</h4>
             <ul className="flex flex-col gap-3 mb-8">
-              {[
-                "12 sesiones con instructor a lo largo del programa",
-                "Acceso a nuestro pool de mentores en sector y tecnología",
-                "Plataforma Umbral con coding assistant integrado",
-                "Metodologías de vanguardia sin sacrificar comprensión",
-                "Demo Days con feedback de advisors de la comunidad",
-                "Acceso a la comunidad AI PlayGrounds y beneficios futuros",
-              ].map((item) => (
+              {pricing.includedItems.map((item) => (
                 <li key={item} className="flex items-start gap-3 text-sm font-normal text-zinc-300">
                   <span className="w-1.5 h-1.5 rounded-full bg-white mt-1.5 shrink-0" />
                   {item}
@@ -286,13 +230,12 @@ export default function AITechProducts() {
             </ul>
 
             <a
-              href="https://register.aiplaygrounds.org"
+              href={page.registerUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full bg-white text-zinc-900 hover:bg-zinc-100 transition-colors py-4 rounded-full text-center text-sm font-medium block"
             >
-              {/* TODO: Update URL when registration app is live */}
-              Postula aquí
+              {pricing.ctaLabel}
             </a>
           </div>
         </div>
@@ -310,7 +253,7 @@ export default function AITechProducts() {
                   <Heart className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                  Nuestra misión
+                  {mission.label}
                 </span>
               </div>
 
@@ -319,14 +262,11 @@ export default function AITechProducts() {
                 {/* Left — mission statement */}
                 <div className="flex-1">
                   <h3 className="text-2xl md:text-3xl font-medium tracking-tight text-white mb-4 leading-snug">
-                    El talento no debería tener{" "}
-                    <span className="italic text-zinc-400">barreras económicas.</span>
+                    {mission.heading}{" "}
+                    <span className="italic text-zinc-400">{mission.headingItalic}</span>
                   </h3>
                   <p className="text-sm text-zinc-400 leading-relaxed max-w-lg">
-                    AI PlayGrounds nació con una convicción: que el acceso a oportunidades reales de
-                    aprendizaje no puede depender de tu situación económica. Por eso ofrecemos becas
-                    en cada cohorte — porque creemos que invertir en talento comprometido es la mejor
-                    inversión que podemos hacer como comunidad.
+                    {mission.description}
                   </p>
                 </div>
 
@@ -335,19 +275,13 @@ export default function AITechProducts() {
                   {/* Quote callout */}
                   <blockquote className="border-l-2 border-white/20 pl-5 mb-6">
                     <p className="text-base text-zinc-300 italic leading-relaxed">
-                      "Nadie con talento y compromiso debería quedarse fuera. Cada postulación es
-                      evaluada de forma individual — lo que nos importa es tu determinación, no tu
-                      billetera."
+                      &ldquo;{mission.quote}&rdquo;
                     </p>
                   </blockquote>
 
                   {/* How it works */}
                   <div className="flex flex-col gap-3 mb-6">
-                    {[
-                      "Completa tu postulación normalmente",
-                      "Indica que necesitas apoyo económico",
-                      "Cada caso se evalúa de forma individual y confidencial",
-                    ].map((step, i) => (
+                    {mission.steps.map((step, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <span className="w-6 h-6 rounded-full bg-white/10 text-white text-xs font-medium flex items-center justify-center shrink-0">
                           {i + 1}
@@ -358,12 +292,12 @@ export default function AITechProducts() {
                   </div>
 
                   <a
-                    href="https://register.aiplaygrounds.org"
+                    href={page.registerUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-sm font-medium text-white hover:text-zinc-300 transition-colors group"
                   >
-                    Postula y solicita tu beca
+                    {mission.ctaLabel}
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </a>
                 </div>
