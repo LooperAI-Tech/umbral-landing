@@ -233,3 +233,5 @@ lambda.zip
 # Personal
 docs/
 .claude/
+.vercel
+.env*.local
