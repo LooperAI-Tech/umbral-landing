@@ -3,14 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Menu, X, Trophy } from "lucide-react";
-import { PRODUCT_NAME } from "@/lib/constants";
-
-const navLinks = [
-  { label: "Cómo Funciona", href: "#how-it-works" },
-  { label: "Comunidad", href: "#" },
-  { label: "Para Quién", href: "#audience" },
-  { label: "FAQ", href: "#faq" },
-];
+import { global, navbar } from "@/lib/content";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -33,13 +26,13 @@ export default function Navbar() {
       >
         {/* Logo */}
         <a href="#" className="text-2xl tracking-tighter font-medium text-zinc-900">
-          <span className="italic">{PRODUCT_NAME} </span>
-          <span className="text-xs font-medium ml-0.5 align-super">®</span>
+          <span className="italic">{global.productName} </span>
+          <span className="text-xs font-medium ml-0.5 align-super">&reg;</span>
         </a>
 
         {/* Desktop Nav Links */}
         <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
+          {navbar.links.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -57,16 +50,15 @@ export default function Navbar() {
             className="flex items-center gap-2 bg-white border border-zinc-200 text-zinc-900 px-4 py-2 rounded-full hover:border-zinc-300 transition-colors font-medium text-sm shadow-sm"
           >
             <Trophy className="w-4 h-4" />
-            AI TechProducts
+            {navbar.ctaSecondary}
           </Link>
-          {/* TODO: Update Calendly URL when ready */}
           <a
-            href="https://calendly.com/tryumbral/30min"
+            href={global.calendlyUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2 rounded-full transition-colors font-medium text-sm"
           >
-            Reserva una demo
+            {navbar.ctaPrimary}
           </a>
         </div>
 
@@ -83,7 +75,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden absolute top-full left-4 right-4 bg-white border border-zinc-200 rounded-2xl p-4 shadow-lg pointer-events-auto mt-2">
-          {navLinks.map((link) => (
+          {navbar.links.map((link) => (
             <a
               key={link.href}
               href={link.href}
@@ -100,16 +92,16 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
             >
               <Trophy className="w-4 h-4" />
-              AI TechProducts
+              {navbar.ctaSecondary}
             </Link>
             <a
-              href="https://calendly.com/tryumbral/30min"
+              href={global.calendlyUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-zinc-900 text-white px-4 py-2.5 rounded-full text-center font-medium text-sm"
               onClick={() => setMobileOpen(false)}
             >
-              Reserva una demo
+              {navbar.ctaPrimary}
             </a>
           </div>
         </div>

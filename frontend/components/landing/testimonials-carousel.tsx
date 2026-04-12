@@ -2,37 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Quote } from "lucide-react";
-
-const testimonials = [
-  {
-    name: "Hans Figueroa",
-    role: "Steve Jobs de Zarate",
-    quote:
-      "Umbral me ayudó a organizar mi primer proyecto de NLP desde cero. El asistente de IA me guió paso a paso y ahora tengo un chatbot desplegado en producción.",
-    avatar: "HF",
-  },
-  {
-    name: "Kevin Huaman",
-    role: "El Hechicero del Backend",
-    quote:
-      "Lo mejor es el repositorio de aprendizajes. Antes perdía mis notas en docs sueltos, ahora todo está conectado a mis proyectos y puedo revisarlo cuando quiera.",
-    avatar: "KH",
-  },
-  {
-    name: "Max Veramendi",
-    role: "JAVA y Bombero Man",
-    quote:
-      "En dos semanas pasé de tener solo una idea a tener un MVP desplegado con métricas. El sistema de hitos y tareas te mantiene enfocado sin sentirte abrumado.",
-    avatar: "MV",
-  },
-  {
-    name: "Edith Canelo",
-    role: "Data Analyst",
-    quote:
-      "No soy técnica pero quería entender IA. Con Umbral pude crear mi propio proyecto de computer vision con la guía del asistente. Ahora entiendo lo que construye mi equipo.",
-    avatar: "EC",
-  },
-];
+import { socialProof } from "@/lib/content";
 
 export default function TestimonialsCarousel() {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -62,7 +32,7 @@ export default function TestimonialsCarousel() {
     return () => cancelAnimationFrame(animationId);
   }, []);
 
-  const items = [...testimonials, ...testimonials];
+  const items = [...socialProof.testimonials, ...socialProof.testimonials];
 
   return (
     <div
